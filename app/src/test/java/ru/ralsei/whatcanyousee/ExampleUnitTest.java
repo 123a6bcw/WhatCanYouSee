@@ -1,4 +1,4 @@
-package ru.hse.ralsei.whatcanyousee;
+package ru.ralsei.whatcanyousee;
 
 import org.junit.Test;
 
