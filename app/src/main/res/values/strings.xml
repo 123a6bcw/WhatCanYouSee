@@ -3,4 +3,15 @@
     <string name="title_activity_game_won">GameWonActivity</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="title_activity_choose_game">ChooseGameActivity</string>
+    <string name="signin_other_error">can\'t sign in</string>
+    <string name="status_multiplayer_error_not_trusted_tester">Multplayer error not truster tester</string>
+    <string name="match_error_already_rematched">Match error already rematched</string>
+    <string name="network_error_operation_failed">Network error</string>
+    <string name="internal_error">Internal error</string>
+    <string name="match_error_inactive_match">Innactive match</string>
+    <string name="match_error_locally_modified">localy modified</string>
+    <string name="unexpected_status">Unexpected status: %1$s</string>
+    <string name="status_exception_error">%1$s (status %2$d). %3$s.</string>
+    <string name="is_inviting_you">Is inviting you</string>
+    <string name="game_problem">Problem game</string>
 </resources>

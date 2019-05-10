@@ -1,10 +1,36 @@
-package ru.ralsei.whatcanyousee;
+package ru.ralsei.whatcanyousee.maps;
 
-import android.app.Activity;
+import ru.ralsei.whatcanyousee.GameActivity;
+import ru.ralsei.whatcanyousee.internalLogic.MazeMap;
 
 public class SimpleMap extends MazeMap {
 
-    public SimpleMap(Activity activity) {
+    @Override
+    protected void setupMetaData() {
+
+    }
+
+    @Override
+    protected void setupCells() {
+
+    }
+
+    @Override
+    protected void setupTraps() {
+
+    }
+
+    @Override
+    protected void setupToogles() {
+
+    }
+
+    @Override
+    protected void setupMonsters() {
+
+    }
+
+    public SimpleMap(GameActivity activity) {
         super(activity);
 
         setxSize(6);
@@ -32,7 +58,7 @@ public class SimpleMap extends MazeMap {
     }
 
     @Override
-    boolean checkConditionToExit() {
+    protected boolean checkConditionToExit() {
         return false;
     }
 }

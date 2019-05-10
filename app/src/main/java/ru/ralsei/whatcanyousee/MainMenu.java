@@ -7,14 +7,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
-import ru.ralsei.whatcanyousee.R;
-
-public class MainActivity2 extends AppCompatActivity {
+public class MainMenu extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main2);
+        setContentView(R.layout.activity_main_menu);
 
         final Activity activity = this;
         ((Button)findViewById(R.id.debugButton)).setOnClickListener(new View.OnClickListener() {
@@ -24,6 +22,13 @@ public class MainActivity2 extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-    }
 
+        ((Button)findViewById(R.id.createRoom)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(activity, GameActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
 }

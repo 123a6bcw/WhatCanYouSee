@@ -1,20 +1,31 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <color name="AccentColor">#cc0000</color>
+    <color name="PopupColor">@color/AccentColor</color>
+    <color name="PopupTextColor">#ffffff</color>
+    <color name="ButtonTextColor">#ffffff</color>
+    <color name="BlurbColor">#a0a0a0</color>
+    <color name="SignOutButtonBackground">#e0e0e0</color>
+    <color name="SignOutButtonTextColor">#404040</color>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-    </style>
+    <dimen name="TitleSize">30sp</dimen>
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar" />
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
-
+    <style name="InvPopupText">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textColor">@color/PopupTextColor</item>
+        <item name="android:text">Accept invitation</item>
+        <item name="android:gravity">center</item>
+    </style>
 </resources>

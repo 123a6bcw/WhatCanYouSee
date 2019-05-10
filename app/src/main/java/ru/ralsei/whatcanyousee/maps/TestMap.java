@@ -1,22 +1,27 @@
-package ru.ralsei.whatcanyousee;
+package ru.ralsei.whatcanyousee.maps;
 
-import android.app.Activity;
-import android.media.MediaPlayer;
-
+import ru.ralsei.whatcanyousee.GameActivity;
 import ru.ralsei.whatcanyousee.R;
+import ru.ralsei.whatcanyousee.internalLogic.MazeMap;
+
+import static ru.ralsei.whatcanyousee.internalLogic.MazeGame.playTrack;
 
 public class TestMap extends MazeMap {
-    boolean tooglePressed = false;
+    private boolean tooglePressed = false;
 
-    public TestMap(final Activity activity) {
-        super(activity);
-
+    @Override
+    protected void setupMetaData() {
         setxSize(12);
         setySize(20);
         setExitCoordinates(new Coordinates(10, 17));
         setInitialCoordinates(new Coordinates(9, 10));
+    }
+
+    @Override
+    protected void setupCells() {
         final Cell[][] cells = new Cell[getxSize()][getySize()];
         setCells(cells);
+
         for (int i = 0; i < getxSize(); i++) {
             for (int j = 0; j < getySize(); j++) {
                 cells[i][j] = new Cell();
@@ -180,11 +185,34 @@ public class TestMap extends MazeMap {
 
         //
 
-        cells[10][17].setImage(R.drawable.exit);
+        cells[10][17].setDefaultImage(R.drawable.exit);
+    }
+
+    @Override
+    protected void setupTraps() {
+        final Cell[][] cells = getCells();
+
+        cells[0][11].setDefaultImage(R.drawable.pressme);
+
+        cells[2][13].setTrap(new Trap() {
+            @Override
+            protected void apply() {
+                setPlayerWon(false);
+
+                playTrack(getActivity(), R.raw.lolyoudead);
+            }
+        });
+
+        cells[2][13].setDefaultImage(R.drawable.lev);
+    }
+
+    @Override
+    protected void setupToogles() {
+        final Cell[][] cells = getCells();
 
         cells[0][11].setToogle(new Toogle() {
             @Override
-            void use() {
+            protected void use() {
                 tooglePressed = !tooglePressed;
                 if (tooglePressed) {
                     cells[0][11].setImage(R.drawable.iampressed);
@@ -195,25 +223,55 @@ public class TestMap extends MazeMap {
                 }
             }
         });
+    }
 
-        cells[0][11].setImage(R.drawable.pressme);
-
-        cells[2][13].setTrap(new Trap() {
-            @Override
-            void apply() {
-                isOver = true;
-                isWin = false;
-
-                mp = MediaPlayer.create(activity, R.raw.lolyoudead);
-                mp.start();
-            }
-        });
-
-        cells[2][13].setImage(R.drawable.lev);
+    public TestMap(GameActivity activity) {
+        super(activity);
     }
 
     @Override
-    boolean checkConditionToExit() {
+    protected void setupMonsters() {
+        class SimpleMonster extends Monster {
+            private final int ticksPerMove = 10;
+            private int ticksToMove = ticksPerMove;
+
+            private final int ticksPerPlay = 10;
+            private int ticksToPlay = ticksPerPlay;
+
+            private SimpleMonster() {
+                setImageID(R.drawable.lev);
+                setInitialX(9);
+                setInitialY(7);
+            }
+
+            @Override
+            protected void updateOnTick() {
+                ticksToMove = decreaseTick(ticksToMove, ticksPerMove);
+                ticksToPlay = decreaseTick(ticksToPlay, ticksPerPlay);
+
+                if (ticksToPlay == 0) {
+                    playTrack(getActivity(), R.raw.uuusuka);
+                }
+            }
+
+            @Override
+            protected void tryToKill() {
+                if (getCurrentCell().getDistance() == 0) {
+                    setPlayerWon(false);
+                }
+            }
+
+            @Override
+            protected boolean readyToMove() {
+                return ticksToMove == 0;
+            }
+        }
+
+        addMonster(new SimpleMonster());
+    }
+
+    @Override
+    protected boolean checkConditionToExit() {
         return tooglePressed;
     }
 }

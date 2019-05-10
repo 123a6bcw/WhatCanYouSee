@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".GameActivity">
+
+    <!-- "Main screen" !-->
+    <!-- TODO запихать строки в ресурсы -->
+    <LinearLayout
+        android:id="@+id/main_screen"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <Button
+            android:id="@+id/button_invite_friend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="invite friend" />
+
+        <Button
+            android:id="@+id/button_accept_invitation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="accept_invitation" />
+
+        <Button
+            android:id="@+id/button_sign_out"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="sign out" />
+    </LinearLayout>
+
+    <!-- "PLEASE WAIT" SCREEN -->
+    <LinearLayout android:id="@+id/screen_wait"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:gravity="center">
+
+        <TextView android:text="please wait"
+            android:textSize="100sp"
+            android:layout_width="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <!-- SIGN-IN SCREEN -->
+    <LinearLayout android:id="@+id/screen_sign_in"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="bottom"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.gms.common.SignInButton android:id="@+id/button_sign_in"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+    </LinearLayout>
+
+    <!-- INVITATION POPUP -->
+    <LinearLayout android:id="@+id/invitation_popup"
+        android:background="@color/PopupColor"
+        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView android:id="@+id/incoming_invitation_text" style="@style/InvPopupText" />
+        <Button android:id="@+id/button_accept_popup_invitation"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:textColor="@color/AccentColor"
+            android:text="Accept invite" />
+    </LinearLayout>
+
+    <!-- MAZE GAME SCREEN -->
+</android.support.constraint.ConstraintLayout>
