@@ -252,15 +252,17 @@ public class MazeGame {
     /**
      * Reaction on user losing the game.
      */
-    void gameOverLost() {
-        gameActivity.onMazeGameLost();
+    private void gameOverLost() {
+        onClose();
+        gameActivity.getGameplayHandler().onMazeGameLost();
     }
 
     /**
      * Reaction on user winning the game.
      */
-    void gameOverWon() {
-        gameActivity.onMazeGameWon();
+    private void gameOverWon() {
+        onClose();
+        gameActivity.getGameplayHandler().onMazeGameWon();
     }
 
     /**
