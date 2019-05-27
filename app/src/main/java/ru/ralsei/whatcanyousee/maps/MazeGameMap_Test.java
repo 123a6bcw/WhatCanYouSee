@@ -2,11 +2,9 @@ package ru.ralsei.whatcanyousee.maps;
 
 import ru.ralsei.whatcanyousee.GameActivity;
 import ru.ralsei.whatcanyousee.R;
-import ru.ralsei.whatcanyousee.internalLogic.MazeMap;
+import ru.ralsei.whatcanyousee.internalLogic.MazeGameMap;
 
-import static ru.ralsei.whatcanyousee.internalLogic.MazeGame.playTrack;
-
-public class TestMap extends MazeMap {
+public class MazeGameMap_Test extends MazeGameMap {
     private boolean tooglePressed = false;
 
     @Override
@@ -199,7 +197,7 @@ public class TestMap extends MazeMap {
             protected void apply() {
                 setPlayerWon(false);
 
-                playTrack(getActivity(), R.raw.lolyoudead);
+                GameActivity.SoundPlayer.playTrack(getActivity(), R.raw.lolyoudead);
             }
         });
 
@@ -225,7 +223,7 @@ public class TestMap extends MazeMap {
         });
     }
 
-    public TestMap(GameActivity activity) {
+    public MazeGameMap_Test(GameActivity activity) {
         super(activity);
     }
 
@@ -250,7 +248,7 @@ public class TestMap extends MazeMap {
                 ticksToPlay = decreaseTick(ticksToPlay, ticksPerPlay);
 
                 if (ticksToPlay == 0) {
-                    playTrack(getActivity(), R.raw.uuusuka);
+                    GameActivity.SoundPlayer.playTrack(getActivity(), R.raw.uuusuka);
                 }
             }
 

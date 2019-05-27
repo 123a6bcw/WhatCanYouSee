@@ -9,6 +9,7 @@ import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
+import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -26,7 +27,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.games.Game;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.GamesActivityResultCodes;
 import com.google.android.gms.games.GamesCallbackStatusCodes;
@@ -61,10 +61,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Objects;
 
+import ru.ralsei.whatcanyousee.internalLogic.CodeGame;
+import ru.ralsei.whatcanyousee.internalLogic.CodeGameMap;
 import ru.ralsei.whatcanyousee.internalLogic.MazeGame;
-import ru.ralsei.whatcanyousee.internalLogic.MazeMap;
-import ru.ralsei.whatcanyousee.maps.SimpleMap;
-import ru.ralsei.whatcanyousee.maps.TestMap;
+import ru.ralsei.whatcanyousee.internalLogic.MazeGameMap;
+import ru.ralsei.whatcanyousee.maps.CodeGameMap_Test1;
+import ru.ralsei.whatcanyousee.maps.CodeGameMap_Test2;
+import ru.ralsei.whatcanyousee.maps.MazeGameMap_Simple;
+import ru.ralsei.whatcanyousee.maps.MazeGameMap_Test;
 
 //TODO @NonNull and stuff
 
@@ -339,6 +343,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         googlePlayHandler.leaveRoom();
+        clearAllResources();
         uiHandler.stopKeepingScreenOn();
         uiHandler.switchToMainScreen();
 
@@ -391,39 +396,60 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * TODO
      */
-    private void clearResources() {
+    private void clearAllResources() {
         gameplayHandler.clearResources();
         audioConnector.clearResources();
         googlePlayHandler.clearResources();
         internetConnector.clearResources();
-
-    }
-
-    /*
-    Next game section.
-     */
-
-    private void startNextGame() {
-
+        SoundPlayer.clearRecources();
     }
 
     /**
      * TODO
      */
     private static class GameSettings implements Serializable {
+        /**
+         * TODO
+         */
         private String myMazeMap;
+
+        /**
+         * TODO
+         */
         private String teammateMazeMap;
 
+        /**
+         * TODO
+         */
+        private String myCodeGameMap;
+
+        /**
+         * TODO
+         */
+        private String myTeammateCodeGameMap;
+
+        /**
+         * TODO
+         */
         private void writeObject(java.io.ObjectOutputStream out)
                 throws IOException {
             out.writeUTF(myMazeMap);
             out.writeUTF(teammateMazeMap);
+
+            out.writeUTF(myCodeGameMap);
+            out.writeUTF(myTeammateCodeGameMap);
         }
 
+        /**
+         * TODO
+         */
         private void readObject(java.io.ObjectInputStream in)
                 throws IOException, ClassNotFoundException {
             myMazeMap = in.readUTF();
             teammateMazeMap = in.readUTF();
+
+            myCodeGameMap = in.readUTF();
+            myTeammateCodeGameMap = in.readUTF();
         }
 
         private String getMyMazeMap() {
@@ -446,6 +472,69 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             String temp = myMazeMap;
             myMazeMap = teammateMazeMap;
             teammateMazeMap = temp;
+
+            temp = myCodeGameMap;
+            myCodeGameMap = myTeammateCodeGameMap;
+            myTeammateCodeGameMap = temp;
+        }
+
+        public String getMyCodeGameMap() {
+            return myCodeGameMap;
+        }
+
+        public void setMyCodeGameMap(String myCodeGameMap) {
+            this.myCodeGameMap = myCodeGameMap;
+        }
+
+        public String getMyTeammateCodeGameMap() {
+            return myTeammateCodeGameMap;
+        }
+
+        public void setMyTeammateCodeGameMap(String myTeammateCodeGameMap) {
+            this.myTeammateCodeGameMap = myTeammateCodeGameMap;
+        }
+    }
+
+    /**
+     * TODO
+     */
+    public static class SoundPlayer {
+        //TODO
+        private static final MediaPlayer[] players = new MediaPlayer[8];
+
+        /**
+         * TODO
+         */
+        public static void playTrack(Activity activity, int trackId) {
+            synchronized (players) {
+                for (int i = 0; i < players.length; i++) {
+                    if (players[i] == null) {
+                        players[i] = MediaPlayer.create(activity, trackId);
+                        players[i].start();
+                        return;
+                    }
+
+                    MediaPlayer mediaPlayer = players[i];
+
+                    if (!mediaPlayer.isPlaying()) {
+                        mediaPlayer.selectTrack(trackId);
+                        mediaPlayer.start();
+                        break;
+                    }
+                }
+            }
+        }
+
+        /**
+         * TODO
+         */
+        private static void clearRecources() {
+            for (int i = 0; i < players.length; i++) {
+                if (players[i] != null) {
+                    players[i].release();
+                    players[i] = null;
+                }
+            }
         }
     }
 
@@ -982,14 +1071,32 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 } else if (receivedData[0] == 'P') {
                     audioConnector.track.write(receivedData, 1, receivedData.length - 1);
                 } else if (receivedData[0] == 'L') {
-                    gameplayHandler.gameOver();
+                    if (receivedData[1] == 'M') {
+                        gameplayHandler.gameOver();
+                    } else if (receivedData[1] == 'C') {
+                        gameplayHandler.gameOver();
+                    } else {
+                        Log.d(TAG, "wrong game code in message");
+                    }
                 } else if (receivedData[0] == 'W') {
-                    synchronized (gameplayHandler.otherPlayerWonLock) {
-                        gameplayHandler.otherMazeGameWon = true;
+                    if (receivedData[1] == 'M') {
+                        synchronized (gameplayHandler.otherPlayerWonLock) {
+                            gameplayHandler.otherGameWon = true;
 
-                        if (gameplayHandler.myMazeGameWon) {
-                            startNextGame();
+                            if (gameplayHandler.myGameWon) {
+                                gameplayHandler.startCodeGame();
+                            }
                         }
+                    } else if (receivedData[1] == 'C') {
+                        synchronized (gameplayHandler.otherPlayerWonLock) {
+                            gameplayHandler.otherGameWon = true;
+
+                            if (gameplayHandler.myGameWon) {
+                                gameplayHandler.startLastGame();
+                            }
+                        }
+                    } else {
+                        Log.d(TAG, "wrong game code");
                     }
                 }
             }
@@ -1005,20 +1112,44 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         /**
          * TODO
          */
-        private void sendLostMessage() {
-            byte[] message = new byte[1];
+        private void sendMazeLostMessage() {
+            byte[] message = new byte[2];
             message[0] = 'L';
+            message[1] = 'M';
             sendReliableMessage(message);
         }
 
         /**
          * TODO
          */
-        private void sendWonMessage() {
-            byte[] message = new byte[1];
+        private void sendMazeWonMessage() {
+            byte[] message = new byte[2];
             message[0] = 'W';
+            message[1] = 'M';
             sendReliableMessage(message);
         }
+
+        /**
+         * TODO
+         */
+        private void sendCodeLostMessage() {
+            byte[] message = new byte[2];
+            message[0] = 'L';
+            message[1] = 'C';
+            sendReliableMessage(message);
+        }
+
+        /**
+         * TODO
+         */
+        private void sendCodeWonMessage() {
+            byte[] message = new byte[2];
+            message[0] = 'W';
+            message[1] = 'C';
+            sendReliableMessage(message);
+        }
+
+
     }
 
     /**
@@ -1254,20 +1385,37 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         /**
          * TODO
          */
-        private boolean myMazeGameWon = false;
+        private boolean myGameWon = false;
 
         /**
          * TODO
          */
-        private boolean otherMazeGameWon = false;
+        private boolean otherGameWon = false;
 
+        /**
+         * TODO
+         */
         private MazeGame maze = null;
-        private MazeMap map = null;
+
+        /**
+         * TODO
+         */
+        private MazeGameMap map = null;
+
+        /**
+         * TODO
+         */
+        private CodeGame codeGame = null;
+
+        /**
+         * TODO
+         */
+        private CodeGameMap codeGameMap = null;
 
         private void clearResources() {
             maze.onClose();
-            myMazeGameWon = false;
-            otherMazeGameWon = false;
+            myGameWon = false;
+            otherGameWon = false;
         }
 
         /**
@@ -1276,8 +1424,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         private void createGameSettings() {
             gameSettings = new GameSettings();
 
-            gameSettings.setMyMazeMap(TestMap.class.getName());
-            gameSettings.setTeammateMazeMap(SimpleMap.class.getName()); //TODO smart selection
+            gameSettings.setMyMazeMap(MazeGameMap_Simple.class.getName());
+            gameSettings.setTeammateMazeMap(MazeGameMap_Simple.class.getName()); //TODO smart selection
+
+            gameSettings.setMyCodeGameMap(CodeGameMap_Test1.class.getName());
+            gameSettings.setMyTeammateCodeGameMap(CodeGameMap_Test2.class.getName()); //TODO smart selection
         }
 
         /**
@@ -1292,7 +1443,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
          * TODO
          */
         private void startMazeGame() {
-            setContentView(R.layout.activity_maze_game);
+            setContentView(R.layout.content_maze_game);
 
             View.OnClickListener onClickListener = new View.OnClickListener() {
                 @Override
@@ -1328,7 +1479,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             Log.d(TAG, "Loaded maps are " + gameSettings.getMyMazeMap() + " " + gameSettings.getTeammateMazeMap());
 
             try {
-                map = (MazeMap) getClassLoader().loadClass(gameSettings.getMyMazeMap()).getDeclaredConstructor(GameActivity.class).newInstance(this);
+                map = (MazeGameMap) getClassLoader().loadClass(gameSettings.getMyMazeMap()).getDeclaredConstructor(GameActivity.class).newInstance(GameActivity.this);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             } catch (InstantiationException e) {
@@ -1356,13 +1507,16 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
          */
         public void onMazeGameWon() {
             synchronized (otherPlayerWonLock) {
-                myMazeGameWon = true;
+                myGameWon = true;
 
-                internetConnector.sendWonMessage();
+                internetConnector.sendMazeWonMessage();
 
-                if (otherMazeGameWon) {
+                setContentView(R.layout.activity_create_room);
+                uiHandler.switchToScreen(R.id.screen_wait);
+
+                if (otherGameWon) {
                     Log.d(TAG, "maze game won");
-                    startNextGame();
+                    startCodeGame();
                 }
             }
         }
@@ -1371,7 +1525,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
          * TODO
          */
         public void onMazeGameLost() {
-            internetConnector.sendLostMessage();
+            internetConnector.sendMazeLostMessage();
             gameOver();
             Log.d(TAG, "maze game lost");
         }
@@ -1379,12 +1533,77 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         /**
          * TODO
          */
+        public void onCodeGameLost() {
+            internetConnector.sendCodeLostMessage();
+            gameOver();
+            Log.d(TAG, "code game lost");
+        }
+
+        /**
+         * TODO
+         */
+        public void onCodeGameWon() {
+            synchronized (otherPlayerWonLock) {
+                myGameWon = true;
+
+                internetConnector.sendCodeWonMessage();
+
+                if (otherGameWon) {
+                    Log.d(TAG, "code game won");
+                    startLastGame();
+                }
+            }
+        }
+
+        /**
+         * TODO
+         */
         private void gameOver() {
             //TODO
-            clearResources();
+            clearAllResources();
             //Intent intent = new Intent(this, GameLostActivity.class);
             //startActivity(intent);
             Toast.makeText(GameActivity.this, "lost", Toast.LENGTH_LONG).show();
+        }
+
+
+        /**
+         * TODO
+         */
+        private void startCodeGame() {
+            myGameWon = false;
+            otherGameWon = false;
+
+            setContentView(R.layout.content_code_game);
+
+            try {
+                codeGameMap = (CodeGameMap) getClassLoader().loadClass(gameSettings.getMyCodeGameMap()).getDeclaredConstructor().newInstance();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            Log.d(TAG, "Switched to code game");
+
+            if (codeGameMap == null) {
+                Log.d(TAG, "failed to load code game map");
+            }
+
+            codeGame = new CodeGame(GameActivity.this, codeGameMap);
+        }
+
+        /**
+         * TODO
+         */
+        private void startLastGame() {
+
         }
     }
 }

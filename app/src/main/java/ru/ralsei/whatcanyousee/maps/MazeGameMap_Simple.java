@@ -1,9 +1,11 @@
 package ru.ralsei.whatcanyousee.maps;
 
 import ru.ralsei.whatcanyousee.GameActivity;
-import ru.ralsei.whatcanyousee.internalLogic.MazeMap;
+import ru.ralsei.whatcanyousee.internalLogic.MazeGameMap;
+import ru.ralsei.whatcanyousee.R;
 
-public class SimpleMap extends MazeMap {
+
+public class MazeGameMap_Simple extends MazeGameMap {
 
     @Override
     protected void setupMetaData() {
@@ -30,7 +32,7 @@ public class SimpleMap extends MazeMap {
 
     }
 
-    public SimpleMap(GameActivity activity) {
+    public MazeGameMap_Simple(GameActivity activity) {
         super(activity);
 
         setxSize(6);
@@ -55,10 +57,11 @@ public class SimpleMap extends MazeMap {
             cells[5][j].makeWall();
         }
 
+        cells[2][2].setDefaultImage(R.drawable.exit);
     }
 
     @Override
     protected boolean checkConditionToExit() {
-        return false;
+        return true;
     }
 }

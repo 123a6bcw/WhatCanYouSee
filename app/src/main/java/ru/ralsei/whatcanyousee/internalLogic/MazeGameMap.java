@@ -1,41 +1,40 @@
 package ru.ralsei.whatcanyousee.internalLogic;
 
 import android.app.Activity;
-import android.media.MediaPlayer;
-import android.net.Uri;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
 
+import ru.ralsei.whatcanyousee.GameActivity;
 import ru.ralsei.whatcanyousee.R;
 
 /**
  * Abstract class that show required logic for interacting with game map.
  */
 @SuppressWarnings("WeakerAccess")
-public abstract class MazeMap {
+public abstract class MazeGameMap {
     /**
-     *
+     * TODO
      */
     abstract protected void setupMetaData();
 
     /**
-     *
+     * TODO
      */
     abstract protected void setupCells();
 
     /**
-     *
+     * TODO
      */
     abstract protected void setupTraps();
 
     /**
-     *
+     * TODO
      */
     abstract protected void setupToogles();
 
     /**
-     *
+     * TODO
      */
     abstract protected void setupMonsters();
 
@@ -76,12 +75,12 @@ public abstract class MazeMap {
     /**
      * Activity map was created from.
      */
-    private final Activity activity;
+    private final GameActivity activity;
 
     /**
      * Activity map was created from.
      */
-    public Activity getActivity() {
+    public GameActivity getActivity() {
         return activity;
     }
 
@@ -128,6 +127,10 @@ public abstract class MazeMap {
         this.ySize = ySize;
     }
 
+    public Coordinates getExitCoordinates() {
+        return exitCoordinates;
+    }
+
     public void setExitCoordinates(Coordinates exitCoordinates) {
         this.exitCoordinates = exitCoordinates;
     }
@@ -136,7 +139,7 @@ public abstract class MazeMap {
         this.currentCoordinates = coordinates;
     }
 
-    public MazeMap.Cell[][] getCells() {
+    public MazeGameMap.Cell[][] getCells() {
         return cells;
     }
 
@@ -144,7 +147,7 @@ public abstract class MazeMap {
         this.cells = cells;
     }
 
-    public MazeMap(Activity activity) {
+    public MazeGameMap(GameActivity activity) {
 
         this.activity = activity;
 
@@ -249,7 +252,7 @@ public abstract class MazeMap {
                             image = cells[nx][ny].image;
                         }
 
-                        ImageView imageView = ((ImageView) (activity.findViewById(imageIds[j][i])));
+                        ImageView imageView = (activity.findViewById(imageIds[j][i]));
                         if (imageView != null) {
                             imageView.setImageResource(image);
                         }
