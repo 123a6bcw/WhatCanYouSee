@@ -58,17 +58,21 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 import ru.ralsei.whatcanyousee.internalLogic.CodeGame;
 import ru.ralsei.whatcanyousee.internalLogic.CodeGameMap;
+import ru.ralsei.whatcanyousee.internalLogic.LeverGame;
+import ru.ralsei.whatcanyousee.internalLogic.LeverGameMap;
 import ru.ralsei.whatcanyousee.internalLogic.MazeGame;
 import ru.ralsei.whatcanyousee.internalLogic.MazeGameMap;
 import ru.ralsei.whatcanyousee.maps.CodeGameMap_Test1;
 import ru.ralsei.whatcanyousee.maps.CodeGameMap_Test2;
+import ru.ralsei.whatcanyousee.maps.LeverGameMap_Test1;
+import ru.ralsei.whatcanyousee.maps.LeverGameMap_Test2;
 import ru.ralsei.whatcanyousee.maps.MazeGameMap_Simple;
-import ru.ralsei.whatcanyousee.maps.MazeGameMap_Test;
 
 //TODO @NonNull and stuff
 
@@ -300,7 +304,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 googlePlayHandler.onConnected(account);
             } catch (ApiException apiException) {
                 String message = "Seems like you are having problems connecting to google play. " +
-                        "Please check your internet connection.";
+                        "Please check your or your friend's internet connection. Game won't be saved :(";
 
                 googlePlayHandler.onDisconnected();
 
@@ -369,10 +373,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         internetConnector.prepared = true;
 
-        synchronized (internetConnector.otherPlayerReadyLock) {
-            if (internetConnector.otherPlayerIsReady) {
-                gameplayHandler.startGame();
-            }
+        if (internetConnector.otherPlayerIsReady) {
+            gameplayHandler.startGame();
         }
     }
 
@@ -399,7 +401,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private void clearAllResources() {
         gameplayHandler.clearResources();
         audioConnector.clearResources();
-        googlePlayHandler.clearResources();
+        //googlePlayHandler.clearResources();
         internetConnector.clearResources();
         SoundPlayer.clearRecources();
     }
@@ -431,6 +433,17 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         /**
          * TODO
          */
+        private String myLeverGameMap;
+
+        /**
+         * TODO
+         */
+        private String myTeammateLeverGameMap;
+
+
+        /**
+         * TODO
+         */
         private void writeObject(java.io.ObjectOutputStream out)
                 throws IOException {
             out.writeUTF(myMazeMap);
@@ -438,6 +451,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
             out.writeUTF(myCodeGameMap);
             out.writeUTF(myTeammateCodeGameMap);
+
+            out.writeUTF(myLeverGameMap);
+            out.writeUTF(myTeammateLeverGameMap);
         }
 
         /**
@@ -450,6 +466,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
             myCodeGameMap = in.readUTF();
             myTeammateCodeGameMap = in.readUTF();
+
+            myLeverGameMap = in.readUTF();
+            myTeammateLeverGameMap = in.readUTF();
         }
 
         private String getMyMazeMap() {
@@ -476,23 +495,37 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             temp = myCodeGameMap;
             myCodeGameMap = myTeammateCodeGameMap;
             myTeammateCodeGameMap = temp;
+
+            temp = myLeverGameMap;
+            myLeverGameMap = myTeammateLeverGameMap;
+            myTeammateLeverGameMap = temp;
         }
 
-        public String getMyCodeGameMap() {
+        private String getMyCodeGameMap() {
             return myCodeGameMap;
         }
 
-        public void setMyCodeGameMap(String myCodeGameMap) {
+        private void setMyCodeGameMap(String myCodeGameMap) {
             this.myCodeGameMap = myCodeGameMap;
         }
 
-        public String getMyTeammateCodeGameMap() {
+        @SuppressWarnings("unused")
+        private String getMyTeammateCodeGameMap() {
             return myTeammateCodeGameMap;
         }
 
-        public void setMyTeammateCodeGameMap(String myTeammateCodeGameMap) {
+        private void setMyTeammateCodeGameMap(String myTeammateCodeGameMap) {
             this.myTeammateCodeGameMap = myTeammateCodeGameMap;
         }
+
+        private void setMyLeverGameMap(String myLeverGameMap) {
+            this.myLeverGameMap = myLeverGameMap;
+        }
+
+        private void setMyTeammateLeverGameMap(String myTeammateLeverGameMap) {
+            this.myTeammateLeverGameMap = myTeammateLeverGameMap;
+        }
+
     }
 
     /**
@@ -529,10 +562,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
          * TODO
          */
         private static void clearRecources() {
-            for (int i = 0; i < players.length; i++) {
-                if (players[i] != null) {
-                    players[i].release();
-                    players[i] = null;
+            if (players != null) {
+                for (int i = 0; i < players.length; i++) {
+                    if (players[i] != null) {
+                        players[i].release();
+                        players[i] = null;
+                    }
                 }
             }
         }
@@ -575,6 +610,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         /**
          * Player's account in the currently active game.
          */
+        @SuppressWarnings("unused")
         private Participant myParticipant = null;
 
         /**
@@ -738,6 +774,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
             gameSettings = null;
 
+            clearAllResources();
+
             Log.d(TAG, "Leaving room.");
             uiHandler.stopKeepingScreenOn();
             if (mRoomId != null) {
@@ -804,6 +842,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             mRealTimeMultiplayerClient = null;
             mInvitationsClient = null;
 
+            clearAllResources();
+            setContentView(R.layout.activity_create_room);
             uiHandler.switchToScreen(R.id.screen_sign_in);
         }
 
@@ -947,6 +987,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onLeftRoom(int statusCode, @NonNull String roomId) {
                 Log.d(TAG, "onLeftRoom, code " + statusCode);
+                clearAllResources();
+                setContentView(R.layout.activity_create_room);
                 uiHandler.switchToMainScreen();
             }
         };
@@ -984,12 +1026,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         /**
          * TODO
          */
-        private volatile boolean prepared = false;
-
-        /**
-         * TODO Change name
-         */
-        private final Object otherPlayerReadyLock = new Object();
+        private boolean prepared = false;
 
         /**
          * TODO
@@ -1046,7 +1083,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 byte[] receivedData = realTimeMessage.getMessageData();
 
                 if (!otherPlayerIsReady) {
-                    synchronized (otherPlayerReadyLock) {
                         if (gameSettings == null) {
                             try {
                                 ObjectInputStream stream = new ObjectInputStream(new ByteArrayInputStream(receivedData));
@@ -1067,7 +1103,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                         if (prepared) {
                             gameplayHandler.startGame();
                         }
-                    }
                 } else if (receivedData[0] == 'P') {
                     audioConnector.track.write(receivedData, 1, receivedData.length - 1);
                 } else if (receivedData[0] == 'L') {
@@ -1080,23 +1115,29 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 } else if (receivedData[0] == 'W') {
                     if (receivedData[1] == 'M') {
-                        synchronized (gameplayHandler.otherPlayerWonLock) {
-                            gameplayHandler.otherGameWon = true;
+                        gameplayHandler.otherGameWon = true;
 
-                            if (gameplayHandler.myGameWon) {
-                                gameplayHandler.startCodeGame();
-                            }
+                        if (gameplayHandler.myGameWon) {
+                            gameplayHandler.startCodeGame();
                         }
                     } else if (receivedData[1] == 'C') {
-                        synchronized (gameplayHandler.otherPlayerWonLock) {
-                            gameplayHandler.otherGameWon = true;
+                        gameplayHandler.otherGameWon = true;
 
-                            if (gameplayHandler.myGameWon) {
-                                gameplayHandler.startLastGame();
-                            }
+                        if (gameplayHandler.myGameWon) {
+                            gameplayHandler.startLeverGame();
                         }
                     } else {
                         Log.d(TAG, "wrong game code");
+                    }
+                } else if (receivedData[0] == 'S') {
+                    byte[] leverName = new byte[receivedData.length - 1];
+                    System.arraycopy(receivedData, 1, leverName, 0, leverName.length);
+
+                    gameplayHandler.myLeverGameMap.applyLever(Arrays.toString(leverName));
+                    if (gameplayHandler.myLeverGameMap.getCurrentState().isLoseState()) {
+                        gameplayHandler.onLeverGameLost();
+                    } else {
+                        gameplayHandler.onLeverGameWon();
                     }
                 }
             }
@@ -1149,7 +1190,32 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             sendReliableMessage(message);
         }
 
+        /**
+         * TODO
+         */
+        private void sendLeverLostMessage() {
+            byte[] message = new byte[2];
+            message[0] = 'L';
+            message[1] = 'L';
+            sendReliableMessage(message);
+        }
 
+        /**
+         * TODO
+         */
+        private void sendLeverWonMessage() {
+            byte[] message = new byte[2];
+            message[0] = 'W';
+            message[1] = 'L';
+            sendReliableMessage(message);
+        }
+
+        /**
+         * TODO
+         */
+        private void sendLeverPressedMessage(String lever) {
+            sendReliableMessage(("S" + lever).getBytes());
+        }
     }
 
     /**
@@ -1247,17 +1313,26 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         /**
          * Stops recording voice and sending it to other player.
          */
+        @SuppressWarnings("unused")
         private void stopBroadcastAudio() {
             broadcastAudio = false;
             recorder.stop();
         }
 
         private void clearResources() {
-            broadcastThread.interrupt();
+            if (broadcastThread != null) {
+                broadcastThread.interrupt();
+            }
+
             broadcastAudio = false;
-            recorder.stop();
-            recorder.release();
-            track.release();
+
+            if (recorder != null) {
+                recorder.release();
+            }
+
+            if (track != null) {
+                track.release();
+            }
         }
     }
 
@@ -1302,6 +1377,18 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         private void switchToMainScreen() {
+            if (googlePlayHandler.mRealTimeMultiplayerClient != null) {
+                switchToScreen(R.id.main_screen);
+            } else {
+                googlePlayHandler.signInSilently();
+                //switchToScreen(R.id.screen_sign_in);
+            }
+        }
+
+        @SuppressWarnings("unused")
+        private void switchToMainScreenFromAnotherContent() {
+            setContentView(R.layout.activity_create_room);
+
             if (googlePlayHandler.mRealTimeMultiplayerClient != null) {
                 switchToScreen(R.id.main_screen);
             } else {
@@ -1380,11 +1467,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         /**
          * TODO
          */
-        private final Object otherPlayerWonLock = new Object();
-
-        /**
-         * TODO
-         */
         private boolean myGameWon = false;
 
         /**
@@ -1405,6 +1487,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         /**
          * TODO
          */
+        @SuppressWarnings("unused")
         private CodeGame codeGame = null;
 
         /**
@@ -1412,8 +1495,56 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
          */
         private CodeGameMap codeGameMap = null;
 
+        /**
+         * TODO
+         */
+        @SuppressWarnings("unused")
+        private LeverGame leverGame = null;
+
+        /**
+         * TODO
+         */
+        @SuppressWarnings("unused")
+        private LeverGameMap myLeverGameMap = null;
+
+        /**
+         * TODO
+         */
         private void clearResources() {
-            maze.onClose();
+            if (maze != null) {
+                maze.onClose();
+                maze = null;
+            }
+
+            if (codeGame != null) {
+                codeGame = null;
+            }
+
+            myGameWon = false;
+            otherGameWon = false;
+        }
+
+        /**
+         * TODO
+         */
+        private void clearMazeResources() {
+            if (maze != null) {
+                maze.onClose();
+                maze = null;
+            }
+
+            myGameWon = false;
+            otherGameWon = false;
+        }
+
+        /**
+         * TODO
+         */
+        private void clearCodeGameResources() {
+            if (codeGame != null) {
+                codeGame = null;
+            }
+
             myGameWon = false;
             otherGameWon = false;
         }
@@ -1429,6 +1560,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
             gameSettings.setMyCodeGameMap(CodeGameMap_Test1.class.getName());
             gameSettings.setMyTeammateCodeGameMap(CodeGameMap_Test2.class.getName()); //TODO smart selection
+
+            gameSettings.setMyLeverGameMap(LeverGameMap_Test1.class.getName());
+            gameSettings.setMyTeammateLeverGameMap(LeverGameMap_Test2.class.getName()); //TODO smart selection
         }
 
         /**
@@ -1506,18 +1640,16 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
          * TODO
          */
         public void onMazeGameWon() {
-            synchronized (otherPlayerWonLock) {
-                myGameWon = true;
+            myGameWon = true;
 
-                internetConnector.sendMazeWonMessage();
+            internetConnector.sendMazeWonMessage();
 
-                setContentView(R.layout.activity_create_room);
-                uiHandler.switchToScreen(R.id.screen_wait);
+            setContentView(R.layout.activity_create_room);
+            uiHandler.switchToScreen(R.id.screen_wait);
 
-                if (otherGameWon) {
-                    Log.d(TAG, "maze game won");
-                    startCodeGame();
-                }
+            if (otherGameWon) {
+                Log.d(TAG, "maze game won");
+                startCodeGame();
             }
         }
 
@@ -1543,15 +1675,16 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
          * TODO
          */
         public void onCodeGameWon() {
-            synchronized (otherPlayerWonLock) {
-                myGameWon = true;
+            myGameWon = true;
 
-                internetConnector.sendCodeWonMessage();
+            internetConnector.sendCodeWonMessage();
 
-                if (otherGameWon) {
-                    Log.d(TAG, "code game won");
-                    startLastGame();
-                }
+            setContentView(R.layout.activity_create_room);
+            uiHandler.switchToScreen(R.id.screen_wait); //TODO another screen here, like WAIT UNTIL YOUR FRIEND WIN HIS GAME
+
+            if (otherGameWon) {
+                Log.d(TAG, "code game won");
+                startLeverGame();
             }
         }
 
@@ -1564,6 +1697,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             //Intent intent = new Intent(this, GameLostActivity.class);
             //startActivity(intent);
             Toast.makeText(GameActivity.this, "lost", Toast.LENGTH_LONG).show();
+            googlePlayHandler.leaveRoom();
         }
 
 
@@ -1571,13 +1705,19 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
          * TODO
          */
         private void startCodeGame() {
+            Log.d(TAG, "Code game started");
+
+            clearMazeResources();
+
             myGameWon = false;
             otherGameWon = false;
 
             setContentView(R.layout.content_code_game);
 
+            CodeGameMap teammateCodeGameMap = null;
             try {
                 codeGameMap = (CodeGameMap) getClassLoader().loadClass(gameSettings.getMyCodeGameMap()).getDeclaredConstructor().newInstance();
+                teammateCodeGameMap = (CodeGameMap) getClassLoader().loadClass(gameSettings.getMyTeammateCodeGameMap()).getDeclaredConstructor().newInstance();
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             } catch (InstantiationException e) {
@@ -1592,18 +1732,87 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
             Log.d(TAG, "Switched to code game");
 
-            if (codeGameMap == null) {
+            if (codeGameMap == null || teammateCodeGameMap == null) {
                 Log.d(TAG, "failed to load code game map");
+                return;
             }
 
-            codeGame = new CodeGame(GameActivity.this, codeGameMap);
+            codeGame = new CodeGame(GameActivity.this, codeGameMap, teammateCodeGameMap);
         }
 
         /**
          * TODO
          */
-        private void startLastGame() {
+        private void startLeverGame() {
+            Log.d(TAG, "Lever game started");
 
+            clearCodeGameResources();
+
+            myGameWon = false;
+            otherGameWon = false;
+
+            setContentView(R.layout.content_lever_game);
+
+            myLeverGameMap = null;
+            LeverGameMap myTeammateLeverGameMap = null;
+
+            Log.d(TAG, "loaded lever maps are: " + gameSettings.myLeverGameMap + " " + gameSettings.myTeammateLeverGameMap);
+
+            try {
+                myLeverGameMap = (LeverGameMap) getClassLoader().loadClass(gameSettings.myLeverGameMap).getDeclaredConstructor().newInstance();
+                myTeammateLeverGameMap = (LeverGameMap) getClassLoader().loadClass(gameSettings.myTeammateLeverGameMap).getDeclaredConstructor().newInstance();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            Log.d(TAG, "Switched to lever game");
+
+            if (myLeverGameMap == null || myTeammateLeverGameMap == null) {
+                Log.d(TAG, "failed to load lever game map");
+                return;
+            }
+
+            leverGame = new LeverGame(GameActivity.this, myLeverGameMap, myTeammateLeverGameMap);
+        }
+
+        /**
+         * TODO
+         */
+        public void sendLeverPressedMessage(String lever) {
+            internetConnector.sendLeverPressedMessage(lever);
+        }
+
+        /**
+         * TODO
+         */
+        public void onLeverGameLost() {
+            internetConnector.sendLeverLostMessage();
+            Log.d(TAG, "lever game lost");
+            gameOver();
+        }
+
+        /**
+         * TODO
+         */
+        public void onLeverGameWon() {
+            gameWin();
+        }
+
+        private void gameWin() {
+            //TODO
+            clearAllResources();
+            //Intent intent = new Intent(this, GameLostActivity.class);
+            //startActivity(intent);
+            Toast.makeText(GameActivity.this, "VICTORY! Congrats ;) !!!", Toast.LENGTH_LONG).show();
+            googlePlayHandler.leaveRoom();
         }
     }
 }

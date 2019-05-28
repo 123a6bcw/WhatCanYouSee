@@ -673,23 +673,56 @@ public abstract class MazeGameMap {
         return monsters;
     }
 
+    /**
+     * TODO
+     */
     protected abstract class Monster {
+        /**
+         * TODO
+         */
         private int imageId;
+
+        /**
+         * TODO
+         */
         private int initialX;
+
+        /**
+         * TODO
+         */
         private int initialY;
 
+        /**
+         * TODO
+         */
         private int currentX;
+
+        /**
+         * TODO
+         */
         private int currentY;
 
+        /**
+         * TODO
+         */
         abstract protected boolean readyToMove();
 
+        /**
+         * TODO
+         */
         protected void moveTo(Cell cell) {
            currentX = cell.getX();
            currentY = cell.getY();
         }
 
+        /**
+         * TODO
+         */
         abstract protected void updateOnTick();
 
+        /**
+         * TODO
+         */
         protected int getImageId() {
             return imageID;
         }
@@ -724,8 +757,14 @@ public abstract class MazeGameMap {
             return getCell(getCurrentCoordinates());
         }
 
+        /**
+         * TODO
+         */
         abstract protected void tryToKill();
 
+        /**
+         * TODO
+         */
         protected int decreaseTick(int tickTo, int tickPer) {
             if (tickTo == 0) {
                 return tickPer - 1;

@@ -1,5 +1,6 @@
 package ru.ralsei.whatcanyousee.internalLogic;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -11,7 +12,15 @@ import ru.ralsei.whatcanyousee.R;
  * TODO
  */
 public class CodeGame {
+    /**
+     * TODO
+     */
     private static final int MAX_CODE_LENGTH = 6;
+
+    /**
+     * TODO
+     */
+    private static final String TAG = "What can you see, Code game:";
 
     /**
      * TODO
@@ -23,11 +32,11 @@ public class CodeGame {
      */
     private CodeGameMap codeGameMap;
 
-    public CodeGame(final GameActivity activity, final CodeGameMap codeGameMap) {
+    public CodeGame(final GameActivity activity, final CodeGameMap codeGameMap, final CodeGameMap teammateCodeGameMap) {
         this.activity = activity;
         this.codeGameMap = codeGameMap;
 
-        ((ImageView) activity.findViewById(R.id.codeImage)).setImageResource(codeGameMap.getImageId());
+        ((ImageView) activity.findViewById(R.id.codeImage)).setImageResource(teammateCodeGameMap.getImageId());
 
         View.OnClickListener onClickListener = new View.OnClickListener() {
             @Override
@@ -35,6 +44,7 @@ public class CodeGame {
                 switch (v.getId()) {
                     case R.id.button_submitCode: {
                         String code = ((EditText) activity.findViewById(R.id.text_code)).getText().toString();
+                        Log.d(TAG, "Submitted code " + code);
 
                         if (code.length() > MAX_CODE_LENGTH) {
                             onWrongCode();
@@ -51,6 +61,8 @@ public class CodeGame {
                         if (codeGameMap.checkCode(code)) {
                             //TODO GameActivity.SoundPlayer.playTrack(CORRECT);
                             activity.getGameplayHandler().onCodeGameWon();
+                        } else {
+                            onWrongCode();
                         }
 
                         break;
