@@ -41,12 +41,12 @@ public abstract class MazeGameMap {
     /**
      * How much cells does player see horizontally.
      */
-    private static final int WIDTH_VIEW = 7;
+    public static final int WIDTH_VIEW = 7;
 
     /**
      * How much cells does player see vertically.
      */
-    private static final int HEIGHT_VIEW = 7;
+    public static final int HEIGHT_VIEW = 7;
 
     /**
      * Position of the central cell, where does player stands (horizontally).
@@ -125,6 +125,10 @@ public abstract class MazeGameMap {
 
     public void setySize(int ySize) {
         this.ySize = ySize;
+    }
+
+    public int[][] getImageIds() {
+        return imageIds;
     }
 
     public Coordinates getExitCoordinates() {

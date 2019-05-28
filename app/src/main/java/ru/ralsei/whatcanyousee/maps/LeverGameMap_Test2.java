@@ -38,7 +38,7 @@ public class LeverGameMap_Test2 extends LeverGameMap {
             return state;
         }
 
-        private boolean equals(Test2State state) {
+        private boolean mEquals(Test2State state) {
             return this.pressed == state.pressed;
         }
     }
@@ -64,7 +64,7 @@ public class LeverGameMap_Test2 extends LeverGameMap {
     public void applyLever(String leverName) {
         Test2State state = ((Test2State) getCurrentState()).applyLever(leverName);
         for (int i = 0; i < getStates().size(); i++) {
-            if (getStates().get(i).equals(state)) {
+            if (((Test2State) getStates().get(i)).mEquals(state)) {
                 setCurrentState(i);
                 return;
             }

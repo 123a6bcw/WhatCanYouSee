@@ -19,6 +19,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,6 +59,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -1110,6 +1112,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                         gameplayHandler.gameOver();
                     } else if (receivedData[1] == 'C') {
                         gameplayHandler.gameOver();
+                    } else if (receivedData[1] == 'L') {
+                        gameplayHandler.gameOver();
                     } else {
                         Log.d(TAG, "wrong game code in message");
                     }
@@ -1126,17 +1130,33 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                         if (gameplayHandler.myGameWon) {
                             gameplayHandler.startLeverGame();
                         }
+                    } else if (receivedData[1] == 'L') {
+                        gameplayHandler.otherGameWon = true;
+
+                        if (gameplayHandler.myGameWon) {
+                            gameplayHandler.gameWin();
+                        }
                     } else {
                         Log.d(TAG, "wrong game code");
                     }
                 } else if (receivedData[0] == 'S') {
+                    if (gameplayHandler.myLeverGameMap == null) {
+                        return;
+                    }
+
                     byte[] leverName = new byte[receivedData.length - 1];
                     System.arraycopy(receivedData, 1, leverName, 0, leverName.length);
 
-                    gameplayHandler.myLeverGameMap.applyLever(Arrays.toString(leverName));
+                    String lever = new String(leverName);
+                    Log.d(TAG, "Received pressed lever: " + lever);
+
+                    gameplayHandler.myLeverGameMap.applyLever(lever);
+
+                    ((ImageView) findViewById(R.id.leverImage)).setImageResource(gameplayHandler.myLeverGameMap.getCurrentState().getImageID());
+
                     if (gameplayHandler.myLeverGameMap.getCurrentState().isLoseState()) {
                         gameplayHandler.onLeverGameLost();
-                    } else {
+                    } else if (gameplayHandler.myLeverGameMap.getCurrentState().isWinState()) {
                         gameplayHandler.onLeverGameWon();
                     }
                 }
@@ -1532,9 +1552,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 maze.onClose();
                 maze = null;
             }
-
-            myGameWon = false;
-            otherGameWon = false;
         }
 
         /**
@@ -1544,9 +1561,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             if (codeGame != null) {
                 codeGame = null;
             }
-
-            myGameWon = false;
-            otherGameWon = false;
         }
 
         /**
@@ -1640,12 +1654,23 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
          * TODO
          */
         public void onMazeGameWon() {
+            //setContentView(R.layout.activity_create_room);
+            //uiHandler.switchToScreen(R.id.screen_wait);
+            clearMazeResources();
+            for (int i = 0; i < MazeGameMap.HEIGHT_VIEW; i++) {
+                for (int j = 0; j < MazeGameMap.WIDTH_VIEW; j++) {
+                    findViewById(map.getImageIds()[i][j]).setVisibility(View.GONE);
+                }
+            }
+
+            findViewById(R.id.downButton).setVisibility(View.GONE);
+            findViewById(R.id.upButton).setVisibility(View.GONE);
+            findViewById(R.id.leftButton).setVisibility(View.GONE);
+            findViewById(R.id.rightButton).setVisibility(View.GONE);
+            findViewById(R.id.useButton).setVisibility(View.GONE);
+
             myGameWon = true;
-
             internetConnector.sendMazeWonMessage();
-
-            setContentView(R.layout.activity_create_room);
-            uiHandler.switchToScreen(R.id.screen_wait);
 
             if (otherGameWon) {
                 Log.d(TAG, "maze game won");
@@ -1675,12 +1700,16 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
          * TODO
          */
         public void onCodeGameWon() {
+            findViewById(R.id.text_code).setVisibility(View.GONE);
+            findViewById(R.id.button_giveUp).setVisibility(View.GONE);
+            findViewById(R.id.button_submitCode).setVisibility(View.GONE);
+
             myGameWon = true;
 
             internetConnector.sendCodeWonMessage();
 
-            setContentView(R.layout.activity_create_room);
-            uiHandler.switchToScreen(R.id.screen_wait); //TODO another screen here, like WAIT UNTIL YOUR FRIEND WIN HIS GAME
+            //setContentView(R.layout.activity_create_room);
+            //uiHandler.switchToScreen(R.id.screen_wait);
 
             if (otherGameWon) {
                 Log.d(TAG, "code game won");
@@ -1707,7 +1736,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         private void startCodeGame() {
             Log.d(TAG, "Code game started");
 
-            clearMazeResources();
+            //clearMazeResources();
 
             myGameWon = false;
             otherGameWon = false;
@@ -1803,7 +1832,20 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
          * TODO
          */
         public void onLeverGameWon() {
-            gameWin();
+            myLeverGameMap = null;
+            findViewById(R.id.button_giveUp_lever).setVisibility(View.GONE);
+
+            myGameWon = true;
+
+            internetConnector.sendLeverWonMessage();
+
+            //setContentView(R.layout.activity_create_room);
+            //uiHandler.switchToScreen(R.id.screen_wait);
+
+            if (otherGameWon) {
+                Log.d(TAG, "lever game won");
+                gameWin();
+            }
         }
 
         private void gameWin() {

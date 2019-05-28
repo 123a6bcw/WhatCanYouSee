@@ -50,7 +50,7 @@ public class LeverGameMap_Test1 extends LeverGameMap {
             return state;
         }
 
-        private boolean equals(Test1State state) {
+        private boolean mEquals(Test1State state) {
             return this.greenRotated == state.greenRotated && this.redRotated == state.redRotated && this.blueRotated == state.blueRotated;
         }
     }
@@ -74,10 +74,10 @@ public class LeverGameMap_Test1 extends LeverGameMap {
         states.add(new Test1State(R.drawable.levergame_test1_state_red_green, true, true, false));
         states.add(new Test1State(R.drawable.levergame_test1_state_red_blue, false, true, true));
         states.add(new Test1State(R.drawable.levergame_test1_state_green_blue, true, false, true));
-        states.add(new Test1State(R.drawable.levergame_test1_state_red_blue, true, true, true));
+        states.add(new Test1State(R.drawable.levergame_test1_state_red_green_blue, true, true, true));
 
         states.get(7).setLoseState(true);
-        states.get(6).setWinState(true);
+        states.get(4).setWinState(true);
         setCurrentState(0);
     }
 
@@ -85,7 +85,7 @@ public class LeverGameMap_Test1 extends LeverGameMap {
     public void applyLever(String leverName) {
         Test1State state = ((Test1State) getCurrentState()).applyLever(leverName);
         for (int i = 0; i < getStates().size(); i++) {
-            if (getStates().get(i).equals(state)) {
+            if (((Test1State) getStates().get(i)).mEquals(state)) {
                 setCurrentState(i);
                 return;
             }
