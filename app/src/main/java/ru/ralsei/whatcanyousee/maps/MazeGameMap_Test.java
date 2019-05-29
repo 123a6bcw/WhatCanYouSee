@@ -231,10 +231,10 @@ public class MazeGameMap_Test extends MazeGameMap {
     @Override
     protected void setupMonsters() {
         class SimpleMonster extends Monster {
-            private final int ticksPerMove = 10;
+            private final int ticksPerMove = 20;
             private int ticksToMove = ticksPerMove;
 
-            private final int ticksPerPlay = 10;
+            private final int ticksPerPlay = 20;
             private int ticksToPlay = ticksPerPlay;
 
             private SimpleMonster() {
@@ -249,7 +249,7 @@ public class MazeGameMap_Test extends MazeGameMap {
                 ticksToPlay = decreaseTick(ticksToPlay, ticksPerPlay);
 
                 if (ticksToPlay == 0) {
-                    GameActivity.SoundPlayer.playTrack(getActivity(), R.raw.scary_monster);
+                    GameActivity.SoundPlayer.playTrackWithVolume(getActivity(), R.raw.scary_monster, 10 - this.getCurrentCell().getDistance());
                 }
             }
 

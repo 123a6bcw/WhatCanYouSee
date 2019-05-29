@@ -83,6 +83,7 @@ public class MazeGameMap_Test2 extends MazeGameMap {
                 GameActivity.SoundPlayer.playTrack(getActivity(), R.raw.screamer);
             }
         };
+        cells[5][9].setTrap(scaryTrap);
     }
 
     @Override

@@ -39,6 +39,8 @@ public class LeverGame {
                     }
 
                     default: {
+                        GameActivity.SoundPlayer.playTrack(activity, R.raw.ok);
+
                         String leverName = ((Switch) v).getText().toString();
                         //myLeverMap.applyLever(leverName);
                         activity.getGameplayHandler().sendLeverPressedMessage(leverName);

@@ -76,15 +76,25 @@ import ru.ralsei.whatcanyousee.internalLogic.MazeGame;
 import ru.ralsei.whatcanyousee.internalLogic.MazeGameMap;
 import ru.ralsei.whatcanyousee.maps.CodeGameMap_Test1;
 import ru.ralsei.whatcanyousee.maps.CodeGameMap_Test2;
+import ru.ralsei.whatcanyousee.maps.CodeGameMap_Test3;
+import ru.ralsei.whatcanyousee.maps.CodeGameMap_Test4;
 import ru.ralsei.whatcanyousee.maps.LeverGameMap_Test1;
 import ru.ralsei.whatcanyousee.maps.LeverGameMap_Test2;
+import ru.ralsei.whatcanyousee.maps.LeverGameMap_Test3;
 import ru.ralsei.whatcanyousee.maps.MazeGameMap_Simple;
+import ru.ralsei.whatcanyousee.maps.MazeGameMap_Test;
 import ru.ralsei.whatcanyousee.maps.MazeGameMap_Test2;
+import java.util.Random;
 
 //TODO @NonNull and stuff
 
 public class GameActivity extends AppCompatActivity implements View.OnClickListener {
     private final static String TAG = "What can you see?";
+
+    /**
+     * TODO
+     */
+    final Random random = new Random();
 
     /**
      * Request codes for the UIs showed with startActivityForResult.
@@ -569,6 +579,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         /**
          * TODO
          */
+        private static final int MAX_VOLUME = 11;
+
+        /**
+         * TODO
+         */
         public static void playTrack(Activity activity, int trackId) {
             synchronized (players) {
                 for (int i = 0; i < players.length; i++) {
@@ -579,6 +594,38 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     }
 
                     MediaPlayer mediaPlayer = players[i];
+
+                    mediaPlayer.setVolume(1, 1);
+
+                    if (!mediaPlayer.isPlaying()) {
+                        mediaPlayer.selectTrack(trackId);
+                        mediaPlayer.start();
+                        break;
+                    }
+                }
+            }
+        }
+
+        /**
+         * TODO
+         */
+        public static void playTrackWithVolume(Activity activity, int trackId, int volume) {
+            if (volume <= 0) {
+                return;
+            }
+
+            synchronized (players) {
+                for (int i = 0; i < players.length; i++) {
+                    if (players[i] == null) {
+                        players[i] = MediaPlayer.create(activity, trackId);
+                        players[i].start();
+                        return;
+                    }
+
+                    MediaPlayer mediaPlayer = players[i];
+
+                    float log1 = (float)(Math.log(volume)/Math.log(MAX_VOLUME)); //TODO function
+                    mediaPlayer.setVolume(log1, log1);
 
                     if (!mediaPlayer.isPlaying()) {
                         mediaPlayer.selectTrack(trackId);
@@ -1684,14 +1731,40 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         private void createGameSettings() {
             gameSettings = new GameSettings();
 
-            gameSettings.setMyMazeMap(MazeGameMap_Simple.class.getName());
-            gameSettings.setTeammateMazeMap(MazeGameMap_Test2.class.getName()); //TODO smart selection
+            /*
+            There could be more smarter selection TODO write explanation.
+             */
+            /*
+            if (random.nextBoolean()) {
+                gameSettings.setMyMazeMap(MazeGameMap_Test.class.getName());
+                gameSettings.setTeammateMazeMap(MazeGameMap_Test2.class.getName());
+            } else {
+                gameSettings.setMyMazeMap(MazeGameMap_Test2.class.getName());
+                gameSettings.setTeammateMazeMap(MazeGameMap_Test.class.getName());
+            }
+            */
+            gameSettings.setMyMazeMap(MazeGameMap_Test.class.getName());
+            gameSettings.setTeammateMazeMap(MazeGameMap_Simple.class.getName());
 
-            gameSettings.setMyCodeGameMap(CodeGameMap_Test1.class.getName());
-            gameSettings.setMyTeammateCodeGameMap(CodeGameMap_Test2.class.getName()); //TODO smart selection
 
-            gameSettings.setMyLeverGameMap(LeverGameMap_Test1.class.getName());
-            gameSettings.setMyTeammateLeverGameMap(LeverGameMap_Test2.class.getName()); //TODO smart selection
+            String[] codeGames = new String[] {CodeGameMap_Test1.class.getName(), CodeGameMap_Test2.class.getName(), CodeGameMap_Test3.class.getName(), CodeGameMap_Test4.class.getName()};
+            int myCodeGameId = (Math.abs(random.nextInt())) % 4;
+            gameSettings.setMyCodeGameMap(codeGames[myCodeGameId]);
+            int teammateCodeGameId = (Math.abs(random.nextInt())) % 4;
+            while (teammateCodeGameId == myCodeGameId) {
+                teammateCodeGameId = (Math.abs(random.nextInt())) % 4;
+            }
+            gameSettings.setMyTeammateCodeGameMap(codeGames[teammateCodeGameId]); //TODO smart selection
+
+
+            String[] leverGames = new String[] {LeverGameMap_Test1.class.getName(), LeverGameMap_Test2.class.getName(), LeverGameMap_Test3.class.getName()};
+            int myLeverGameId = (Math.abs(random.nextInt())) % 3;
+            gameSettings.setMyLeverGameMap(leverGames[myLeverGameId]);
+            int teammateLeverGameId = (Math.abs(random.nextInt())) % 3;
+            while (teammateLeverGameId == myLeverGameId) {
+                teammateLeverGameId = (Math.abs(random.nextInt())) % 3;
+            }
+            gameSettings.setMyTeammateLeverGameMap(leverGames[teammateLeverGameId]); //TODO smart selection
         }
 
         /**

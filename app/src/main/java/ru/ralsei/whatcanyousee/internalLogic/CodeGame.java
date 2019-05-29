@@ -59,7 +59,7 @@ public class CodeGame {
                         }
 
                         if (codeGameMap.checkCode(code)) {
-                            //TODO GameActivity.SoundPlayer.playTrack(CORRECT);
+                            GameActivity.SoundPlayer.playTrack(activity, R.raw.ok);
                             activity.getGameplayHandler().onCodeGameWon();
                         } else {
                             onWrongCode();
@@ -79,7 +79,7 @@ public class CodeGame {
              * TODO
              */
             private void onWrongCode() {
-                //TODO GameActivity.SoundPlayer.playTrack(NOT CORRECT :( );
+                GameActivity.SoundPlayer.playTrack(activity, R.raw.not_ok);
                 activity.getGameStatistic().incrementCodeGameMistakeTaken();
             }
         };
