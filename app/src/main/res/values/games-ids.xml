@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Google Play game services IDs.
+Save this file as res/values/games-ids.xml in your project.
+-->
+<resources>
+    <!-- app_id -->
+    <string name="app_id" translatable="false">379996204385</string>
+    <!-- package_name -->
+    <string name="package_name" translatable="false">ru.ralsei.whatcanyousee</string>
+    <!-- achievement Get dunked on! -->
+    <string name="achievement_get_dunked_on" translatable="false">CgkI4dqnzIcLEAIQBQ</string>
+    <!-- achievement How could you do this? -->
+    <string name="achievement_how_could_you_do_this" translatable="false">CgkI4dqnzIcLEAIQBg</string>
+    <!-- leaderboard Maze game best time -->
+    <string name="leaderboard_maze_game_best_time" translatable="false">CgkI4dqnzIcLEAIQAQ</string>
+    <!-- leaderboard Code game best time -->
+    <string name="leaderboard_code_game_best_time" translatable="false">CgkI4dqnzIcLEAIQAg</string>
+    <!-- leaderboard Lever game best time -->
+    <string name="leaderboard_lever_game_best_time" translatable="false">CgkI4dqnzIcLEAIQAw</string>
+    <!-- leaderboard Code game least mistake taken -->
+    <string name="leaderboard_code_game_least_mistake_taken" translatable="false">CgkI4dqnzIcLEAIQBA</string>
+</resources>

@@ -29,13 +29,28 @@
             android:id="@+id/button_accept_invitation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="accept_invitation" />
+            android:text="show invitations" />
+
+        <Button
+            android:id="@+id/button_show_achievements"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/fab_margin"
+            android:text="Show achievements" />
+
+        <Button
+            android:id="@+id/button_show_leaderboards"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Show leaderboards" />
 
         <Button
             android:id="@+id/button_sign_out"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/fab_margin"
             android:text="sign out" />
+
     </LinearLayout>
 
     <!-- "PLEASE WAIT" SCREEN -->
@@ -94,7 +109,11 @@
             android:layout_width="wrap_content"
             android:textColor="@color/AccentColor"
             android:text="Accept invite" />
-    </LinearLayout>
 
-    <!-- MAZE GAME SCREEN -->
+        <Button android:id="@+id/button_decline_popup_invitation"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:textColor="@color/AccentColor"
+            android:text="Decline invite" />
+    </LinearLayout>
 </android.support.constraint.ConstraintLayout>

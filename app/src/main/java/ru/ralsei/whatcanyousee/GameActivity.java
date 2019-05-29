@@ -28,12 +28,15 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.games.AchievementsClient;
+import com.google.android.gms.games.Game;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.GamesActivityResultCodes;
 import com.google.android.gms.games.GamesCallbackStatusCodes;
 import com.google.android.gms.games.GamesClient;
 import com.google.android.gms.games.GamesClientStatusCodes;
 import com.google.android.gms.games.InvitationsClient;
+import com.google.android.gms.games.LeaderboardsClient;
 import com.google.android.gms.games.Player;
 import com.google.android.gms.games.PlayersClient;
 import com.google.android.gms.games.RealTimeMultiplayerClient;
@@ -94,6 +97,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private static final int RC_SIGN_IN = 9001;
 
     /**
+     * TODO
+     */
+    private static final int RC_UNUSED = 5001;
+
+    /**
      * Request code to ask permission to record player's voice.
      */
     private static final int RC_REQUEST_VOICE_RECORD_PERMISSION = 8001;
@@ -139,6 +147,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
      */
     private GameplayHandler gameplayHandler = new GameplayHandler();
 
+    /**
+     *
+     */
+    private GameStatistic gameStatistic = new GameStatistic();
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -170,6 +183,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.button_accept_invitation).setOnClickListener(this);
         findViewById(R.id.button_sign_in).setOnClickListener(this);
         findViewById(R.id.button_sign_out).setOnClickListener(this);
+        findViewById(R.id.button_show_achievements).setOnClickListener(this);
+        findViewById(R.id.button_show_leaderboards).setOnClickListener(this);
+        findViewById(R.id.button_decline_popup_invitation).setOnClickListener(this);
 
         for (int screen : uiHandler.SCREENS) {
             findViewById(screen).setVisibility(View.GONE);
@@ -237,6 +253,16 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.button_accept_popup_invitation:
                 googlePlayHandler.acceptInviteToRoom(googlePlayHandler.mIncomingInvitationId);
                 googlePlayHandler.mIncomingInvitationId = null;
+                break;
+            case R.id.button_decline_popup_invitation:
+                googlePlayHandler.mIncomingInvitationId = null;
+                uiHandler.switchToMainScreen();
+                break;
+            case R.id.button_show_achievements:
+                googlePlayHandler.onShowAchievementsRequested();
+                break;
+            case R.id.button_show_leaderboards:
+                googlePlayHandler.onShowLeaderboardsRequested();
                 break;
         }
     }
@@ -406,6 +432,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         //googlePlayHandler.clearResources();
         internetConnector.clearResources();
         SoundPlayer.clearRecources();
+        gameStatistic.clear();
     }
 
     /**
@@ -593,6 +620,16 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
          * Client used to interact with the real time multiplayer system.
          */
         private RealTimeMultiplayerClient mRealTimeMultiplayerClient = null;
+
+        /**
+         * TODO
+         */
+        private AchievementsClient mAchievementsClient;
+
+        /**
+         * TODO
+         */
+        private LeaderboardsClient mLeaderboardsClient;
 
         /**
          * Client used to interact with the invitation system.
@@ -803,6 +840,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 mRealTimeMultiplayerClient = Games.getRealTimeMultiplayerClient(GameActivity.this, googleSignInAccount);
                 mInvitationsClient = Games.getInvitationsClient(GameActivity.this, googleSignInAccount);
 
+                mAchievementsClient = Games.getAchievementsClient(GameActivity.this, googleSignInAccount);
+                mLeaderboardsClient = Games.getLeaderboardsClient(GameActivity.this, googleSignInAccount);
+
                 PlayersClient playersClient = Games.getPlayersClient(GameActivity.this, googleSignInAccount);
                 playersClient.getCurrentPlayer()
                         .addOnSuccessListener(new OnSuccessListener<Player>() {
@@ -843,6 +883,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
             mRealTimeMultiplayerClient = null;
             mInvitationsClient = null;
+
+            mAchievementsClient = null;
+            mLeaderboardsClient = null;
 
             clearAllResources();
             setContentView(R.layout.activity_create_room);
@@ -995,6 +1038,75 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             }
         };
 
+        private void onShowAchievementsRequested() {
+            mAchievementsClient.getAchievementsIntent()
+                    .addOnSuccessListener(new OnSuccessListener<Intent>() {
+                        @Override
+                        public void onSuccess(Intent intent) {
+                            startActivityForResult(intent, RC_UNUSED);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            handleException(e, getString(R.string.achievements_exception));
+                        }
+                    });
+        }
+
+        private void onShowLeaderboardsRequested() {
+            mLeaderboardsClient.getAllLeaderboardsIntent()
+                    .addOnSuccessListener(new OnSuccessListener<Intent>() {
+                        @Override
+                        public void onSuccess(Intent intent) {
+                            startActivityForResult(intent, RC_UNUSED);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            handleException(e, getString(R.string.leaderboards_exception));
+                        }
+                    });
+        }
+
+        /**
+         * TODO
+         */
+        private void pushAccomplishments() {
+            if (GoogleSignIn.getLastSignedInAccount(GameActivity.this) == null) {
+                return;
+            }
+
+            if (gameStatistic.isDeadByMonster()) {
+                mAchievementsClient.unlock(getString(R.string.achievement_get_dunked_on));
+            }
+
+            if (gameStatistic.isKillYourFriend()) {
+                mAchievementsClient.unlock(getString(R.string.achievement_how_could_you_do_this));
+            }
+
+            if (gameStatistic.getMazeGameTime() != -1) {
+                mLeaderboardsClient.submitScore(getString(R.string.leaderboard_maze_game_best_time), gameStatistic.getMazeGameTime());
+            }
+
+            if (gameStatistic.getCodeGameTime() != -1) {
+                mLeaderboardsClient.submitScore(getString(R.string.leaderboard_code_game_best_time), gameStatistic.getCodeGameTime());
+            }
+
+            if (gameStatistic.getLeverGameTime() != -1) {
+                mLeaderboardsClient.submitScore(getString(R.string.leaderboard_lever_game_best_time), gameStatistic.getLeverGameTime());
+            }
+
+            if (gameStatistic.getCodeGameMistakeTaken() != -1) {
+                mLeaderboardsClient.submitScore(getString(R.string.leaderboard_code_game_least_mistake_taken), gameStatistic.getCodeGameMistakeTaken());
+            }
+
+        }
+
+        /**
+         * TODO
+         */
         private void updateRoom(Room room) {
             if (room == null) {
                 return;
@@ -1112,6 +1224,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                         gameplayHandler.gameOver();
                     } else if (receivedData[1] == 'C') {
                         gameplayHandler.gameOver();
+                        gameStatistic.setKillYourFriend(true);
                     } else if (receivedData[1] == 'L') {
                         gameplayHandler.gameOver();
                     } else {
@@ -1647,6 +1760,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             maze = new MazeGame(map, GameActivity.this);
             map.draw();
 
+            gameStatistic.setMazeGameTime(System.currentTimeMillis());
             Log.d(TAG, "Switched to maze game");
         }
 
@@ -1654,6 +1768,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
          * TODO
          */
         public void onMazeGameWon() {
+            gameStatistic.setMazeGameTime(System.currentTimeMillis() - gameStatistic.getMazeGameTime());
+
             //setContentView(R.layout.activity_create_room);
             //uiHandler.switchToScreen(R.id.screen_wait);
             clearMazeResources();
@@ -1682,6 +1798,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
          * TODO
          */
         public void onMazeGameLost() {
+            gameStatistic.setMazeGameTime(-1);
+
             internetConnector.sendMazeLostMessage();
             gameOver();
             Log.d(TAG, "maze game lost");
@@ -1691,6 +1809,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
          * TODO
          */
         public void onCodeGameLost() {
+            gameStatistic.setCodeGameTime(-1);
+            gameStatistic.setCodeGameMistakeTaken(-1);
+
             internetConnector.sendCodeLostMessage();
             gameOver();
             Log.d(TAG, "code game lost");
@@ -1700,6 +1821,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
          * TODO
          */
         public void onCodeGameWon() {
+            gameStatistic.setCodeGameTime(System.currentTimeMillis() - gameStatistic.getCodeGameTime());
+
             findViewById(R.id.text_code).setVisibility(View.GONE);
             findViewById(R.id.button_giveUp).setVisibility(View.GONE);
             findViewById(R.id.button_submitCode).setVisibility(View.GONE);
@@ -1823,6 +1946,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
          * TODO
          */
         public void onLeverGameLost() {
+            gameStatistic.setLeverGameTime(-1);
+
             internetConnector.sendLeverLostMessage();
             Log.d(TAG, "lever game lost");
             gameOver();
@@ -1832,6 +1957,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
          * TODO
          */
         public void onLeverGameWon() {
+            gameStatistic.setLeverGameTime(System.currentTimeMillis() - gameStatistic.getLeverGameTime());
+
             myLeverGameMap = null;
             findViewById(R.id.button_giveUp_lever).setVisibility(View.GONE);
 
@@ -1849,12 +1976,92 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         private void gameWin() {
-            //TODO
+            googlePlayHandler.pushAccomplishments();
+
             clearAllResources();
             //Intent intent = new Intent(this, GameLostActivity.class);
             //startActivity(intent);
             Toast.makeText(GameActivity.this, "VICTORY! Congrats ;) !!!", Toast.LENGTH_LONG).show();
             googlePlayHandler.leaveRoom();
+        }
+    }
+
+    public GameStatistic getGameStatistic() {
+        return gameStatistic;
+    }
+
+    /**
+     * TODO
+     */
+    public static class GameStatistic {
+        private long mazeGameTime = -1;
+        private long codeGameTime = -1;
+        private long leverGameTime = -1;
+        private int codeGameMistakeTaken = -1;
+
+        private boolean deadByMonster = false;
+        private boolean killYourFriend = false;
+
+        private void clear() {
+            mazeGameTime = -1;
+            codeGameTime = -1;
+            leverGameTime = -1;
+            codeGameMistakeTaken = -1;
+
+            deadByMonster = false;
+            killYourFriend = false;
+        }
+
+        public long getMazeGameTime() {
+            return mazeGameTime;
+        }
+
+        public void setMazeGameTime(long mazeGameTime) {
+            this.mazeGameTime = mazeGameTime;
+        }
+
+        public long getCodeGameTime() {
+            return codeGameTime;
+        }
+
+        public void setCodeGameTime(long codeGameTime) {
+            this.codeGameTime = codeGameTime;
+        }
+
+        public long getLeverGameTime() {
+            return leverGameTime;
+        }
+
+        public void setLeverGameTime(long leverGameTime) {
+            this.leverGameTime = leverGameTime;
+        }
+
+        public int getCodeGameMistakeTaken() {
+            return codeGameMistakeTaken;
+        }
+
+        public void setCodeGameMistakeTaken(int codeGameMistakeTaken) {
+            this.codeGameMistakeTaken = codeGameMistakeTaken;
+        }
+
+        public void incrementCodeGameMistakeTaken() {
+            this.codeGameMistakeTaken++;
+        }
+
+        public boolean isDeadByMonster() {
+            return deadByMonster;
+        }
+
+        public void setDeadByMonster(boolean deadByMonster) {
+            this.deadByMonster = deadByMonster;
+        }
+
+        public boolean isKillYourFriend() {
+            return killYourFriend;
+        }
+
+        public void setKillYourFriend(boolean killYourFriend) {
+            this.killYourFriend = killYourFriend;
         }
     }
 }

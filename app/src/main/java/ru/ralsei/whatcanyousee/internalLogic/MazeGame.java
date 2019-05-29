@@ -47,6 +47,11 @@ public class MazeGame {
                     for (MazeGameMap.Monster monster : map.getMonsters()) {
                         monster.updateOnTick();
                         monster.tryToKill();
+
+                        if (checkIfLostGame()) {
+                            activity.getGameStatistic().setDeadByMonster(true);
+                        }
+
                         if (monster.readyToMove()) {
                             synchronized (map.getCells()) {
                                 MazeGameMap.Cell closestCell = null;
@@ -171,6 +176,16 @@ public class MazeGame {
             }
 
             return false;
+        }
+    }
+
+    /**
+     * TODO
+     */
+    private boolean checkIfLostGame() {
+        synchronized (map.getGameResultLock()) {
+            return map.hasLost();
+
         }
     }
 

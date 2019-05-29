@@ -14,4 +14,6 @@
     <string name="status_exception_error">%1$s (status %2$d). %3$s.</string>
     <string name="is_inviting_you">Is inviting you</string>
     <string name="game_problem">Problem game</string>
+    <string name="leaderboards_exception">Error accessing leaderboards</string>
+    <string name="achievements_exception">Error accessing achivements</string>
 </resources>

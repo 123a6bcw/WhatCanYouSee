@@ -80,6 +80,7 @@ public class CodeGame {
              */
             private void onWrongCode() {
                 //TODO GameActivity.SoundPlayer.playTrack(NOT CORRECT :( );
+                activity.getGameStatistic().incrementCodeGameMistakeTaken();
             }
         };
 
