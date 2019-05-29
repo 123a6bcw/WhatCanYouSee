@@ -1734,7 +1734,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             /*
             There could be more smarter selection TODO write explanation.
              */
-            /*
+
             if (random.nextBoolean()) {
                 gameSettings.setMyMazeMap(MazeGameMap_Test.class.getName());
                 gameSettings.setTeammateMazeMap(MazeGameMap_Test2.class.getName());
@@ -1742,10 +1742,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 gameSettings.setMyMazeMap(MazeGameMap_Test2.class.getName());
                 gameSettings.setTeammateMazeMap(MazeGameMap_Test.class.getName());
             }
-            */
+            /*
             gameSettings.setMyMazeMap(MazeGameMap_Test.class.getName());
             gameSettings.setTeammateMazeMap(MazeGameMap_Simple.class.getName());
-
+*/
 
             String[] codeGames = new String[] {CodeGameMap_Test1.class.getName(), CodeGameMap_Test2.class.getName(), CodeGameMap_Test3.class.getName(), CodeGameMap_Test4.class.getName()};
             int myCodeGameId = (Math.abs(random.nextInt())) % 4;
