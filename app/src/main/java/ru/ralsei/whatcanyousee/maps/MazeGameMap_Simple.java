@@ -35,6 +35,8 @@ public class MazeGameMap_Simple extends MazeGameMap {
     public MazeGameMap_Simple(GameActivity activity) {
         super(activity);
 
+        setImageID(R.drawable.maze_game_simple_map);
+
         setxSize(6);
         setySize(6);
         setExitCoordinates(new Coordinates(2, 2));

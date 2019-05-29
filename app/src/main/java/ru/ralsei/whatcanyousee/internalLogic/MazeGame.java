@@ -3,7 +3,11 @@ package ru.ralsei.whatcanyousee.internalLogic;
 import android.app.Activity;
 import android.media.MediaPlayer;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -55,6 +59,9 @@ public class MazeGame {
                         if (monster.readyToMove()) {
                             synchronized (map.getCells()) {
                                 MazeGameMap.Cell closestCell = null;
+
+                                Collections.shuffle(vec4); //Monster moves randomly if there is several directions hw could move to.
+
                                 for (MazeGameMap.Coordinates coordinates : vec4) {
                                     MazeGameMap.Cell cell = map.getRelatedCell(monster.getCurrentCoordinates(), coordinates);
                                     if (cell == null) {
@@ -114,12 +121,10 @@ public class MazeGame {
     /**
      * Related coordinates of 4 cells (left, up, right, down) around the player.
      */
-    private MazeGameMap.Coordinates[] vec4 = {
-            new MazeGameMap.Coordinates(-1, 0),
+    private List<MazeGameMap.Coordinates> vec4 = Arrays.asList(new MazeGameMap.Coordinates(-1, 0),
             new MazeGameMap.Coordinates(0, -1),
             new MazeGameMap.Coordinates(1, 0),
-            new MazeGameMap.Coordinates(0, 1)
-    };
+            new MazeGameMap.Coordinates(0, 1));
 
     /**
      * React to user command.

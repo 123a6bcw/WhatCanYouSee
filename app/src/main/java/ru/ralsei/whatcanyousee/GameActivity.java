@@ -12,6 +12,7 @@ import android.media.AudioTrack;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
@@ -78,6 +79,7 @@ import ru.ralsei.whatcanyousee.maps.CodeGameMap_Test2;
 import ru.ralsei.whatcanyousee.maps.LeverGameMap_Test1;
 import ru.ralsei.whatcanyousee.maps.LeverGameMap_Test2;
 import ru.ralsei.whatcanyousee.maps.MazeGameMap_Simple;
+import ru.ralsei.whatcanyousee.maps.MazeGameMap_Test2;
 
 //TODO @NonNull and stuff
 
@@ -1683,7 +1685,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             gameSettings = new GameSettings();
 
             gameSettings.setMyMazeMap(MazeGameMap_Simple.class.getName());
-            gameSettings.setTeammateMazeMap(MazeGameMap_Simple.class.getName()); //TODO smart selection
+            gameSettings.setTeammateMazeMap(MazeGameMap_Test2.class.getName()); //TODO smart selection
 
             gameSettings.setMyCodeGameMap(CodeGameMap_Test1.class.getName());
             gameSettings.setMyTeammateCodeGameMap(CodeGameMap_Test2.class.getName()); //TODO smart selection
@@ -1706,6 +1708,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         private void startMazeGame() {
             setContentView(R.layout.content_maze_game);
 
+            final ImageView mazeMapImage = (ImageView) findViewById(R.id.image_maze_map);
+
             View.OnClickListener onClickListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -1725,6 +1729,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                         case R.id.useButton:
                             maze.react(MazeGame.Command.USE);
                             break;
+                        case R.id.button_show_map:
+                            if (mazeMapImage.getVisibility() == View.VISIBLE) {
+                                mazeMapImage.setVisibility(View.INVISIBLE);
+                            } else {
+                                mazeMapImage.setVisibility(View.VISIBLE);
+                            }
+                            break;
                         default:
                             break;
                     }
@@ -1736,11 +1747,14 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             findViewById(R.id.rightButton).setOnClickListener(onClickListener);
             findViewById(R.id.downButton).setOnClickListener(onClickListener);
             findViewById(R.id.useButton).setOnClickListener(onClickListener);
+            findViewById(R.id.button_show_map).setOnClickListener(onClickListener);
 
             Log.d(TAG, "Loaded maps are " + gameSettings.getMyMazeMap() + " " + gameSettings.getTeammateMazeMap());
 
+            MazeGameMap teammateMap = null;
             try {
                 map = (MazeGameMap) getClassLoader().loadClass(gameSettings.getMyMazeMap()).getDeclaredConstructor(GameActivity.class).newInstance(GameActivity.this);
+                teammateMap = (MazeGameMap) getClassLoader().loadClass(gameSettings.getTeammateMazeMap()).getDeclaredConstructor(GameActivity.class).newInstance(GameActivity.this);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             } catch (InstantiationException e) {
@@ -1753,9 +1767,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 e.printStackTrace();
             }
 
-            if (map == null) {
+            if (map == null || teammateMap == null) {
                 Log.d(TAG, "failed to create the map");
+                return; //TODO throw exception
             }
+
+            mazeMapImage.setImageResource(teammateMap.getImageID());
 
             maze = new MazeGame(map, GameActivity.this);
             map.draw();

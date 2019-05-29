@@ -13,6 +13,7 @@ public class MazeGameMap_Test extends MazeGameMap {
         setySize(20);
         setExitCoordinates(new Coordinates(10, 17));
         setInitialCoordinates(new Coordinates(9, 10));
+        setImageID(R.drawable.maze_game_test_map);
     }
 
     @Override
@@ -237,7 +238,7 @@ public class MazeGameMap_Test extends MazeGameMap {
             private int ticksToPlay = ticksPerPlay;
 
             private SimpleMonster() {
-                setImageID(R.drawable.lev);
+                this.setImageId(R.drawable.lev);
                 setInitialX(9);
                 setInitialY(7);
             }
@@ -248,7 +249,7 @@ public class MazeGameMap_Test extends MazeGameMap {
                 ticksToPlay = decreaseTick(ticksToPlay, ticksPerPlay);
 
                 if (ticksToPlay == 0) {
-                    GameActivity.SoundPlayer.playTrack(getActivity(), R.raw.uuusuka);
+                    GameActivity.SoundPlayer.playTrack(getActivity(), R.raw.scary_monster);
                 }
             }
 

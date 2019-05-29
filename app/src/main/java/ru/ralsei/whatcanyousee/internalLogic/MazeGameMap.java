@@ -71,6 +71,10 @@ public abstract class MazeGameMap {
     public void setImageID(int imageID) {
         this.imageID = imageID;
     }
+    public int getImageID() {
+        return imageID;
+    }
+
 
     /**
      * Activity map was created from.
@@ -429,6 +433,16 @@ public abstract class MazeGameMap {
         public void makeWall() {
             isWall = true;
             defaultImage = R.drawable.wall;
+            image = R.drawable.wall;
+        }
+
+        /**
+         * TODO.
+         */
+        public void makeNotWall() {
+            isWall = false;
+            defaultImage = R.drawable.emptycell;
+            image = R.drawable.emptycell;
         }
 
         public int getDistance() {
@@ -728,7 +742,7 @@ public abstract class MazeGameMap {
          * TODO
          */
         protected int getImageId() {
-            return imageID;
+            return this.imageId;
         }
 
         protected void setImageId(int imageId) {

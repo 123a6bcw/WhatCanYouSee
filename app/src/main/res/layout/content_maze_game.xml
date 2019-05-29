@@ -444,5 +444,26 @@
             android:layout_above="@id/downButton"
             android:layout_centerHorizontal="true"
             android:text="USE"/>
+
+        <Button
+            android:id="@+id/button_show_map"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="@dimen/fab_margin"
+            android:layout_marginTop="10dp"
+            android:layout_toEndOf="@id/downButton"
+            android:layout_below="@id/rightButton"
+            android:text="show map"/>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/image_maze_map"
+            android:layout_alignParentTop="true"
+            android:layout_above="@id/upButton"
+            android:visibility="invisible"/>
+
+
     </RelativeLayout>
 </android.support.constraint.ConstraintLayout>
