@@ -7,7 +7,6 @@
     tools:context=".GameActivity">
 
     <!-- "Main screen" !-->
-    <!-- TODO запихать строки в ресурсы -->
     <LinearLayout
         android:id="@+id/main_screen"
         android:orientation="vertical"
@@ -23,33 +22,33 @@
             android:id="@+id/button_invite_friend"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="invite friend" />
+            android:text="@string/invite_friend" />
 
         <Button
             android:id="@+id/button_accept_invitation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="show invitations" />
+            android:text="@string/show_invitations" />
 
         <Button
             android:id="@+id/button_show_achievements"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/fab_margin"
-            android:text="Show achievements" />
+            android:text="@string/show_achievements" />
 
         <Button
             android:id="@+id/button_show_leaderboards"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Show leaderboards" />
+            android:text="@string/show_leaderboards" />
 
         <Button
             android:id="@+id/button_sign_out"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/fab_margin"
-            android:text="sign out" />
+            android:text="@string/sign_out" />
 
     </LinearLayout>
 
@@ -65,7 +64,7 @@
         app:layout_constraintTop_toTopOf="parent"
         android:gravity="center">
 
-        <TextView android:text="please wait"
+        <TextView android:text="@string/please_wait"
             android:textSize="100sp"
             android:layout_width="match_parent"
             android:layout_gravity="center"
@@ -108,12 +107,12 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:textColor="@color/AccentColor"
-            android:text="Accept invite" />
+            android:text="@string/accept_invite" />
 
         <Button android:id="@+id/button_decline_popup_invitation"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:textColor="@color/AccentColor"
-            android:text="Decline invite" />
+            android:text="@string/decline_invite" />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

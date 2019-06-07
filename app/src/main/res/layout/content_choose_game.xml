@@ -16,6 +16,6 @@
             android:id="@+id/mazeGame"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Maze Game Explorer" />
+            android:text="@string/maze_game_explorer" />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

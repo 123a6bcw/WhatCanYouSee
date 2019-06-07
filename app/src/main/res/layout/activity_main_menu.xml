@@ -19,14 +19,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="Find game" />
+            android:text="@string/find_game" />
 
         <Button
             android:id="@+id/debugButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="Debug games" />
+            android:text="@string/debug_games" />
 
     </LinearLayout>
 

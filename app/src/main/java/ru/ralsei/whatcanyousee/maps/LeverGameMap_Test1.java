@@ -7,12 +7,10 @@ import ru.ralsei.whatcanyousee.R;
 import ru.ralsei.whatcanyousee.internalLogic.LeverGameMap;
 
 /**
- * TODO
+ * Simple map with 3 valve -- red, blue, green, in order to win (other) player must create the
+ * brown color (red+green), in order to lose -- black color (red+blue+green).
  */
 public class LeverGameMap_Test1 extends LeverGameMap {
-    /**
-     * TODO
-     */
     private class Test1State extends State {
         private boolean greenRotated;
         private boolean redRotated;

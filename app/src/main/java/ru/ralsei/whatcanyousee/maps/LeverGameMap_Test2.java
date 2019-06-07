@@ -7,12 +7,9 @@ import ru.ralsei.whatcanyousee.R;
 import ru.ralsei.whatcanyousee.internalLogic.LeverGameMap;
 
 /**
- * TODO
+ * Simplest lever game map. In order to win, other play should press "press me".
  */
 public class LeverGameMap_Test2 extends LeverGameMap {
-    /**
-     * TODO
-     */
     private class Test2State extends State {
         private boolean pressed;
 

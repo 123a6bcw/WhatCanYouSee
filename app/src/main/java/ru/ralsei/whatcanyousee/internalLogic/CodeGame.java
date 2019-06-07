@@ -79,7 +79,7 @@ public class CodeGame {
             }
 
             /**
-             * TODO
+             * Handling the wrong input code.
              */
             private void onWrongCode() {
                 GameActivity.SoundPlayer.playTrack(activity, R.raw.not_ok);

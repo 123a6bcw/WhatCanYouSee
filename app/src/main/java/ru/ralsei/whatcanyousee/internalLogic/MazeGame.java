@@ -78,7 +78,7 @@ public class MazeGame {
                         currentCell.resetImage();
 
                         closestCell.setImage(monster.getImageId());
-                        monster.moveTo(closestCell); //TODO Synchronize
+                        monster.moveTo(closestCell);
                     }
                     }
 
@@ -173,7 +173,7 @@ public class MazeGame {
     }
 
     /**
-     * TODO
+     * True of player lost the game.
      */
     private boolean checkIfLostGame() {
         synchronized (map.getGameResultLock()) {

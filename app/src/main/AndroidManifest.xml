@@ -39,17 +39,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".GameLostActivity" android:screenOrientation="portrait" />
-        <activity
-            android:name=".GameWonActivity"
-            android:label="@string/title_activity_game_won"
-            android:parentActivityName=".GameActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:screenOrientation="portrait">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".GameActivity" />
-        </activity>
     </application>
 
 </manifest>

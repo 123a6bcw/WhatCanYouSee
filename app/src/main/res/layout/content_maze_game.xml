@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- TODO переименовать и пофиксить строки. добавить стили -->
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -410,7 +409,7 @@
             android:id="@+id/upButton"
             android:layout_above="@id/rightButton"
             android:layout_centerHorizontal="true"
-            android:text="UP"/>
+            android:text="@string/up"/>
 
         <Button
             android:id="@+id/rightButton"
@@ -418,7 +417,7 @@
             android:layout_width="wrap_content"
             android:layout_above="@id/downButton"
             android:layout_toEndOf="@id/useButton"
-            android:text="RIGHT"/>
+            android:text="@string/right"/>
 
         <Button
             android:id="@+id/leftButton"
@@ -426,7 +425,7 @@
             android:layout_width="wrap_content"
             android:layout_above="@id/downButton"
             android:layout_toStartOf="@id/useButton"
-            android:text="LEFT"/>
+            android:text="@string/left"/>
 
         <Button
             android:id="@+id/downButton"
@@ -434,7 +433,7 @@
             android:layout_width="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:text="DOWN"/>
+            android:text="@string/down"/>
 
 
         <Button
@@ -443,7 +442,7 @@
             android:layout_width="wrap_content"
             android:layout_above="@id/downButton"
             android:layout_centerHorizontal="true"
-            android:text="USE"/>
+            android:text="@string/use"/>
 
         <Button
             android:id="@+id/button_show_map"
@@ -454,7 +453,17 @@
             android:layout_marginTop="10dp"
             android:layout_toEndOf="@id/downButton"
             android:layout_below="@id/rightButton"
-            android:text="show map"/>
+            android:text="@string/show_map"/>
+
+        <Button
+            android:id="@+id/button_giveUp_maze"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_marginEnd="@dimen/fab_margin"
+            android:layout_marginTop="10dp"
+            android:layout_below="@id/rightButton"
+            android:text="@string/give_up" />
 
         <ImageView
             android:layout_width="match_parent"

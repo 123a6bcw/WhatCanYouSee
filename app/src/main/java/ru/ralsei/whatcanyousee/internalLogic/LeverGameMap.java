@@ -87,9 +87,6 @@ public abstract class LeverGameMap {
         return currentStateNumber;
     }
 
-    /**
-     * TODO
-     */
     public int getStateNumber(State currentState) {
         for (int i = 0; i < states.size(); i++) {
             if (states.get(i) == currentState) {

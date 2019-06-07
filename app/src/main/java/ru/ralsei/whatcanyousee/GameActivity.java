@@ -82,8 +82,6 @@ import ru.ralsei.whatcanyousee.maps.MazeGameMap_Test;
 import ru.ralsei.whatcanyousee.maps.MazeGameMap_Test2;
 import java.util.Random;
 
-//TODO @NonNull and stuff
-
 /**
  * Main (and the only) app activity.
  */
@@ -170,7 +168,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private GameplayHandler gameplayHandler = new GameplayHandler();
 
     /**
-     * TODO
+     * Class for storing statistic and achievements in the game.
      */
     @NonNull
     private GameStatistic gameStatistic = new GameStatistic();
@@ -654,6 +652,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
      * Class for handling google play connection (disconnection), managing game room.
      */
     private class GooglePlayHandler {
+        /**
+         * Maximum size of the buffer in google play reliable messaging.
+         */
+        private static final int MAX_RELIABLE_BUFFER_SIZE = 1400;
+
         /**
          * Current account player is signed in.
          */
@@ -1470,7 +1473,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             broadcastThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    byte[] buffer = new byte[1400]; //TODO constant
+                    byte[] buffer = new byte[googlePlayHandler.MAX_RELIABLE_BUFFER_SIZE];
 
                     recorder.startRecording();
                     while (!Thread.interrupted()) {
@@ -1824,6 +1827,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                                 mazeMapImage.setVisibility(View.VISIBLE);
                             }
                             break;
+                        case R.id.button_giveUp_maze: {
+                            gameplayHandler.onMazeGameLost();
+                            break;
+                        }
                         default:
                             break;
                     }
@@ -1836,6 +1843,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             findViewById(R.id.downButton).setOnClickListener(onClickListener);
             findViewById(R.id.useButton).setOnClickListener(onClickListener);
             findViewById(R.id.button_show_map).setOnClickListener(onClickListener);
+            findViewById(R.id.button_giveUp_maze).setOnClickListener(onClickListener);
 
             assert gameSettings != null;
             Log.d(TAG, "Loaded maps are " + gameSettings.getMyMazeMap() + " " + gameSettings.getTeammateMazeMap());
@@ -1935,7 +1943,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         /**
-         * TODO
+         * Starts the gameplay stage of the code game.
          */
         private void startCodeGame() {
             Log.d(TAG, "Code game started");

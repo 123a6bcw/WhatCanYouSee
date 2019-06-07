@@ -7,15 +7,13 @@ import ru.ralsei.whatcanyousee.R;
 import ru.ralsei.whatcanyousee.internalLogic.LeverGameMap;
 
 /**
- * TODO
+ * Another simple lever game map. To win, other player should press "open the door", to lose --
+ * press the "release snakes".
  */
 public class LeverGameMap_Test3 extends LeverGameMap {
-    /**
-     * TODO
-     */
     private class Test3State extends State {
         private boolean pressed;
-        private boolean snakeReleased = false;
+        private boolean snakeReleased;
 
         private Test3State(int imageID, boolean pressed, boolean snakeReleased) {
             super(imageID);
