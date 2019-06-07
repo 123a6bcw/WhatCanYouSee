@@ -4,30 +4,42 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * TODO
+ * Abstract class representing the lever game map.
  */
 public abstract class LeverGameMap {
     /**
-     * TODO
+     * Id of the current state.
      */
     private int currentStateNumber;
 
     /**
-     * TODO
+     * All levers exists for this map (they will be shown on the other player's screen).
      */
     private String[] levers = new String[0];
 
     /**
-     * TODO
+     * List of all possible states in the map.
      */
     private ArrayList<State> states = new ArrayList<>();
 
     /**
-     * TODO
+     * Class representing the state of the lever game. All states represents the vertexes of a directed
+     * graph, with levers representing the edges.
      */
     public abstract class State {
+        /**
+         * Image to show on this state.
+         */
         private int imageID;
+
+        /**
+         * True if enters this state meaning winning the game.
+         */
         private boolean winState = false;
+
+        /**
+         * True if enters this state meaning loosing the game.
+         */
         private boolean loseState = false;
 
         protected State(int imageID) {
@@ -63,7 +75,7 @@ public abstract class LeverGameMap {
     }
 
     /**
-     * TODO
+     * Handles the pressed lever (by the other player).
      */
     public abstract void applyLever(String leverName);
 
@@ -85,10 +97,10 @@ public abstract class LeverGameMap {
             }
         }
 
-        return -1; //TODO throw exception? (state was not found)
+        return -1;
     }
 
-    public void setCurrentState(int currentStateNumber) {
+    protected void setCurrentState(int currentStateNumber) {
         this.currentStateNumber = currentStateNumber;
     }
 
@@ -96,15 +108,15 @@ public abstract class LeverGameMap {
         states.add(state);
     }
 
-    public String[] getLevers() {
+    protected String[] getLevers() {
         return levers;
     }
 
-    public void setLevers(String[] levers) {
+    protected void setLevers(String[] levers) {
         this.levers = levers;
     }
 
-    public List<State> getStates() {
+    protected List<State> getStates() {
         return states;
     }
 }

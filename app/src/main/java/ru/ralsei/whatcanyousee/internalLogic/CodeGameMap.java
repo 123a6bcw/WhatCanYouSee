@@ -1,36 +1,35 @@
 package ru.ralsei.whatcanyousee.internalLogic;
 
 /**
- * TODO
+ * Class representing an abstract code game map.
  */
-public class CodeGameMap {
+public abstract class CodeGameMap {
     /**
-     * TODO
+     * Image in the center of the screen with hints the solution.
      */
     private int imageId;
 
     /**
-     * TODO
+     * Correct code to open the door.
      */
     private String correctCode;
 
-    public CodeGameMap() {
+    protected CodeGameMap() {
     }
 
     protected void setImageId(int imageId) {
         this.imageId = imageId;
     }
 
-
     boolean checkCode(String code) {
         return correctCode.equals(code);
     }
 
-    public void setCorrectCode(String correctCode) {
+    protected void setCorrectCode(String correctCode) {
         this.correctCode = correctCode;
     }
 
-    public int getImageId() {
+    int getImageId() {
         return imageId;
     }
 }

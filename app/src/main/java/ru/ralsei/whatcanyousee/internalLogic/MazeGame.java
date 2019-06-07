@@ -25,14 +25,10 @@ public class MazeGame {
     private final GameActivity gameActivity;
 
     /**
-     * Executor that will recalc distances from cell's to player.
-     */
-    private ExecutorService bfsExecutor = Executors.newSingleThreadExecutor();
-
-    /**
-     *
+     * Executor that updates the current game stage each DELAY milliseconds.
      */
     private ScheduledExecutorService ticker = Executors.newScheduledThreadPool(0);
+    private static final int DELAY = 200;
 
     /**
      * Map of this maze.
@@ -48,42 +44,42 @@ public class MazeGame {
         ticker.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
-                    for (MazeGameMap.Monster monster : map.getMonsters()) {
-                        monster.updateOnTick();
-                        monster.tryToKill();
+                bfs();
 
-                        if (checkIfLostGame()) {
-                            activity.getGameStatistic().setDeadByMonster(true);
-                        }
+                for (MazeGameMap.Monster monster : map.getMonsters()) {
+                    monster.updateOnTick();
+                    monster.tryToKill();
 
-                        if (monster.readyToMove()) {
-                            synchronized (map.getCells()) {
-                                MazeGameMap.Cell closestCell = null;
+                    if (checkIfLostGame()) {
+                        activity.getGameStatistic().setDeadByMonster(true);
+                    }
 
-                                Collections.shuffle(vec4); //Monster moves randomly if there is several directions hw could move to.
+                    if (monster.readyToMove()) {
+                        MazeGameMap.Cell closestCell = null;
 
-                                for (MazeGameMap.Coordinates coordinates : vec4) {
-                                    MazeGameMap.Cell cell = map.getRelatedCell(monster.getCurrentCoordinates(), coordinates);
-                                    if (cell == null) {
-                                        continue;
-                                    }
+                        Collections.shuffle(vec4); //Monster moves randomly if there is several directions he could move to.
 
-                                    if (closestCell == null || closestCell.getDistance() > cell.getDistance()) {
-                                        closestCell = cell;
-                                    }
-                                }
+                        for (MazeGameMap.Coordinates coordinates : vec4) {
+                            MazeGameMap.Cell cell = map.getRelatedCell(monster.getCurrentCoordinates(), coordinates);
+                            if (cell == null) {
+                                continue;
+                            }
 
-                                if (closestCell == null) {
-                                    throw new IllegalStateException("Monster trapped somewhere!");
-                                }
-
-                                MazeGameMap.Cell currentCell = map.getCell(monster.getCurrentCoordinates());
-                                currentCell.resetImage();
-
-                                closestCell.setImage(monster.getImageId());
-                                monster.moveTo(closestCell);
+                            if (closestCell == null || closestCell.getDistance() > cell.getDistance()) {
+                                closestCell = cell;
                             }
                         }
+
+                        if (closestCell == null) {
+                            throw new IllegalStateException("Monster trapped somewhere!");
+                        }
+
+                        MazeGameMap.Cell currentCell = map.getCell(monster.getCurrentCoordinates());
+                        currentCell.resetImage();
+
+                        closestCell.setImage(monster.getImageId());
+                        monster.moveTo(closestCell); //TODO Synchronize
+                    }
                     }
 
                     activity.runOnUiThread(new Runnable() {
@@ -94,7 +90,7 @@ public class MazeGame {
                         }
                     });
             }
-        }, 0, 200, TimeUnit.MILLISECONDS);
+        }, 0, DELAY, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -138,13 +134,6 @@ public class MazeGame {
 
                 tryToMove(map, command);
 
-                bfsExecutor.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        bfs();
-                    }
-                });
-
                 if (checkIfGameOver()) {
                     return;
                 }
@@ -165,7 +154,6 @@ public class MazeGame {
     }
 
     /**
-     * TODO synchron.
      * True if player either won or lost.
      */
     private boolean checkIfGameOver() {
@@ -190,7 +178,6 @@ public class MazeGame {
     private boolean checkIfLostGame() {
         synchronized (map.getGameResultLock()) {
             return map.hasLost();
-
         }
     }
 
@@ -198,31 +185,29 @@ public class MazeGame {
      * Calculate (update) current cell's distances to the player position.
      */
     private void bfs() {
-        synchronized (map.getCells()) {
-            map.increaseDistanceId();
-            int currentDistanceId = map.getDistanceId() + 1;
+        map.increaseDistanceId();
+        int currentDistanceId = map.getDistanceId() + 1;
 
-            MazeGameMap.Cell initialCell = map.getCurrentCell();
-            initialCell.setDistance(0);
-            initialCell.setDistanceId(currentDistanceId);
+        MazeGameMap.Cell initialCell = map.getCurrentCell();
+        initialCell.setDistance(0);
+        initialCell.setDistanceId(currentDistanceId);
 
-            LinkedList<MazeGameMap.Cell> queue = new LinkedList<>();
-            queue.push(initialCell);
-            while (!queue.isEmpty()) {
-                MazeGameMap.Cell cell = queue.pop();
-                for (MazeGameMap.Coordinates coordinates : vec4) {
-                    MazeGameMap.Cell neighbourCell = map.getRelatedCell(cell, coordinates);
+        LinkedList<MazeGameMap.Cell> queue = new LinkedList<>();
+        queue.push(initialCell);
+        while (!queue.isEmpty()) {
+            MazeGameMap.Cell cell = queue.pop();
+            for (MazeGameMap.Coordinates coordinates : vec4) {
+                MazeGameMap.Cell neighbourCell = map.getRelatedCell(cell, coordinates);
 
-                    if (neighbourCell == null || neighbourCell.isWall()) {
-                        continue;
-                    }
+                if (neighbourCell == null || neighbourCell.isWall()) {
+                    continue;
+                }
 
-                    int possibleDistance = cell.getDistance() + 1;
-                    if (neighbourCell.getDistanceId() < currentDistanceId || neighbourCell.getDistance() > possibleDistance) {
-                        neighbourCell.setDistance(cell.getDistance() + 1);
-                        neighbourCell.setDistanceId(currentDistanceId);
-                        queue.push(neighbourCell);
-                    }
+                int possibleDistance = cell.getDistance() + 1;
+                if (neighbourCell.getDistanceId() < currentDistanceId || neighbourCell.getDistance() > possibleDistance) {
+                    neighbourCell.setDistance(cell.getDistance() + 1);
+                    neighbourCell.setDistanceId(currentDistanceId);
+                    queue.push(neighbourCell);
                 }
             }
         }
@@ -245,7 +230,7 @@ public class MazeGame {
     }
 
     /**
-     * TODO
+     * Stops the ticker scheduled task.
      */
     public void onClose() {
         ticker.shutdown();
@@ -278,6 +263,10 @@ public class MazeGame {
             } else {
                 return;
             }
+        }
+
+        if (map.hasMonster(newCoordinates)) {
+            map.setPlayerWon(false);
         }
 
         map.setCurrentCoordinates(newCoordinates);

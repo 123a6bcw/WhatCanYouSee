@@ -9,29 +9,32 @@ import ru.ralsei.whatcanyousee.GameActivity;
 import ru.ralsei.whatcanyousee.R;
 
 /**
- * TODO
+ * The code game running class.
  */
 public class CodeGame {
     /**
-     * TODO
+     * Maximum length of the input code.
      */
     private static final int MAX_CODE_LENGTH = 6;
 
     /**
-     * TODO
+     * Tag to use in logs.
      */
     private static final String TAG = "What can you see, Code game:";
 
     /**
-     * TODO
+     * Activity that owns this game.
      */
     private GameActivity activity;
 
     /**
-     * TODO
+     * Code game map of this player.
      */
     private CodeGameMap codeGameMap;
 
+    /**
+     * Initializes the content of the code game.
+     */
     public CodeGame(final GameActivity activity, final CodeGameMap codeGameMap, final CodeGameMap teammateCodeGameMap) {
         this.activity = activity;
         this.codeGameMap = codeGameMap;

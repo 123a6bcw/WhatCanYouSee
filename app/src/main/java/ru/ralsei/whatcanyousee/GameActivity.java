@@ -12,8 +12,8 @@ import android.media.AudioTrack;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -30,7 +30,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.games.AchievementsClient;
-import com.google.android.gms.games.Game;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.GamesActivityResultCodes;
 import com.google.android.gms.games.GamesCallbackStatusCodes;
@@ -63,8 +62,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -81,20 +78,25 @@ import ru.ralsei.whatcanyousee.maps.CodeGameMap_Test4;
 import ru.ralsei.whatcanyousee.maps.LeverGameMap_Test1;
 import ru.ralsei.whatcanyousee.maps.LeverGameMap_Test2;
 import ru.ralsei.whatcanyousee.maps.LeverGameMap_Test3;
-import ru.ralsei.whatcanyousee.maps.MazeGameMap_Simple;
 import ru.ralsei.whatcanyousee.maps.MazeGameMap_Test;
 import ru.ralsei.whatcanyousee.maps.MazeGameMap_Test2;
 import java.util.Random;
 
 //TODO @NonNull and stuff
 
+/**
+ * Main (and the only) app activity.
+ */
 public class GameActivity extends AppCompatActivity implements View.OnClickListener {
+    /**
+     * Tag to use in logs.
+     */
     private final static String TAG = "What can you see?";
 
     /**
-     * TODO
+     * Random used to choose exact maps for players.
      */
-    final Random random = new Random();
+    private final Random random = new Random();
 
     /**
      * Request codes for the UIs showed with startActivityForResult.
@@ -109,7 +111,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private static final int RC_SIGN_IN = 9001;
 
     /**
-     * TODO
+     * Request code to invoke activities with no special result handling.
      */
     private static final int RC_UNUSED = 5001;
 
@@ -121,47 +123,56 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * Number of players in game. Always 2.
      */
-    private final static int NUMBER_OF_PLAYERS = 2;
+    private static final int NUMBER_OF_PLAYERS = 2;
 
     /**
-     * TODO
+     * Stores settings of a created game (maps etc).
      */
+    @Nullable
     private GameSettings gameSettings = null;
 
     /**
      * onCreate with debugMode = true runs single player instance of some games
      * (debugMode and additional argument passes with extraData), without logging into google account.
      */
+    //TODO fails.
     private boolean debugMode = false;
 
     /**
-     * TODO
+     * Handles micro connection between players.
      */
+    //TODO test request micro
+    @NonNull
     private AudioConnector audioConnector = new AudioConnector();
 
     /**
-     * TODO
+     * Handles google play features (creation etc).
      */
+    @NonNull
     private GooglePlayHandler googlePlayHandler = new GooglePlayHandler();
 
     /**
-     * TODO
+     * Handles game-messaging between players.
      */
+    @NonNull
     private InternetConnector internetConnector = new InternetConnector();
 
     /**
-     * TODO
+     * Handles UI changes (switching between screen's etc).
      */
+    @NonNull
     private UIHandler uiHandler = new UIHandler();
 
     /**
-     * TODO
+     * Handles gameplay stage of the game (switching between levels etc).
      */
+    @NonNull
     private GameplayHandler gameplayHandler = new GameplayHandler();
 
     /**
-     *
+     * TODO
      */
+    @NonNull
     private GameStatistic gameStatistic = new GameStatistic();
 
     @Override
@@ -286,7 +297,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
      * @param details   Will display alongside the exception if you wish to provide more details for why the exception
      *                  happened.
      */
-    private void handleException(Exception exception, String details) {
+    private void handleException(@Nullable Exception exception, @Nullable String details) {
         int status = 0;
 
         if (exception instanceof ApiException) {
@@ -369,7 +380,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 // player indicated that they want to leave the room
                 googlePlayHandler.leaveRoom();
             } else if (resultCode == Activity.RESULT_CANCELED) {
-                //TODO handle somehow else?
                 googlePlayHandler.leaveRoom();
             }
         }
@@ -394,6 +404,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         super.onStop();
     }
 
+    @NonNull
     private OnFailureListener createFailureListener(final String string) {
         return new OnFailureListener() {
             @Override
@@ -436,54 +447,58 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * TODO
+     * Clearing all used resources after game stops (active threads etc) and reset all
+     * gameplay variables.
      */
     private void clearAllResources() {
         gameplayHandler.clearResources();
         audioConnector.clearResources();
-        //googlePlayHandler.clearResources();
         internetConnector.clearResources();
-        SoundPlayer.clearRecources();
+        SoundPlayer.clearResources();
         gameStatistic.clear();
+        gameSettings = null;
     }
 
     /**
-     * TODO
+     * Settings of the created game (basically maps of all levels in game), created by the one who
+     * created the game, who also sends this setting to the other player.
+     *
+     * Owner's maps and teammate's maps are being swapped before sending to the other player.
      */
     private static class GameSettings implements Serializable {
         /**
-         * TODO
+         * Maze game map of this player (class name).
          */
         private String myMazeMap;
 
         /**
-         * TODO
+         * Maze game map of the teammate player (class name).
          */
         private String teammateMazeMap;
 
         /**
-         * TODO
+         * Code game map of this player.
          */
         private String myCodeGameMap;
 
         /**
-         * TODO
+         * Teammate code game map.
          */
         private String myTeammateCodeGameMap;
 
         /**
-         * TODO
+         * Lever game map of this player.
          */
         private String myLeverGameMap;
 
         /**
-         * TODO
+         * Teammate lever game map.
          */
         private String myTeammateLeverGameMap;
 
 
         /**
-         * TODO
+         * Writes this game settings to out stream in order to send it to the other player.
          */
         private void writeObject(java.io.ObjectOutputStream out)
                 throws IOException {
@@ -498,7 +513,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         /**
-         * TODO
+         * Reads game settings from in after receiving them from the internet.
          */
         private void readObject(java.io.ObjectInputStream in)
                 throws IOException, ClassNotFoundException {
@@ -510,6 +525,24 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
             myLeverGameMap = in.readUTF();
             myTeammateLeverGameMap = in.readUTF();
+        }
+
+        /**
+         * Turn this settings into teammate's settings in order to send it to him.
+         * Swaps owner's map and teammate's maps.
+         */
+        private void flipSettings() {
+            String temp = myMazeMap;
+            myMazeMap = teammateMazeMap;
+            teammateMazeMap = temp;
+
+            temp = myCodeGameMap;
+            myCodeGameMap = myTeammateCodeGameMap;
+            myTeammateCodeGameMap = temp;
+
+            temp = myLeverGameMap;
+            myLeverGameMap = myTeammateLeverGameMap;
+            myTeammateLeverGameMap = temp;
         }
 
         private String getMyMazeMap() {
@@ -526,20 +559,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         private void setTeammateMazeMap(String teammateMazeMap) {
             this.teammateMazeMap = teammateMazeMap;
-        }
-
-        private void flipSettings() {
-            String temp = myMazeMap;
-            myMazeMap = teammateMazeMap;
-            teammateMazeMap = temp;
-
-            temp = myCodeGameMap;
-            myCodeGameMap = myTeammateCodeGameMap;
-            myTeammateCodeGameMap = temp;
-
-            temp = myLeverGameMap;
-            myLeverGameMap = myTeammateLeverGameMap;
-            myTeammateLeverGameMap = temp;
         }
 
         private String getMyCodeGameMap() {
@@ -570,47 +589,24 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * TODO
+     * Class for playing sounds in game. Support playing several sounds in parallel.
      */
     public static class SoundPlayer {
-        //TODO
+        /**
+         * Players used to play sounds.
+         */
         private static final MediaPlayer[] players = new MediaPlayer[8];
 
         /**
-         * TODO
+         * Used to support choosing volume from 1 to 10 linearly.
          */
         private static final int MAX_VOLUME = 11;
 
         /**
-         * TODO
+         * Finds free player and plays given track.
          */
-        public static void playTrack(Activity activity, int trackId) {
-            synchronized (players) {
-                for (int i = 0; i < players.length; i++) {
-                    if (players[i] == null) {
-                        players[i] = MediaPlayer.create(activity, trackId);
-                        players[i].start();
-                        return;
-                    }
-
-                    MediaPlayer mediaPlayer = players[i];
-
-                    mediaPlayer.setVolume(1, 1);
-
-                    if (!mediaPlayer.isPlaying()) {
-                        mediaPlayer.selectTrack(trackId);
-                        mediaPlayer.start();
-                        break;
-                    }
-                }
-            }
-        }
-
-        /**
-         * TODO
-         */
-        public static void playTrackWithVolume(Activity activity, int trackId, int volume) {
-            if (volume <= 0) {
+        public static void playTrackWithVolume(@NonNull Activity activity, int trackId, int volume) {
+            if (volume <= 0 || volume >= MAX_VOLUME) {
                 return;
             }
 
@@ -618,16 +614,14 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 for (int i = 0; i < players.length; i++) {
                     if (players[i] == null) {
                         players[i] = MediaPlayer.create(activity, trackId);
-                        players[i].start();
-                        return;
                     }
 
                     MediaPlayer mediaPlayer = players[i];
 
-                    float log1 = (float)(Math.log(volume)/Math.log(MAX_VOLUME)); //TODO function
-                    mediaPlayer.setVolume(log1, log1);
-
                     if (!mediaPlayer.isPlaying()) {
+                        float actualVolume = (float)(Math.log(volume)/Math.log(MAX_VOLUME));
+                        mediaPlayer.setVolume(actualVolume, actualVolume);
+
                         mediaPlayer.selectTrack(trackId);
                         mediaPlayer.start();
                         break;
@@ -637,15 +631,20 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         /**
-         * TODO
+         * Plays track with maximum volume.
          */
-        private static void clearRecources() {
-            if (players != null) {
-                for (int i = 0; i < players.length; i++) {
-                    if (players[i] != null) {
-                        players[i].release();
-                        players[i] = null;
-                    }
+        public static void playTrack(Activity activity, int trackId) {
+            playTrackWithVolume(activity, trackId, 1);
+        }
+
+        /**
+         * Releasing all players.
+         */
+        private static void clearResources() {
+            for (int i = 0; i < players.length; i++) {
+                if (players[i] != null) {
+                    players[i].release();
+                    players[i] = null;
                 }
             }
         }
@@ -658,37 +657,37 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         /**
          * Current account player is signed in.
          */
-        private GoogleSignInAccount mSignedInAccount = null;
+        private GoogleSignInAccount mSignedInAccount;
 
         /**
          * Client used to sign in with Google APIs.
          */
-        private GoogleSignInClient mGoogleSignInClient = null;
+        private GoogleSignInClient mGoogleSignInClient;
 
         /**
          * Client used to interact with the real time multiplayer system.
          */
-        private RealTimeMultiplayerClient mRealTimeMultiplayerClient = null;
+        private RealTimeMultiplayerClient mRealTimeMultiplayerClient;
 
         /**
-         * TODO
+         * Client used to interact with game achievements.
          */
         private AchievementsClient mAchievementsClient;
 
         /**
-         * TODO
+         * Client used to interact with game statistic.
          */
         private LeaderboardsClient mLeaderboardsClient;
 
         /**
          * Client used to interact with the invitation system.
          */
-        private InvitationsClient mInvitationsClient = null;
+        private InvitationsClient mInvitationsClient;
 
         /**
          * Room ID where the currently active game is taking place.
          */
-        private String mRoomId = null;
+        private String mRoomId;
 
         /**
          * Holds the configuration of the current room.
@@ -699,23 +698,23 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
          * Player's account in the currently active game.
          */
         @SuppressWarnings("unused")
-        private Participant myParticipant = null;
+        private Participant myParticipant;
 
         /**
          * Account of player's teammate.
          */
-        private Participant teammateParticipant = null;
+        private Participant teammateParticipant;
 
         /**
          * Player's participant ID in the currently active game.
          */
-        private String mMyId = null;
+        private String mMyId;
 
         /**
          * Id of the invitation received via the
          * invitation listener.
          */
-        private String mIncomingInvitationId = null;
+        private String mIncomingInvitationId;
 
         /**
          * Player's id.
@@ -723,16 +722,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         private String mPlayerId;
 
         /**
-         * TODO
-         */
-        private void clearResources() {
-            leaveRoom();
-        }
-
-        /**
          * Start a sign in activity.
          */
         private void startSignInIntent() {
+            assert mGoogleSignInClient != null;
             startActivityForResult(mGoogleSignInClient.getSignInIntent(), RC_SIGN_IN);
         }
 
@@ -743,8 +736,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         private void signInSilently() {
             Log.d(TAG, "signInSilently()");
 
-            //final Activity thisActivity = this;
-
+            assert mGoogleSignInClient != null;
             mGoogleSignInClient.silentSignIn().addOnCompleteListener(GameActivity.this,
                     new OnCompleteListener<GoogleSignInAccount>() {
                         @Override
@@ -760,9 +752,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     });
         }
 
+        /**
+         * Signs out from current google play account.
+         */
         private void signOut() {
             Log.d(TAG, "signOut()");
 
+            assert mGoogleSignInClient != null;
             mGoogleSignInClient.signOut().addOnCompleteListener(GameActivity.this,
                     new OnCompleteListener<Void>() {
                         @Override
@@ -824,7 +820,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             Log.d(TAG, "Invitation inbox UI succeeded.");
             Invitation invitation = Objects.requireNonNull(data.getExtras()).getParcelable(Multiplayer.EXTRA_INVITATION);
 
-            // accept invitation
             if (invitation != null) {
                 acceptInviteToRoom(invitation.getInvitationId());
             }
@@ -855,24 +850,24 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         /**
-         * TODO
+         * Leaves current room.
          */
         private void leaveRoom() {
             setContentView(R.layout.activity_create_room);
-
-            gameSettings = null;
 
             clearAllResources();
 
             Log.d(TAG, "Leaving room.");
             uiHandler.stopKeepingScreenOn();
             if (mRoomId != null) {
+                assert mRoomConfig != null;
                 mRealTimeMultiplayerClient.leave(mRoomConfig, mRoomId)
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 mRoomId = null;
                                 mRoomConfig = null;
+                                uiHandler.switchToMainScreen();
                             }
                         });
                 uiHandler.switchToScreen(R.id.screen_wait);
@@ -881,6 +876,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
 
+        /**
+         * Calls after connecting to the google play account.
+         */
         private void onConnected(GoogleSignInAccount googleSignInAccount) {
             Log.d(TAG, "onConnected(): connected to Google APIs");
             if (mSignedInAccount != googleSignInAccount) {
@@ -927,6 +925,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     .addOnFailureListener(createFailureListener("There was a problem getting the activation hint!"));
         }
 
+        /**
+         * Calls after disconnecting from the google play account (etc after internet connection lost).
+         */
         private void onDisconnected() {
             Log.d(TAG, "onDisconnected()");
 
@@ -942,7 +943,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         /**
-         * Called when we are connected to the room.
+         * Called when connected to the room.
          */
         private RoomStatusUpdateCallback mRoomStatusUpdateCallback = new RoomStatusUpdateCallback() {
             @Override
@@ -1017,7 +1018,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         };
 
         /**
-         * Called when player get an invitation to play a game, reacts by showing that to the user.
+         * Called when player get an invitation to play a game, reacts by showing invitation to the user.
          */
         private InvitationCallback mInvitationCallback = new InvitationCallback() {
             @Override
@@ -1038,7 +1039,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         };
 
         /**
-         * TODO
+         * Handles updating of the current room.
          */
         private RoomUpdateCallback mRoomUpdateCallback = new RoomUpdateCallback() {
             @Override
@@ -1087,6 +1088,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             }
         };
 
+        /**
+         * Shows player's achievements screen.
+         */
         private void onShowAchievementsRequested() {
             mAchievementsClient.getAchievementsIntent()
                     .addOnSuccessListener(new OnSuccessListener<Intent>() {
@@ -1120,7 +1124,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         /**
-         * TODO
+         * Saves player's achievements and statistic to the cloud.
          */
         private void pushAccomplishments() {
             if (GoogleSignIn.getLastSignedInAccount(GameActivity.this) == null) {
@@ -1154,7 +1158,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         /**
-         * TODO
+         * Get (or remove) teammate's Participant account.
          */
         private void updateRoom(Room room) {
             if (room == null) {
@@ -1182,17 +1186,17 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
      */
     private class InternetConnector {
         /**
-         * True if we got message from teammate that he is ready to get a voice connection.
+         * True if got message from teammate that he is ready to get a voice connection.
          */
         private boolean otherPlayerIsReady = false;
 
         /**
-         * TODO
+         * True if ready to send and receive voice.
          */
         private boolean prepared = false;
 
         /**
-         * TODO
+         * Reset prepared status for the next created game.
          */
         private void clearResources() {
             otherPlayerIsReady = false;
@@ -1222,7 +1226,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     writeStream.close();
                 } catch (IOException e) {
                     e.printStackTrace();
-                    return; //TODO handle this, by leaving the room or something
+                    uiHandler.showGameError();
+                    googlePlayHandler.leaveRoom();
+                    return;
                 }
             } else {
                 message = new byte[0];
@@ -1237,8 +1243,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         /**
          * Message receiver. The very first message is signal of readiness.
-         *
-         * TODO codes
          */
         private OnRealTimeMessageReceivedListener mOnRealTimeMessageReceivedListener = new OnRealTimeMessageReceivedListener() {
             @Override
@@ -1254,10 +1258,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
                                     stream.close();
                                 } catch (ClassNotFoundException e) {
-                                    e.printStackTrace(); //TODO handle
+                                    handleException(new IOException(), "Error reading from object input stream");
                                 }
                             } catch (IOException e) {
-                                e.printStackTrace();
+                                handleException(new IOException(), "Error reading from object input stream");
                             }
                         }
 
@@ -1267,8 +1271,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                             gameplayHandler.startGame();
                         }
                 } else if (receivedData[0] == 'P') {
-                    audioConnector.track.write(receivedData, 1, receivedData.length - 1);
+                    //Received voice audio.
+                    if (audioConnector.track != null) {
+                        audioConnector.track.write(receivedData, 1, receivedData.length - 1);
+                    }
                 } else if (receivedData[0] == 'L') {
+                    //Other player lost on his map.
                     if (receivedData[1] == 'M') {
                         gameplayHandler.gameOver();
                     } else if (receivedData[1] == 'C') {
@@ -1280,6 +1288,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                         Log.d(TAG, "wrong game code in message");
                     }
                 } else if (receivedData[0] == 'W') {
+                    //Other player won on his map.
                     if (receivedData[1] == 'M') {
                         gameplayHandler.otherGameWon = true;
 
@@ -1302,7 +1311,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                         Log.d(TAG, "wrong game code");
                     }
                 } else if (receivedData[0] == 'S') {
-                    if (gameplayHandler.myLeverGameMap == null) {
+                    if (gameplayHandler.leverGameMap == null) {
                         return;
                     }
 
@@ -1312,13 +1321,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     String lever = new String(leverName);
                     Log.d(TAG, "Received pressed lever: " + lever);
 
-                    gameplayHandler.myLeverGameMap.applyLever(lever);
+                    gameplayHandler.leverGameMap.applyLever(lever);
 
-                    ((ImageView) findViewById(R.id.leverImage)).setImageResource(gameplayHandler.myLeverGameMap.getCurrentState().getImageID());
+                    ((ImageView) findViewById(R.id.leverImage)).setImageResource(gameplayHandler.leverGameMap.getCurrentState().getImageID());
 
-                    if (gameplayHandler.myLeverGameMap.getCurrentState().isLoseState()) {
+                    if (gameplayHandler.leverGameMap.getCurrentState().isLoseState()) {
                         gameplayHandler.onLeverGameLost();
-                    } else if (gameplayHandler.myLeverGameMap.getCurrentState().isWinState()) {
+                    } else if (gameplayHandler.leverGameMap.getCurrentState().isWinState()) {
                         gameplayHandler.onLeverGameWon();
                     }
                 }
@@ -1333,7 +1342,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         /**
-         * TODO
+         * Send to other player that we have lost the maze game.
          */
         private void sendMazeLostMessage() {
             byte[] message = new byte[2];
@@ -1343,7 +1352,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         /**
-         * TODO
+         * Send to other player that we have won the maze game.
          */
         private void sendMazeWonMessage() {
             byte[] message = new byte[2];
@@ -1353,7 +1362,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         /**
-         * TODO
+         * Send to other player that we have lost the code game.
          */
         private void sendCodeLostMessage() {
             byte[] message = new byte[2];
@@ -1363,7 +1372,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         /**
-         * TODO
+         * Send to other player that we have won the code game.
          */
         private void sendCodeWonMessage() {
             byte[] message = new byte[2];
@@ -1373,7 +1382,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         /**
-         * TODO
+         * Send to other player that we have lost the lever game.
          */
         private void sendLeverLostMessage() {
             byte[] message = new byte[2];
@@ -1383,7 +1392,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         /**
-         * TODO
+         * Send to other player that we have won the lever game.
          */
         private void sendLeverWonMessage() {
             byte[] message = new byte[2];
@@ -1393,7 +1402,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         /**
-         * TODO
+         * Send the name of the lever that we have pressed on our screen.
          */
         private void sendLeverPressedMessage(String lever) {
             sendReliableMessage(("S" + lever).getBytes());
@@ -1401,7 +1410,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * TODO
+     * Class for managing voice connection between players.
      */
     private class AudioConnector {
         /**
@@ -1448,7 +1457,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         /**
-         * Initialise audio recorder and starts thread that sends recorded audio to other player infinitly.
+         * Initialise audio recorder and starts thread that sends recorded audio to other player infinitely.
          */
         private void prepareBroadcastAudio () {
             if (googlePlayHandler.teammateParticipant == null || googlePlayHandler.teammateParticipant.getStatus() != Participant.STATUS_JOINED) {
@@ -1501,6 +1510,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             recorder.stop();
         }
 
+        /**
+         * Stops threads for playing voice,
+         */
         private void clearResources() {
             if (broadcastThread != null) {
                 broadcastThread.interrupt();
@@ -1514,10 +1526,14 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
             if (track != null) {
                 track.release();
+                track = null;
             }
         }
     }
 
+    /**
+     * Handles user interface.
+     */
     private class UIHandler {
         /**
          * All the individual screens game has.
@@ -1534,6 +1550,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
          */
         private int mCurScreen = -1;
 
+        /**
+         * Switches to the given screen.
+         */
         private void switchToScreen(int screenId) {
             for (int id : SCREENS) {
                 final View view = findViewById(id);
@@ -1563,19 +1582,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 switchToScreen(R.id.main_screen);
             } else {
                 googlePlayHandler.signInSilently();
-                //switchToScreen(R.id.screen_sign_in);
-            }
-        }
-
-        @SuppressWarnings("unused")
-        private void switchToMainScreenFromAnotherContent() {
-            setContentView(R.layout.activity_create_room);
-
-            if (googlePlayHandler.mRealTimeMultiplayerClient != null) {
-                switchToScreen(R.id.main_screen);
-            } else {
-                googlePlayHandler.signInSilently();
-                //switchToScreen(R.id.screen_sign_in);
             }
         }
 
@@ -1599,6 +1605,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
          * Show error message about game being cancelled and return to main screen.
          */
         void showGameError() {
+            googlePlayHandler.leaveRoom();
+
             switchToMainScreen();
 
             new AlertDialog.Builder(GameActivity.this)
@@ -1608,7 +1616,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         /**
          * Ask permission to record voice, if it wasn't given yet.
-         * TODO
+         * TODO test
          */
         private void askPermission() {
             if (ActivityCompat.checkSelfPermission(GameActivity.this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
@@ -1636,78 +1644,73 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * TODO
+     * Return class for interacting with the gameplay stage of the game.
      */
+    @NonNull
     public GameplayHandler getGameplayHandler() {
         return gameplayHandler;
     }
 
     /**
-     * TODO
+     * Class for interacting with the gameplay stage of the game.
      */
     public class GameplayHandler {
         /**
-         * TODO
+         * True if won the current level but other player may lose it).
          */
         private boolean myGameWon = false;
 
         /**
-         * TODO
+         * True if received message that other player won his current level.
          */
         private boolean otherGameWon = false;
 
         /**
-         * TODO
+         * Class for handling gameplay stage of the maze game.
          */
-        private MazeGame maze = null;
+        private MazeGame maze;
 
         /**
-         * TODO
+         * Instance of the player's game map.
          */
-        private MazeGameMap map = null;
+        private MazeGameMap mazeGameMap;
 
         /**
-         * TODO
+         * Class for handling gameplay stage of the code game.
          */
-        @SuppressWarnings("unused")
         private CodeGame codeGame = null;
 
         /**
-         * TODO
+         * Instance of the player's game map.
          */
-        private CodeGameMap codeGameMap = null;
+        private CodeGameMap codeGameMap;
 
         /**
-         * TODO
+         * Class for handling gameplay stage of the lever game.
          */
-        @SuppressWarnings("unused")
         private LeverGame leverGame = null;
 
         /**
-         * TODO
+         * Instance of the player's game map.
          */
-        @SuppressWarnings("unused")
-        private LeverGameMap myLeverGameMap = null;
+        private LeverGameMap leverGameMap;
 
         /**
-         * TODO
+         * Clears all handlers and they resources.
          */
         private void clearResources() {
-            if (maze != null) {
-                maze.onClose();
-                maze = null;
-            }
+            clearMazeResources();
 
-            if (codeGame != null) {
-                codeGame = null;
-            }
+            clearCodeGameResources();
+
+            clearLeverGameResources();
 
             myGameWon = false;
             otherGameWon = false;
         }
 
         /**
-         * TODO
+         * Clears maze game resources.
          */
         private void clearMazeResources() {
             if (maze != null) {
@@ -1717,7 +1720,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         /**
-         * TODO
+         * Clears code game resources.
          */
         private void clearCodeGameResources() {
             if (codeGame != null) {
@@ -1726,13 +1729,23 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         /**
-         * TODO
+         * Clears lever game resources.
+         */
+        private void clearLeverGameResources() {
+            if (leverGame != null) {
+                leverGame = null;
+            }
+        }
+
+        /**
+         * Calls when game's creator successfully started the game. Assigns maps of all levels in game.
          */
         private void createGameSettings() {
             gameSettings = new GameSettings();
 
             /*
-            There could be more smarter selection TODO write explanation.
+            There could be more smarter selection, but since I haven't made enough amount of levels in the
+            game, there is not much to select from.
              */
 
             if (random.nextBoolean()) {
@@ -1742,10 +1755,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 gameSettings.setMyMazeMap(MazeGameMap_Test2.class.getName());
                 gameSettings.setTeammateMazeMap(MazeGameMap_Test.class.getName());
             }
+
+            //For debugging.
             /*
             gameSettings.setMyMazeMap(MazeGameMap_Test.class.getName());
             gameSettings.setTeammateMazeMap(MazeGameMap_Simple.class.getName());
-*/
+            */
 
             String[] codeGames = new String[] {CodeGameMap_Test1.class.getName(), CodeGameMap_Test2.class.getName(), CodeGameMap_Test3.class.getName(), CodeGameMap_Test4.class.getName()};
             int myCodeGameId = (Math.abs(random.nextInt())) % 4;
@@ -1768,7 +1783,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         /**
-         * TODO
+         * Start gameplay stage of the game.
          */
         private void startGame() {
             audioConnector.startBroadcastAudio();
@@ -1776,12 +1791,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         /**
-         * TODO
+         * Starts maze game gameplay stage.
          */
         private void startMazeGame() {
             setContentView(R.layout.content_maze_game);
 
-            final ImageView mazeMapImage = (ImageView) findViewById(R.id.image_maze_map);
+            final ImageView mazeMapImage = findViewById(R.id.image_maze_map);
 
             View.OnClickListener onClickListener = new View.OnClickListener() {
                 @Override
@@ -1822,11 +1837,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             findViewById(R.id.useButton).setOnClickListener(onClickListener);
             findViewById(R.id.button_show_map).setOnClickListener(onClickListener);
 
+            assert gameSettings != null;
             Log.d(TAG, "Loaded maps are " + gameSettings.getMyMazeMap() + " " + gameSettings.getTeammateMazeMap());
 
             MazeGameMap teammateMap = null;
             try {
-                map = (MazeGameMap) getClassLoader().loadClass(gameSettings.getMyMazeMap()).getDeclaredConstructor(GameActivity.class).newInstance(GameActivity.this);
+                mazeGameMap = (MazeGameMap) getClassLoader().loadClass(gameSettings.getMyMazeMap()).getDeclaredConstructor(GameActivity.class).newInstance(GameActivity.this);
                 teammateMap = (MazeGameMap) getClassLoader().loadClass(gameSettings.getTeammateMazeMap()).getDeclaredConstructor(GameActivity.class).newInstance(GameActivity.this);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
@@ -1840,34 +1856,35 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 e.printStackTrace();
             }
 
-            if (map == null || teammateMap == null) {
+            if (mazeGameMap == null || teammateMap == null) {
                 Log.d(TAG, "failed to create the map");
-                return; //TODO throw exception
+                handleException(new RuntimeException(), "Couldn't create maze game");
+                return;
             }
 
             mazeMapImage.setImageResource(teammateMap.getImageID());
 
-            maze = new MazeGame(map, GameActivity.this);
-            map.draw();
+            maze = new MazeGame(mazeGameMap, GameActivity.this);
+            mazeGameMap.draw();
 
             gameStatistic.setMazeGameTime(System.currentTimeMillis());
             Log.d(TAG, "Switched to maze game");
         }
 
         /**
-         * TODO
+         * Called then we won the maze game. Either starts the next game or hides everything but
+         * the other player's map.
          */
         public void onMazeGameWon() {
             gameStatistic.setMazeGameTime(System.currentTimeMillis() - gameStatistic.getMazeGameTime());
 
-            //setContentView(R.layout.activity_create_room);
-            //uiHandler.switchToScreen(R.id.screen_wait);
-            clearMazeResources();
             for (int i = 0; i < MazeGameMap.HEIGHT_VIEW; i++) {
                 for (int j = 0; j < MazeGameMap.WIDTH_VIEW; j++) {
-                    findViewById(map.getImageIds()[i][j]).setVisibility(View.GONE);
+                    findViewById(mazeGameMap.getImageIds()[i][j]).setVisibility(View.GONE);
                 }
             }
+
+            clearMazeResources();
 
             findViewById(R.id.downButton).setVisibility(View.GONE);
             findViewById(R.id.upButton).setVisibility(View.GONE);
@@ -1876,6 +1893,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             findViewById(R.id.useButton).setVisibility(View.GONE);
 
             myGameWon = true;
+
             internetConnector.sendMazeWonMessage();
 
             if (otherGameWon) {
@@ -1885,7 +1903,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         /**
-         * TODO
+         * Called when we lost the maze game (and, therefore, we and our teammate lost an entire game).
          */
         public void onMazeGameLost() {
             gameStatistic.setMazeGameTime(-1);
@@ -1896,19 +1914,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         /**
-         * TODO
-         */
-        public void onCodeGameLost() {
-            gameStatistic.setCodeGameTime(-1);
-            gameStatistic.setCodeGameMistakeTaken(-1);
-
-            internetConnector.sendCodeLostMessage();
-            gameOver();
-            Log.d(TAG, "code game lost");
-        }
-
-        /**
-         * TODO
+         * Called when we have won the code game. Hides everything but the image with hint to the other
+         * player's game.
          */
         public void onCodeGameWon() {
             gameStatistic.setCodeGameTime(System.currentTimeMillis() - gameStatistic.getCodeGameTime());
@@ -1921,9 +1928,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
             internetConnector.sendCodeWonMessage();
 
-            //setContentView(R.layout.activity_create_room);
-            //uiHandler.switchToScreen(R.id.screen_wait);
-
             if (otherGameWon) {
                 Log.d(TAG, "code game won");
                 startLeverGame();
@@ -1933,23 +1937,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         /**
          * TODO
          */
-        private void gameOver() {
-            //TODO
-            clearAllResources();
-            //Intent intent = new Intent(this, GameLostActivity.class);
-            //startActivity(intent);
-            Toast.makeText(GameActivity.this, "lost", Toast.LENGTH_LONG).show();
-            googlePlayHandler.leaveRoom();
-        }
-
-
-        /**
-         * TODO
-         */
         private void startCodeGame() {
             Log.d(TAG, "Code game started");
-
-            //clearMazeResources();
 
             myGameWon = false;
             otherGameWon = false;
@@ -1958,6 +1947,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
             CodeGameMap teammateCodeGameMap = null;
             try {
+                assert gameSettings != null;
                 codeGameMap = (CodeGameMap) getClassLoader().loadClass(gameSettings.getMyCodeGameMap()).getDeclaredConstructor().newInstance();
                 teammateCodeGameMap = (CodeGameMap) getClassLoader().loadClass(gameSettings.getMyTeammateCodeGameMap()).getDeclaredConstructor().newInstance();
             } catch (IllegalAccessException e) {
@@ -1983,7 +1973,27 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         /**
-         * TODO
+         * Called when we lost the code game (and, therefore, we and our teammate lost an entire game).
+         */
+        public void onCodeGameLost() {
+            internetConnector.sendCodeLostMessage();
+            gameOver();
+            Log.d(TAG, "code game lost");
+        }
+
+
+
+        /**
+         * Called on loosing the game.
+         */
+        private void gameOver() {
+            clearAllResources();
+            Toast.makeText(GameActivity.this, "You lost the game. Better luck next time!", Toast.LENGTH_LONG).show();
+            googlePlayHandler.leaveRoom();
+        }
+
+        /**
+         * Starts the lever game gameplay stage.
          */
         private void startLeverGame() {
             Log.d(TAG, "Lever game started");
@@ -1995,14 +2005,15 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
             setContentView(R.layout.content_lever_game);
 
-            myLeverGameMap = null;
-            LeverGameMap myTeammateLeverGameMap = null;
+            leverGameMap = null;
+            LeverGameMap teammateLeverGameMap = null;
 
+            assert gameSettings != null;
             Log.d(TAG, "loaded lever maps are: " + gameSettings.myLeverGameMap + " " + gameSettings.myTeammateLeverGameMap);
 
             try {
-                myLeverGameMap = (LeverGameMap) getClassLoader().loadClass(gameSettings.myLeverGameMap).getDeclaredConstructor().newInstance();
-                myTeammateLeverGameMap = (LeverGameMap) getClassLoader().loadClass(gameSettings.myTeammateLeverGameMap).getDeclaredConstructor().newInstance();
+                leverGameMap = (LeverGameMap) getClassLoader().loadClass(gameSettings.myLeverGameMap).getDeclaredConstructor().newInstance();
+                teammateLeverGameMap = (LeverGameMap) getClassLoader().loadClass(gameSettings.myTeammateLeverGameMap).getDeclaredConstructor().newInstance();
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             } catch (InstantiationException e) {
@@ -2017,47 +2028,42 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
             Log.d(TAG, "Switched to lever game");
 
-            if (myLeverGameMap == null || myTeammateLeverGameMap == null) {
+            if (leverGameMap == null || teammateLeverGameMap == null) {
                 Log.d(TAG, "failed to load lever game map");
                 return;
             }
 
-            leverGame = new LeverGame(GameActivity.this, myLeverGameMap, myTeammateLeverGameMap);
+            leverGame = new LeverGame(GameActivity.this, leverGameMap, teammateLeverGameMap);
         }
 
         /**
-         * TODO
+         * Sends the pressed lever (public for using in internal logic).
          */
         public void sendLeverPressedMessage(String lever) {
             internetConnector.sendLeverPressedMessage(lever);
         }
 
         /**
-         * TODO
+         * Handles the loosing the lever game.
          */
         public void onLeverGameLost() {
-            gameStatistic.setLeverGameTime(-1);
-
             internetConnector.sendLeverLostMessage();
             Log.d(TAG, "lever game lost");
             gameOver();
         }
 
         /**
-         * TODO
+         * Handles the winning of the lever game.
          */
         public void onLeverGameWon() {
             gameStatistic.setLeverGameTime(System.currentTimeMillis() - gameStatistic.getLeverGameTime());
 
-            myLeverGameMap = null;
+            leverGameMap = null;
             findViewById(R.id.button_giveUp_lever).setVisibility(View.GONE);
 
             myGameWon = true;
 
             internetConnector.sendLeverWonMessage();
-
-            //setContentView(R.layout.activity_create_room);
-            //uiHandler.switchToScreen(R.id.screen_wait);
 
             if (otherGameWon) {
                 Log.d(TAG, "lever game won");
@@ -2065,33 +2071,59 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
 
+        /**
+         * Handles winning an entire game.
+         */
         private void gameWin() {
             googlePlayHandler.pushAccomplishments();
-
             clearAllResources();
-            //Intent intent = new Intent(this, GameLostActivity.class);
-            //startActivity(intent);
             Toast.makeText(GameActivity.this, "VICTORY! Congrats ;) !!!", Toast.LENGTH_LONG).show();
             googlePlayHandler.leaveRoom();
         }
     }
 
+    @NonNull
     public GameStatistic getGameStatistic() {
         return gameStatistic;
     }
 
     /**
-     * TODO
+     * Class for storing statistic (and achievements) of the game.
      */
     public static class GameStatistic {
+        /**
+         * Time for winning the maze game.
+         */
         private long mazeGameTime = -1;
+
+        /**
+         * Time for winning the code game.
+         */
         private long codeGameTime = -1;
+
+        /**
+         * Time for winning the lever game.
+         */
         private long leverGameTime = -1;
+
+        /**
+         * How many mistakes were taking when playing the code game.
+         */
         private int codeGameMistakeTaken = -1;
 
+        /**
+         * True if player have died by the monster during the maze game.
+         */
         private boolean deadByMonster = false;
+
+        /**
+         * True if player have killed his friend during the code game.
+         */
         private boolean killYourFriend = false;
 
+        /**
+         * Resets all statistic to default.
+         */
         private void clear() {
             mazeGameTime = -1;
             codeGameTime = -1;
@@ -2102,31 +2134,31 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             killYourFriend = false;
         }
 
-        public long getMazeGameTime() {
+        private long getMazeGameTime() {
             return mazeGameTime;
         }
 
-        public void setMazeGameTime(long mazeGameTime) {
+        private void setMazeGameTime(long mazeGameTime) {
             this.mazeGameTime = mazeGameTime;
         }
 
-        public long getCodeGameTime() {
+        private long getCodeGameTime() {
             return codeGameTime;
         }
 
-        public void setCodeGameTime(long codeGameTime) {
+        private void setCodeGameTime(long codeGameTime) {
             this.codeGameTime = codeGameTime;
         }
 
-        public long getLeverGameTime() {
+        private long getLeverGameTime() {
             return leverGameTime;
         }
 
-        public void setLeverGameTime(long leverGameTime) {
+        private void setLeverGameTime(long leverGameTime) {
             this.leverGameTime = leverGameTime;
         }
 
-        public int getCodeGameMistakeTaken() {
+        private int getCodeGameMistakeTaken() {
             return codeGameMistakeTaken;
         }
 
@@ -2138,7 +2170,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             this.codeGameMistakeTaken++;
         }
 
-        public boolean isDeadByMonster() {
+        private boolean isDeadByMonster() {
             return deadByMonster;
         }
 
@@ -2146,11 +2178,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             this.deadByMonster = deadByMonster;
         }
 
-        public boolean isKillYourFriend() {
+        private boolean isKillYourFriend() {
             return killYourFriend;
         }
 
-        public void setKillYourFriend(boolean killYourFriend) {
+        private void setKillYourFriend(boolean killYourFriend) {
             this.killYourFriend = killYourFriend;
         }
     }

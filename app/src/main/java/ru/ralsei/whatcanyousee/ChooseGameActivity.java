@@ -7,6 +7,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
+/**
+ * Testing activity: choosing the game and the map to play and test in single player mode.
+ *
+ * Unfortunately, unfinished.
+ */
 public class ChooseGameActivity extends AppCompatActivity {
 
     @Override

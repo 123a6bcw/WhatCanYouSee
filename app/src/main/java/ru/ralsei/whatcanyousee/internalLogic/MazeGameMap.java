@@ -1,6 +1,5 @@
 package ru.ralsei.whatcanyousee.internalLogic;
 
-import android.app.Activity;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
@@ -11,30 +10,29 @@ import ru.ralsei.whatcanyousee.R;
 /**
  * Abstract class that show required logic for interacting with game map.
  */
-@SuppressWarnings("WeakerAccess")
 public abstract class MazeGameMap {
     /**
-     * TODO
+     * Setup the meta data (like game width/height and other things to initialize).
      */
     abstract protected void setupMetaData();
 
     /**
-     * TODO
+     * Set's up the maze cells.
      */
     abstract protected void setupCells();
 
     /**
-     * TODO
+     * Set's up the maze traps.
      */
     abstract protected void setupTraps();
 
     /**
-     * TODO
+     * Set's up the maze toogles.
      */
     abstract protected void setupToogles();
 
     /**
-     * TODO
+     * Set's up the maze monsters.
      */
     abstract protected void setupMonsters();
 
@@ -59,7 +57,7 @@ public abstract class MazeGameMap {
     private static final int CENTRAL_Y = 3;
 
     /**
-     * TODO
+     * Inifinitely-like number.
      */
     private static final int INFINITY = 1000000;
 
@@ -68,13 +66,13 @@ public abstract class MazeGameMap {
      */
     private int imageID;
 
-    public void setImageID(int imageID) {
+    protected void setImageID(int imageID) {
         this.imageID = imageID;
     }
+
     public int getImageID() {
         return imageID;
     }
-
 
     /**
      * Activity map was created from.
@@ -115,19 +113,19 @@ public abstract class MazeGameMap {
      */
     private Coordinates currentCoordinates;
 
-    public int getxSize() {
+    protected int getxSize() {
         return xSize;
     }
 
-    public int getySize() {
+    protected int getySize() {
         return ySize;
     }
 
-    public void setxSize(int xSize) {
+    protected void setxSize(int xSize) {
         this.xSize = xSize;
     }
 
-    public void setySize(int ySize) {
+    protected void setySize(int ySize) {
         this.ySize = ySize;
     }
 
@@ -135,19 +133,15 @@ public abstract class MazeGameMap {
         return imageIds;
     }
 
-    public Coordinates getExitCoordinates() {
-        return exitCoordinates;
-    }
-
-    public void setExitCoordinates(Coordinates exitCoordinates) {
+    protected void setExitCoordinates(Coordinates exitCoordinates) {
         this.exitCoordinates = exitCoordinates;
     }
 
-    public void setInitialCoordinates(Coordinates coordinates) {
+    protected void setInitialCoordinates(Coordinates coordinates) {
         this.currentCoordinates = coordinates;
     }
 
-    public MazeGameMap.Cell[][] getCells() {
+    protected MazeGameMap.Cell[][] getCells() {
         return cells;
     }
 
@@ -156,7 +150,6 @@ public abstract class MazeGameMap {
     }
 
     public MazeGameMap(GameActivity activity) {
-
         this.activity = activity;
 
         imageIds = new int[WIDTH_VIEW][HEIGHT_VIEW];
@@ -229,9 +222,6 @@ public abstract class MazeGameMap {
                 cells[i][j].setY(j);
                 cells[i][j].setDistance(INFINITY);
                 cells[i][j].resetImage();
-
-                //TODO ImageView imageView =  ((ImageView) activity.findViewById(imageIds[i][j]));
-                //TODO imageView.setMinimumHeight();
             }
         }
 
@@ -244,26 +234,24 @@ public abstract class MazeGameMap {
      * Sets to each cell's imageView correct (current) image.
      */
     public void draw() {
-        synchronized (this) {
-            for (int i = 0; i < WIDTH_VIEW; i++) {
-                for (int j = 0; j < HEIGHT_VIEW; j++) {
-                    if (i == CENTRAL_X && j == CENTRAL_Y) {
-                        ((ImageView) (activity.findViewById(imageIds[i][j]))).setImageResource(R.drawable.you);
-                    } else {
-                        int dfx = i - CENTRAL_X;
-                        int dfy = j - CENTRAL_Y;
-                        int nx = currentCoordinates.getX() + dfx;
-                        int ny = currentCoordinates.getY() + dfy;
+        for (int i = 0; i < WIDTH_VIEW; i++) {
+            for (int j = 0; j < HEIGHT_VIEW; j++) {
+                if (i == CENTRAL_X && j == CENTRAL_Y) {
+                    ((ImageView) (activity.findViewById(imageIds[i][j]))).setImageResource(R.drawable.you);
+                } else {
+                    int dfx = i - CENTRAL_X;
+                    int dfy = j - CENTRAL_Y;
+                    int nx = currentCoordinates.getX() + dfx;
+                    int ny = currentCoordinates.getY() + dfy;
 
-                        int image = R.drawable.wall;
-                        if (nx >= 0 && nx < xSize && ny >= 0 && ny < ySize) {
-                            image = cells[nx][ny].image;
-                        }
+                    int image = R.drawable.wall;
+                    if (nx >= 0 && nx < xSize && ny >= 0 && ny < ySize) {
+                        image = cells[nx][ny].image;
+                    }
 
-                        ImageView imageView = (activity.findViewById(imageIds[j][i]));
-                        if (imageView != null) {
-                            imageView.setImageResource(image);
-                        }
+                    ImageView imageView = (activity.findViewById(imageIds[j][i]));
+                    if (imageView != null) {
+                        imageView.setImageResource(image);
                     }
                 }
             }
@@ -323,17 +311,26 @@ public abstract class MazeGameMap {
     }
 
     /**
-     * Each cell has distanceId. If this distanceId is lower than this number, cell distance is invalid
-     * and has to bee updated.
+     * Each cell has distanceId. If this distanceId is lower than this number, cell's distance is invalid
+     * and has to be updated.
      */
     private int distanceId = 0;
 
-    public int getDistanceId() {
+    int getDistanceId() {
         return distanceId;
     }
 
-    public void increaseDistanceId() {
+    void increaseDistanceId() {
         distanceId++;
+    }
+
+    /**
+     * True if given cells has monster
+     */
+    boolean hasMonster(Coordinates newCoordinates) {
+        synchronized (getCells()) {
+            return getCell(newCoordinates).numberOfMonsters > 0;
+        }
     }
 
     /**
@@ -344,6 +341,11 @@ public abstract class MazeGameMap {
          * True if cell is wall, meaning you can't go through this cell.
          */
         private boolean isWall = false;
+
+        /**
+         * True if there is monster on this cell.
+         */
+        private int numberOfMonsters = 0;
 
         /**
          * Cell coordinates.
@@ -361,11 +363,6 @@ public abstract class MazeGameMap {
          * event (for example, opening some door).
          */
         private Toogle toogle = null;
-
-        /**
-         * False if you cannot see this cell right now, for example, because it is behind the wall/closed door
-         */
-        private boolean isVisible = false;
 
         /**
          * Current distance between the player and this cell.
@@ -403,27 +400,27 @@ public abstract class MazeGameMap {
             this.defaultImage = image;
         }
 
-        public void resetImage() {
+        void resetImage() {
             this.image = defaultImage;
         }
 
-        protected boolean isWall() {
+        boolean isWall() {
             return isWall;
         }
 
-        protected boolean isTrap() {
+        boolean isTrap() {
             return trap != null;
         }
 
-        protected boolean isToogle() {
+        boolean isToogle() {
             return toogle != null;
         }
 
-        protected Trap getTrap() {
+        Trap getTrap() {
             return trap;
         }
 
-        protected Toogle getToogle() {
+        Toogle getToogle() {
             return toogle;
         }
 
@@ -437,7 +434,7 @@ public abstract class MazeGameMap {
         }
 
         /**
-         * TODO.
+         * Make given cell not a wall.
          */
         public void makeNotWall() {
             isWall = false;
@@ -449,11 +446,11 @@ public abstract class MazeGameMap {
             return distance;
         }
 
-        public void setDistance(int distance) {
+        void setDistance(int distance) {
             this.distance = distance;
         }
 
-        public int getX() {
+        int getX() {
             return x;
         }
 
@@ -461,7 +458,7 @@ public abstract class MazeGameMap {
             this.x = x;
         }
 
-        public int getY() {
+        int getY() {
             return y;
         }
 
@@ -469,11 +466,11 @@ public abstract class MazeGameMap {
             this.y = y;
         }
 
-        public int getDistanceId() {
+        int getDistanceId() {
             return distanceId;
         }
 
-        public void setDistanceId(int distanceId) {
+        void setDistanceId(int distanceId) {
             this.distanceId = distanceId;
         }
     }
@@ -492,16 +489,12 @@ public abstract class MazeGameMap {
         this.currentCoordinates = coordinates;
     }
 
-
     /**
-     * TODO
+     * Object to synchronize over when accessing the game result (won/lost).
      */
     private final Object gameResultLock = new Object();
 
-    /**
-     * TODO
-     */
-    public Object getGameResultLock() {
+    Object getGameResultLock() {
         return gameResultLock;
     }
 
@@ -516,12 +509,20 @@ public abstract class MazeGameMap {
     private boolean isWin = false;
 
     /**
-     * TODO
+     * Message to show when players loosing the game.
      */
-    private String message = "You lost.";
+    private String messageLost = "";
+
+    public String getMessageLost() {
+        return messageLost;
+    }
+
+    protected void setMessageLost(String messageLost) {
+        this.messageLost = messageLost;
+    }
 
     /**
-     * TODO
+     * Sets the result of the game (true for won, false for lost).
      */
     protected void setPlayerWon(boolean result) {
         synchronized (gameResultLock) {
@@ -531,13 +532,13 @@ public abstract class MazeGameMap {
     }
 
     /**
-     * TODO
+     * Sets the result of the game with message to the player.
      */
     protected void setPlayerWon(boolean result, String message) {
         synchronized (gameResultLock) {
             isOver = true;
             isWin = result;
-            this.message = message;
+            this.messageLost = message;
         }
     }
 
@@ -638,23 +639,6 @@ public abstract class MazeGameMap {
     protected abstract boolean checkConditionToExit();
 
     /**
-     * Press toogle with given coordinates.
-     */
-    private void use(Coordinates coordinates) {
-        Cell cell = getCell(coordinates);
-
-        if (cell == null) {
-            throw new IllegalArgumentException("Cell is out of bound in maze.");
-        }
-
-        if (!cell.isToogle()) {
-            throw new IllegalStateException("Position with given coordinates does not contain toogle");
-        }
-
-        cell.getToogle().use();
-    }
-
-    /**
      * Trap is a special cell that causing a special event when you stepping on it.
      * Basically, to create a trap one just has to implement that special event.
      */
@@ -679,10 +663,13 @@ public abstract class MazeGameMap {
     }
 
     /**
-     * TODO javadocs
+     * List of all monster in the game.
      */
-    private final ArrayList<Monster> monsters = new ArrayList<>(0);
+    private final ArrayList<Monster> monsters = new ArrayList<>();
 
+    /**
+     * Adds new monster to the list.
+     */
     protected void addMonster(Monster monster) {
         monsters.add(monster);
     }
@@ -692,56 +679,52 @@ public abstract class MazeGameMap {
     }
 
     /**
-     * TODO
+     * Class representing the monster in maze.
+     *
+     * Maze
      */
     protected abstract class Monster {
         /**
-         * TODO
+         * Image of this monster.
          */
         private int imageId;
 
         /**
-         * TODO
+         * Initial position in the maze.
          */
         private int initialX;
-
-        /**
-         * TODO
-         */
         private int initialY;
 
         /**
-         * TODO
+         * Current position in the maze.
          */
         private int currentX;
-
-        /**
-         * TODO
-         */
         private int currentY;
 
         /**
-         * TODO
+         * True if monster is ready to move -- he will be moved on the next tick.
          */
         abstract protected boolean readyToMove();
 
         /**
-         * TODO
+         * Moves monster to the given cell.
          */
-        protected void moveTo(Cell cell) {
-           currentX = cell.getX();
-           currentY = cell.getY();
+        void moveTo(Cell cell) {
+            synchronized (getCells()) {
+                this.getCurrentCell().numberOfMonsters--;
+                currentX = cell.getX();
+                currentY = cell.getY();
+                cell.numberOfMonsters++;
+            }
         }
 
         /**
-         * TODO
+         * Updates monster's state on gameplay tick -- for instance, monster could be moving each
+         * 5 ticks, so here he updates his counter.
          */
         abstract protected void updateOnTick();
 
-        /**
-         * TODO
-         */
-        protected int getImageId() {
+        int getImageId() {
             return this.imageId;
         }
 
@@ -767,7 +750,7 @@ public abstract class MazeGameMap {
             currentY = initialY;
         }
 
-        protected Coordinates getCurrentCoordinates() {
+        Coordinates getCurrentCoordinates() {
            return new Coordinates(currentX, currentY);
         }
 
@@ -776,12 +759,12 @@ public abstract class MazeGameMap {
         }
 
         /**
-         * TODO
+         * Monster tries to kill the player -- usually if he stepped on the cell with the player.
          */
         abstract protected void tryToKill();
 
         /**
-         * TODO
+         * Decreasing tickTo, but if it's 0, sets it to tickPer.
          */
         protected int decreaseTick(int tickTo, int tickPer) {
             if (tickTo == 0) {
@@ -812,20 +795,20 @@ public abstract class MazeGameMap {
             this.y = y;
         }
 
-        protected Coordinates(Coordinates other) {
+        Coordinates(Coordinates other) {
             this.x = other.x;
             this.y = other.y;
         }
 
-        protected int getX() {
+        int getX() {
             return x;
         }
 
-        protected int getY() {
+        int getY() {
             return y;
         }
 
-        protected void moveToVector(MazeGame.Command command) {
+        void moveToVector(MazeGame.Command command) {
             switch (command) {
                 case LEFT:
                     x--;
@@ -844,7 +827,7 @@ public abstract class MazeGameMap {
             }
         }
 
-        protected boolean equals(Coordinates coordinates) {
+        boolean equals(Coordinates coordinates) {
             return x == coordinates.getX() && y == coordinates.getY();
         }
     }

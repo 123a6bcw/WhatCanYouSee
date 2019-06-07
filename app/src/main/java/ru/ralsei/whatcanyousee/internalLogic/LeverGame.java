@@ -1,29 +1,26 @@
 package ru.ralsei.whatcanyousee.internalLogic;
 
 import android.support.constraint.ConstraintLayout;
-import android.support.v7.widget.SwitchCompat;
-import android.support.v7.widget.Toolbar;
-import android.text.Layout;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.Switch;
 
 import ru.ralsei.whatcanyousee.GameActivity;
 import ru.ralsei.whatcanyousee.R;
 
 /**
- * TODO
+ * Class that runs the lever game.
  */
 public class LeverGame {
     /**
-     * TODO
+     * Activity game was called from.
      */
     private GameActivity activity;
 
+    /**
+     * Initializes the content of the lever game.
+     */
     public LeverGame(final GameActivity activity, final LeverGameMap myLeverMap, final LeverGameMap teammateLeverMap) {
         this.activity = activity;
 
@@ -42,7 +39,6 @@ public class LeverGame {
                         GameActivity.SoundPlayer.playTrack(activity, R.raw.ok);
 
                         String leverName = ((Switch) v).getText().toString();
-                        //myLeverMap.applyLever(leverName);
                         activity.getGameplayHandler().sendLeverPressedMessage(leverName);
                     }
                 }

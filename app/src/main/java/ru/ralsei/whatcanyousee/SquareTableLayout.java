@@ -5,7 +5,7 @@ import android.util.AttributeSet;
 
 
 /**
- * Table layout that all inner-object are guaranteed to be square.
+ * Table layout that all the inner-object are guaranteed to be square.
  */
 public class SquareTableLayout extends android.widget.TableLayout {
     public SquareTableLayout(Context context) {
