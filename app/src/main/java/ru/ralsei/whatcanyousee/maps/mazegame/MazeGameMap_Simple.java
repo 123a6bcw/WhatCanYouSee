@@ -1,4 +1,4 @@
-package ru.ralsei.whatcanyousee.maps;
+package ru.ralsei.whatcanyousee.maps.mazegame;
 
 import ru.ralsei.whatcanyousee.GameActivity;
 import ru.ralsei.whatcanyousee.internalLogic.MazeGameMap;

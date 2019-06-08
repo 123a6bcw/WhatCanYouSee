@@ -1,4 +1,4 @@
-package ru.ralsei.whatcanyousee.maps;
+package ru.ralsei.whatcanyousee.maps.codegame;
 
 import ru.ralsei.whatcanyousee.internalLogic.CodeGame;
 import ru.ralsei.whatcanyousee.internalLogic.CodeGameMap;

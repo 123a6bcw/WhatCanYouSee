@@ -1,4 +1,4 @@
-package ru.ralsei.whatcanyousee.maps;
+package ru.ralsei.whatcanyousee.maps.levergame;
 
 import com.google.android.gms.games.Game;
 

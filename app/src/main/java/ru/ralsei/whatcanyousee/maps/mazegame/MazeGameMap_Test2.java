@@ -1,4 +1,4 @@
-package ru.ralsei.whatcanyousee.maps;
+package ru.ralsei.whatcanyousee.maps.mazegame;
 
 import java.util.List;
 
