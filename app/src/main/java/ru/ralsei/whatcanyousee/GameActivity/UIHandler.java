@@ -113,7 +113,6 @@ class UIHandler {
 
     /**
      * Ask permission to record voice, if it wasn't given yet.
-     * TODO test
      */
     void askPermission() {
         if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {

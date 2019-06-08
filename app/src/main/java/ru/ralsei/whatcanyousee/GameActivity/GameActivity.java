@@ -74,7 +74,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * Handles micro connection between players.
      */
-    //TODO test request micro
     @NonNull
     private AudioConnector audioConnector = new AudioConnector(this);
 
