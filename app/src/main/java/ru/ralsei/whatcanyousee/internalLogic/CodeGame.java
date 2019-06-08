@@ -5,7 +5,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 
-import ru.ralsei.whatcanyousee.GameActivity;
+import ru.ralsei.whatcanyousee.GameActivity.GameActivity;
 import ru.ralsei.whatcanyousee.R;
 
 /**

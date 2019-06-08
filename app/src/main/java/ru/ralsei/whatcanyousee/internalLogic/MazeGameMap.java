@@ -4,7 +4,7 @@ import android.widget.ImageView;
 
 import java.util.ArrayList;
 
-import ru.ralsei.whatcanyousee.GameActivity;
+import ru.ralsei.whatcanyousee.GameActivity.GameActivity;
 import ru.ralsei.whatcanyousee.R;
 
 /**

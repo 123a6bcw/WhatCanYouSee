@@ -1,9 +1,8 @@
 package ru.ralsei.whatcanyousee.maps.levergame;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import ru.ralsei.whatcanyousee.GameActivity;
+import ru.ralsei.whatcanyousee.GameActivity.GameActivity;
 import ru.ralsei.whatcanyousee.R;
 import ru.ralsei.whatcanyousee.internalLogic.LeverGameMap;
 

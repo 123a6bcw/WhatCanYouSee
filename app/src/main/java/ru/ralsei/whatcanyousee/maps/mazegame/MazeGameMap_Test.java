@@ -1,6 +1,6 @@
 package ru.ralsei.whatcanyousee.maps.mazegame;
 
-import ru.ralsei.whatcanyousee.GameActivity;
+import ru.ralsei.whatcanyousee.GameActivity.GameActivity;
 import ru.ralsei.whatcanyousee.R;
 import ru.ralsei.whatcanyousee.internalLogic.MazeGameMap;
 
