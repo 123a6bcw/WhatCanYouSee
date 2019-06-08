@@ -1,4 +1,4 @@
-package ru.ralsei.whatcanyousee.GameActivity;
+package ru.ralsei.whatcanyousee.gameactivity;
 
 import android.Manifest;
 import android.content.Intent;
@@ -12,7 +12,6 @@ import android.view.WindowManager;
 import com.google.android.gms.games.multiplayer.realtime.Room;
 import com.google.android.gms.tasks.OnSuccessListener;
 
-import ru.ralsei.whatcanyousee.GameActivity.GameActivity;
 import ru.ralsei.whatcanyousee.R;
 
 /**

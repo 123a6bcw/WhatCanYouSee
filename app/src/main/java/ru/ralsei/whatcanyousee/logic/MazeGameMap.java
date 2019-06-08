@@ -1,10 +1,10 @@
-package ru.ralsei.whatcanyousee.internalLogic;
+package ru.ralsei.whatcanyousee.logic;
 
 import android.widget.ImageView;
 
 import java.util.ArrayList;
 
-import ru.ralsei.whatcanyousee.GameActivity.GameActivity;
+import ru.ralsei.whatcanyousee.gameactivity.GameActivity;
 import ru.ralsei.whatcanyousee.R;
 
 /**

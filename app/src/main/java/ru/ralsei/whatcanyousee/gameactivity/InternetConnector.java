@@ -1,4 +1,4 @@
-package ru.ralsei.whatcanyousee.GameActivity;
+package ru.ralsei.whatcanyousee.gameactivity;
 
 import android.support.annotation.NonNull;
 import android.util.Log;

@@ -1,4 +1,4 @@
-package ru.ralsei.whatcanyousee.GameActivity;
+package ru.ralsei.whatcanyousee.gameactivity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -35,7 +35,6 @@ import com.google.android.gms.tasks.Task;
 import java.util.List;
 import java.util.Objects;
 
-import ru.ralsei.whatcanyousee.GameActivity.GameActivity;
 import ru.ralsei.whatcanyousee.R;
 
 /**

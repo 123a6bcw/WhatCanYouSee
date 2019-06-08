@@ -1,4 +1,4 @@
-package ru.ralsei.whatcanyousee.GameActivity;
+package ru.ralsei.whatcanyousee.gameactivity;
 
 import android.media.AudioAttributes;
 import android.media.AudioFormat;

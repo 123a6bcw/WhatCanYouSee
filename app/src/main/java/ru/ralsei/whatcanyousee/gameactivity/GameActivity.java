@@ -1,4 +1,4 @@
-package ru.ralsei.whatcanyousee.GameActivity;
+package ru.ralsei.whatcanyousee.gameactivity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -19,14 +19,11 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.games.GamesActivityResultCodes;
 import com.google.android.gms.games.GamesCallbackStatusCodes;
 import com.google.android.gms.games.GamesClientStatusCodes;
-import com.google.android.gms.games.RealTimeMultiplayerClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
 import ru.ralsei.whatcanyousee.R;
-
-import java.util.Random;
 
 /**
  * Main (and the only) app activity.

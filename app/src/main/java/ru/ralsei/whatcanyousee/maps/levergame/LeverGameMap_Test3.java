@@ -3,9 +3,9 @@ package ru.ralsei.whatcanyousee.maps.levergame;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.ralsei.whatcanyousee.GameActivity.GameActivity;
+import ru.ralsei.whatcanyousee.gameactivity.GameActivity;
 import ru.ralsei.whatcanyousee.R;
-import ru.ralsei.whatcanyousee.internalLogic.LeverGameMap;
+import ru.ralsei.whatcanyousee.logic.LeverGameMap;
 
 /**
  * Another simple lever game map. To win, other player should press "open the door", to lose --

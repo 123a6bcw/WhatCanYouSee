@@ -1,4 +1,4 @@
-package ru.ralsei.whatcanyousee.internalLogic;
+package ru.ralsei.whatcanyousee.logic;
 
 import android.support.constraint.ConstraintLayout;
 import android.view.View;
@@ -9,7 +9,7 @@ import android.widget.Switch;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.ralsei.whatcanyousee.GameActivity.GameActivity;
+import ru.ralsei.whatcanyousee.gameactivity.GameActivity;
 import ru.ralsei.whatcanyousee.R;
 
 /**

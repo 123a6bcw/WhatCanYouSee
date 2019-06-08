@@ -1,4 +1,4 @@
-package ru.ralsei.whatcanyousee.internalLogic;
+package ru.ralsei.whatcanyousee.logic;
 
 /**
  * Class representing an abstract code game map.

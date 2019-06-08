@@ -2,9 +2,9 @@ package ru.ralsei.whatcanyousee.maps.levergame;
 
 import java.util.ArrayList;
 
-import ru.ralsei.whatcanyousee.GameActivity.GameActivity;
+import ru.ralsei.whatcanyousee.gameactivity.GameActivity;
 import ru.ralsei.whatcanyousee.R;
-import ru.ralsei.whatcanyousee.internalLogic.LeverGameMap;
+import ru.ralsei.whatcanyousee.logic.LeverGameMap;
 
 /**
  * Simplest lever game map. In order to win, other play should press "press me".

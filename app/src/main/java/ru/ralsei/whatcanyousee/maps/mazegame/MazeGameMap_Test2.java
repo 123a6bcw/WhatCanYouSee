@@ -2,9 +2,9 @@ package ru.ralsei.whatcanyousee.maps.mazegame;
 
 import java.util.List;
 
-import ru.ralsei.whatcanyousee.GameActivity.GameActivity;
+import ru.ralsei.whatcanyousee.gameactivity.GameActivity;
 import ru.ralsei.whatcanyousee.R;
-import ru.ralsei.whatcanyousee.internalLogic.MazeGameMap;
+import ru.ralsei.whatcanyousee.logic.MazeGameMap;
 
 public class MazeGameMap_Test2 extends MazeGameMap {
     private boolean leftFirstToogle = false;
