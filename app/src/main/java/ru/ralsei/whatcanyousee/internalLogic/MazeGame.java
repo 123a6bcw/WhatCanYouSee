@@ -2,6 +2,8 @@ package ru.ralsei.whatcanyousee.internalLogic;
 
 import android.app.Activity;
 import android.media.MediaPlayer;
+import android.view.View;
+import android.widget.ImageView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,6 +16,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import ru.ralsei.whatcanyousee.GameActivity;
+import ru.ralsei.whatcanyousee.R;
 
 /**
  * Class that runs infinitive loop for explorer to explore the maze.
@@ -48,7 +51,15 @@ public class MazeGame {
 
                 for (MazeGameMap.Monster monster : map.getMonsters()) {
                     monster.updateOnTick();
-                    monster.tryToKill();
+
+                    if (monster.tryToKill()) {
+                        activity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                activity.getGameStatistic().setDeadByMonster(true);
+                            }
+                        });
+                    }
 
                     if (checkIfLostGame()) {
                         activity.getGameStatistic().setDeadByMonster(true);
@@ -92,6 +103,62 @@ public class MazeGame {
             }
         }, 0, DELAY, TimeUnit.MILLISECONDS);
     }
+
+    public void setupListeners() {
+        gameActivity.findViewById(R.id.upButton).setOnClickListener(onClickListener);
+        gameActivity.findViewById(R.id.leftButton).setOnClickListener(onClickListener);
+        gameActivity.findViewById(R.id.rightButton).setOnClickListener(onClickListener);
+        gameActivity.findViewById(R.id.downButton).setOnClickListener(onClickListener);
+        gameActivity.findViewById(R.id.useButton).setOnClickListener(onClickListener);
+        gameActivity.findViewById(R.id.button_show_map).setOnClickListener(onClickListener);
+        gameActivity.findViewById(R.id.button_giveUp_maze).setOnClickListener(onClickListener);
+    }
+
+    /**
+     * On click listener for the maze game.
+     */
+    private View.OnClickListener onClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()) {
+                case R.id.upButton:
+                    react(MazeGame.Command.UP);
+                    break;
+                case R.id.downButton:
+                    react(MazeGame.Command.DOWN);
+                    break;
+                case R.id.leftButton:
+                    react(MazeGame.Command.LEFT);
+                    break;
+                case R.id.rightButton:
+                    react(MazeGame.Command.RIGHT);
+                    break;
+                case R.id.useButton:
+                    react(MazeGame.Command.USE);
+                    break;
+                case R.id.button_show_map:
+                    ImageView mazeMapImage = gameActivity.findViewById(R.id.image_maze_map);
+
+                    if (mazeMapImage.getVisibility() == View.VISIBLE) {
+                        mazeMapImage.setVisibility(View.INVISIBLE);
+                    } else {
+                        mazeMapImage.setVisibility(View.VISIBLE);
+                    }
+                    break;
+                case R.id.button_giveUp_maze: {
+                    gameActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            gameActivity.getGameplayHandler().onMazeGameLost();
+                        }
+                    });
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    };
 
     /**
      * User commands from the screen buttons.
@@ -157,28 +224,24 @@ public class MazeGame {
      * True if player either won or lost.
      */
     private boolean checkIfGameOver() {
-        synchronized (map.getGameResultLock()) {
-            if (map.hasLost()) {
-                gameOverLost();
-                return true;
-            }
-
-            if (map.hasWon()) {
-                gameOverWon();
-                return true;
-            }
-
-            return false;
+        if (map.hasLost()) {
+            gameOverLost();
+            return true;
         }
+
+        if (map.hasWon()) {
+            gameOverWon();
+            return true;
+        }
+
+        return false;
     }
 
     /**
      * True of player lost the game.
      */
     private boolean checkIfLostGame() {
-        synchronized (map.getGameResultLock()) {
-            return map.hasLost();
-        }
+        return map.hasLost();
     }
 
     /**
@@ -218,7 +281,13 @@ public class MazeGame {
      */
     private void gameOverLost() {
         onClose();
-        gameActivity.getGameplayHandler().onMazeGameLost();
+
+        gameActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                gameActivity.getGameplayHandler().onMazeGameLost();
+            }
+        });
     }
 
     /**
@@ -226,7 +295,13 @@ public class MazeGame {
      */
     private void gameOverWon() {
         onClose();
-        gameActivity.getGameplayHandler().onMazeGameWon();
+
+        gameActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                gameActivity.getGameplayHandler().onMazeGameWon();
+            }
+        });
     }
 
     /**
@@ -243,7 +318,7 @@ public class MazeGame {
      * If new position is trap, applies this trap. May return loseCoordinates meaning player has lost the game.
      * Otherwise, just return corresponding new coordinates (either move player to left, right, up or down).
      */
-    private static void tryToMove(MazeGameMap map, Command command) {
+    private void tryToMove(MazeGameMap map, Command command) {
         MazeGameMap.Coordinates newCoordinates = new MazeGameMap.Coordinates(map.getCurrentCoordinates());
         newCoordinates.moveToVector(command);
 
@@ -267,6 +342,13 @@ public class MazeGame {
 
         if (map.hasMonster(newCoordinates)) {
             map.setPlayerWon(false);
+
+            gameActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    gameActivity.getGameStatistic().setDeadByMonster(true);
+                }
+            });
         }
 
         map.setCurrentCoordinates(newCoordinates);

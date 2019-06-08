@@ -40,54 +40,61 @@ public class CodeGame {
         this.codeGameMap = codeGameMap;
 
         ((ImageView) activity.findViewById(R.id.codeImage)).setImageResource(teammateCodeGameMap.getImageId());
+    }
 
-        View.OnClickListener onClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switch (v.getId()) {
-                    case R.id.button_submitCode: {
-                        String code = ((EditText) activity.findViewById(R.id.text_code)).getText().toString();
-                        Log.d(TAG, "Submitted code " + code);
-
-                        if (code.length() > MAX_CODE_LENGTH) {
-                            onWrongCode();
-                            return;
-                        }
-
-                        for (int i = 0; i < code.length(); i++) {
-                            if (code.charAt(i) < '0' || code.charAt(i) > '9') {
-                                onWrongCode();
-                                return;
-                            }
-                        }
-
-                        if (codeGameMap.checkCode(code)) {
-                            GameActivity.SoundPlayer.playTrack(activity, R.raw.ok);
-                            activity.getGameplayHandler().onCodeGameWon();
-                        } else {
-                            onWrongCode();
-                        }
-
-                        break;
-                    }
-
-                    case R.id.button_giveUp: {
-                        activity.getGameplayHandler().onCodeGameLost();
-                        break;
-                    }
-                }
-            }
-
-            /**
-             * Handling the wrong input code.
-             */
-            private void onWrongCode() {
-                GameActivity.SoundPlayer.playTrack(activity, R.raw.not_ok);
-                activity.getGameStatistic().incrementCodeGameMistakeTaken();
-            }
-        };
-
+    public void setupListeners() {
         activity.findViewById(R.id.button_submitCode).setOnClickListener(onClickListener);
         activity.findViewById(R.id.button_giveUp).setOnClickListener(onClickListener);
     }
+
+    private View.OnClickListener onClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.button_submitCode: {
+                    String code = ((EditText) activity.findViewById(R.id.text_code)).getText().toString();
+                    Log.d(TAG, "Submitted code " + code);
+
+                    if (code.length() > MAX_CODE_LENGTH) {
+                        onWrongCode();
+                        return;
+                    }
+
+                    for (int i = 0; i < code.length(); i++) {
+                        if (code.charAt(i) < '0' || code.charAt(i) > '9') {
+                            onWrongCode();
+                            return;
+                        }
+                    }
+
+                    if (codeGameMap.checkCode(code)) {
+                        activity.getSoundPlayer().playTrack(R.raw.ok);
+                        activity.getGameplayHandler().onCodeGameWon();
+                    } else {
+                        onWrongCode();
+                    }
+
+                    break;
+                }
+
+                case R.id.button_giveUp: {
+                    activity.getGameplayHandler().onCodeGameLost();
+                    break;
+                }
+            }
+        }
+
+        /**
+         * Handling the wrong input code.
+         */
+        private void onWrongCode() {
+            activity.getSoundPlayer().playTrack(R.raw.not_ok);
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    activity.getGameStatistic().incrementCodeGameMistakeTaken();
+                }
+            });
+        }
+    };
 }

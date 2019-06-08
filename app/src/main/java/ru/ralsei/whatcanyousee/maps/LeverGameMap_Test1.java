@@ -3,6 +3,7 @@ package ru.ralsei.whatcanyousee.maps;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.ralsei.whatcanyousee.GameActivity;
 import ru.ralsei.whatcanyousee.R;
 import ru.ralsei.whatcanyousee.internalLogic.LeverGameMap;
 
@@ -53,8 +54,8 @@ public class LeverGameMap_Test1 extends LeverGameMap {
         }
     }
 
-    public LeverGameMap_Test1() {
-        super();
+    public LeverGameMap_Test1(GameActivity activity) {
+        super(activity);
 
         List<State> states = getStates();
         ArrayList<String> levers = new ArrayList<>();

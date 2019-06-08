@@ -198,7 +198,7 @@ public class MazeGameMap_Test extends MazeGameMap {
             protected void apply() {
                 setPlayerWon(false);
 
-                GameActivity.SoundPlayer.playTrack(getActivity(), R.raw.lolyoudead);
+                getActivity().getSoundPlayer().playTrack(R.raw.lolyoudead);
             }
         });
 
@@ -249,15 +249,18 @@ public class MazeGameMap_Test extends MazeGameMap {
                 ticksToPlay = decreaseTick(ticksToPlay, ticksPerPlay);
 
                 if (ticksToPlay == 0) {
-                    GameActivity.SoundPlayer.playTrackWithVolume(getActivity(), R.raw.scary_monster, 10 - this.getCurrentCell().getDistance());
+                    getActivity().getSoundPlayer().playTrackWithVolume(R.raw.scary_monster, 10 - this.getCurrentCell().getDistance());
                 }
             }
 
             @Override
-            protected void tryToKill() {
+            protected boolean tryToKill() {
                 if (getCurrentCell().getDistance() == 0) {
                     setPlayerWon(false);
+                    return true;
                 }
+
+                return false;
             }
 
             @Override

@@ -237,7 +237,10 @@ public abstract class MazeGameMap {
         for (int i = 0; i < WIDTH_VIEW; i++) {
             for (int j = 0; j < HEIGHT_VIEW; j++) {
                 if (i == CENTRAL_X && j == CENTRAL_Y) {
-                    ((ImageView) (activity.findViewById(imageIds[i][j]))).setImageResource(R.drawable.you);
+                    ImageView imageView = ((ImageView) (activity.findViewById(imageIds[i][j])));
+                    if (imageView != null) {
+                        imageView.setImageResource(R.drawable.you);
+                    }
                 } else {
                     int dfx = i - CENTRAL_X;
                     int dfy = j - CENTRAL_Y;
@@ -328,9 +331,7 @@ public abstract class MazeGameMap {
      * True if given cells has monster
      */
     boolean hasMonster(Coordinates newCoordinates) {
-        synchronized (getCells()) {
-            return getCell(newCoordinates).numberOfMonsters > 0;
-        }
+        return getCell(newCoordinates).numberOfMonsters > 0;
     }
 
     /**
@@ -489,24 +490,18 @@ public abstract class MazeGameMap {
         this.currentCoordinates = coordinates;
     }
 
-    /**
-     * Object to synchronize over when accessing the game result (won/lost).
-     */
+    /*
     private final Object gameResultLock = new Object();
 
     Object getGameResultLock() {
         return gameResultLock;
     }
-
-    /**
-     * Game is over if player either lost or correctly reached the exit position.
-     */
-    private boolean isOver = false;
+    */
 
     /**
      * If game is over, shows if player either won or lost.
      */
-    private boolean isWin = false;
+    private volatile Boolean isWin = null;
 
     /**
      * Message to show when players loosing the game.
@@ -525,39 +520,21 @@ public abstract class MazeGameMap {
      * Sets the result of the game (true for won, false for lost).
      */
     protected void setPlayerWon(boolean result) {
-        synchronized (gameResultLock) {
-            isOver = true;
-            isWin = result;
-        }
-    }
-
-    /**
-     * Sets the result of the game with message to the player.
-     */
-    protected void setPlayerWon(boolean result, String message) {
-        synchronized (gameResultLock) {
-            isOver = true;
-            isWin = result;
-            this.messageLost = message;
-        }
+        isWin = result;
     }
 
     /**
      * Returns true if game is over and player has lost the game, for example player has been killed by stepping on a trap.
      */
     boolean hasLost() {
-        synchronized (gameResultLock) {
-            return isOver && !isWin;
-        }
+        return isWin != null && !isWin;
     }
 
     /**
      * Returns true if game is over and player has won, meaning successfully reaching the exit position.
      */
     boolean hasWon() {
-        synchronized (gameResultLock) {
-            return isOver && isWin;
-        }
+        return isWin != null && isWin;
     }
 
     /**
@@ -710,12 +687,10 @@ public abstract class MazeGameMap {
          * Moves monster to the given cell.
          */
         void moveTo(Cell cell) {
-            synchronized (getCells()) {
-                this.getCurrentCell().numberOfMonsters--;
-                currentX = cell.getX();
-                currentY = cell.getY();
-                cell.numberOfMonsters++;
-            }
+            this.getCurrentCell().numberOfMonsters--;
+            currentX = cell.getX();
+            currentY = cell.getY();
+            cell.numberOfMonsters++;
         }
 
         /**
@@ -761,7 +736,7 @@ public abstract class MazeGameMap {
         /**
          * Monster tries to kill the player -- usually if he stepped on the cell with the player.
          */
-        abstract protected void tryToKill();
+        abstract protected boolean tryToKill();
 
         /**
          * Decreasing tickTo, but if it's 0, sets it to tickPer.

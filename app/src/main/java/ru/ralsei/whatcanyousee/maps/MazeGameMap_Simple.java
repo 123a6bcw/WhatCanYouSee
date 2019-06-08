@@ -5,6 +5,9 @@ import ru.ralsei.whatcanyousee.internalLogic.MazeGameMap;
 import ru.ralsei.whatcanyousee.R;
 
 
+/**
+ * Simple map with no monsters, traps or levers.
+ */
 public class MazeGameMap_Simple extends MazeGameMap {
 
     @Override

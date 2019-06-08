@@ -1,7 +1,13 @@
 package ru.ralsei.whatcanyousee.internalLogic;
 
+import android.app.Activity;
+import android.widget.ImageView;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import ru.ralsei.whatcanyousee.GameActivity;
+import ru.ralsei.whatcanyousee.R;
 
 /**
  * Abstract class representing the lever game map.
@@ -20,7 +26,16 @@ public abstract class LeverGameMap {
     /**
      * List of all possible states in the map.
      */
-    private ArrayList<State> states = new ArrayList<>();
+    private final ArrayList<State> states = new ArrayList<>();
+
+    /**
+     * Activity map was created on.
+     */
+    private GameActivity activity;
+
+    protected GameActivity getActivity() {
+        return activity;
+    }
 
     /**
      * Class representing the state of the lever game. All states represents the vertexes of a directed
@@ -54,7 +69,7 @@ public abstract class LeverGameMap {
             this.imageID = imageID;
         }
 
-        public boolean isWinState() {
+        boolean isWinState() {
             return winState;
         }
 
@@ -62,7 +77,7 @@ public abstract class LeverGameMap {
             this.winState = winState;
         }
 
-        public boolean isLoseState() {
+        boolean isLoseState() {
             return loseState;
         }
 
@@ -71,7 +86,8 @@ public abstract class LeverGameMap {
         }
     }
 
-    public LeverGameMap() {
+    public LeverGameMap(GameActivity activity) {
+        this.activity = activity;
     }
 
     /**
@@ -99,10 +115,40 @@ public abstract class LeverGameMap {
 
     protected void setCurrentState(int currentStateNumber) {
         this.currentStateNumber = currentStateNumber;
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ImageView imageView = activity.findViewById(R.id.leverImage);
+                if (imageView != null) {
+                    imageView.setImageResource(LeverGameMap.this.getCurrentState().getImageID());
+                }
+            }
+        });
+
+        if (states.get(currentStateNumber).isWinState()) {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    activity.getGameplayHandler().onLeverGameWon();
+                }
+            });
+        } else if (states.get(currentStateNumber).isLoseState()) {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    activity.getGameplayHandler().onLeverGameLost(false);
+                }
+            });
+        }
     }
 
     protected void addState(State state) {
         states.add(state);
+    }
+
+    protected State getState(int number) {
+        return states.get(number);
     }
 
     protected String[] getLevers() {

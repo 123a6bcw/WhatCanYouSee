@@ -15,7 +15,7 @@
     <string name="is_inviting_you">Is inviting you</string>
     <string name="game_problem">Problem game</string>
     <string name="leaderboards_exception">Error accessing leaderboards</string>
-    <string name="achievements_exception">Error accessing achivements</string>
+    <string name="achievements_exception">Error accessing achievements</string>
     <string name="invite_friend">invite friend</string>
     <string name="show_invitations">show invitations</string>
     <string name="show_achievements">Show achievements</string>
@@ -28,7 +28,6 @@
     <string name="debug_games">Debug games</string>
     <string name="maze_game_explorer">Maze Game Explorer</string>
     <string name="open_the_door">open the door</string>
-    <string name="give_up">give up</string>
     <string name="give_up">give up</string>
     <string name="show_map">show map</string>
     <string name="use">USE</string>

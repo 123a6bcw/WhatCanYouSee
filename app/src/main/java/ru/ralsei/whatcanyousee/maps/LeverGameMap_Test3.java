@@ -1,8 +1,11 @@
 package ru.ralsei.whatcanyousee.maps;
 
+import com.google.android.gms.games.Game;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.ralsei.whatcanyousee.GameActivity;
 import ru.ralsei.whatcanyousee.R;
 import ru.ralsei.whatcanyousee.internalLogic.LeverGameMap;
 
@@ -37,7 +40,7 @@ public class LeverGameMap_Test3 extends LeverGameMap {
                 case "do nothing":
                     break;
                 case "release snakes!!1":
-                    snakeReleased = true;
+                    state.snakeReleased = true;
                     break;
             }
 
@@ -49,8 +52,8 @@ public class LeverGameMap_Test3 extends LeverGameMap {
         }
     }
 
-    public LeverGameMap_Test3() {
-        super();
+    public LeverGameMap_Test3(GameActivity activity) {
+        super(activity);
 
         List<State> states = getStates();
         ArrayList<String> levers = new ArrayList<>();
@@ -61,8 +64,8 @@ public class LeverGameMap_Test3 extends LeverGameMap {
 
         setLevers(levers.toArray(getLevers()));
 
-        states.add(new Test3State(R.drawable.levergame_test2_state_empty, false, false));
-        states.add(new Test3State(R.drawable.levergame_test2_state_ok, true, false));
+        states.add(new Test3State(R.drawable.levergame_emptyimage, false, false));
+        states.add(new Test3State(R.drawable.levergame_emptyimage, true, false));
         states.add(new Test3State(R.drawable.levergame_test3_state_snake, false, true));
 
         states.get(1).setWinState(true);
