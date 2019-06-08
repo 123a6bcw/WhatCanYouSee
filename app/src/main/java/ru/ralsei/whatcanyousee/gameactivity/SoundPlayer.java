@@ -21,11 +21,6 @@ public class SoundPlayer {
     private final MediaPlayer[] players = new MediaPlayer[8];
 
     /**
-     * Executor for setting players.
-     */
-    private ExecutorService executor = Executors.newSingleThreadExecutor();
-
-    /**
      * Used to support choosing volume from 1 to 10 linearly.
      */
     private final int MAX_VOLUME = 11;
@@ -38,7 +33,7 @@ public class SoundPlayer {
             return;
         }
 
-        executor.submit(new Runnable() {
+        activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 for (int i = 0; i < players.length; i++) {
@@ -78,9 +73,5 @@ public class SoundPlayer {
                 players[i] = null;
             }
         }
-    }
-
-    void shutdown() {
-        executor.shutdown();
     }
 }

@@ -407,7 +407,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     public void onDestroy() {
         googlePlayHandler.leaveRoom();
         clearAllResources();
-        soundPlayer.shutdown();
 
         super.onDestroy();
     }
