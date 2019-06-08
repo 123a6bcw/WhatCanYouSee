@@ -372,7 +372,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             if (resultCode == Activity.RESULT_OK) {
                 // ready to start playing
                 Log.d(TAG, "Starting game (waiting room returned OK).");
-                uiHandler.askPermission();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        uiHandler.askPermission();
+                    }
+                });
             } else if (resultCode == GamesActivityResultCodes.RESULT_LEFT_ROOM) {
                 // player indicated that they want to leave the room
                 googlePlayHandler.leaveRoom();

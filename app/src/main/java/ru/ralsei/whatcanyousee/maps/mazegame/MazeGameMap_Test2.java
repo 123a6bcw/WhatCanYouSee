@@ -151,7 +151,13 @@ public class MazeGameMap_Test2 extends MazeGameMap {
 
                 List<Monster> monsters = getMonsters();
                 SimpleMonster monster = (SimpleMonster) monsters.get(0);
+                SimpleMonster monster1 = (SimpleMonster) monsters.get(1);
 
+                killMonster(monster);
+                killMonster(monster1);
+            }
+
+            private void killMonster(SimpleMonster monster) {
                 if (monster != null) {
                     if (!monster.dead) {
                         monster.ticksToMove = 10000;
@@ -182,10 +188,10 @@ public class MazeGameMap_Test2 extends MazeGameMap {
         private final int ticksPerPlay = 20;
         private int ticksToPlay = ticksPerPlay;
 
-        private SimpleMonster() {
+        private SimpleMonster(int initialX, int initialY) {
             this.setImageId(R.drawable.lev);
-            setInitialX(6);
-            setInitialY(1);
+            setInitialX(initialX);
+            setInitialY(initialY);
         }
 
         @Override
@@ -218,7 +224,8 @@ public class MazeGameMap_Test2 extends MazeGameMap {
 
     @Override
     protected void setupMonsters() {
-        addMonster(new SimpleMonster());
+        addMonster(new SimpleMonster(6, 1));
+        addMonster(new SimpleMonster(8, 1));
     }
 
     @Override

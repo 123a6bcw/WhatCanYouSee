@@ -22,9 +22,12 @@ import ru.ralsei.whatcanyousee.maps.codegame.CodeGameMap_Test1;
 import ru.ralsei.whatcanyousee.maps.codegame.CodeGameMap_Test2;
 import ru.ralsei.whatcanyousee.maps.codegame.CodeGameMap_Test3;
 import ru.ralsei.whatcanyousee.maps.codegame.CodeGameMap_Test4;
+import ru.ralsei.whatcanyousee.maps.levergame.LeverGameKingAndQueen_firstPlayer;
+import ru.ralsei.whatcanyousee.maps.levergame.LeverGameKingAndQueen_secondPlayer;
 import ru.ralsei.whatcanyousee.maps.levergame.LeverGameMap_Test1;
 import ru.ralsei.whatcanyousee.maps.levergame.LeverGameMap_Test2;
 import ru.ralsei.whatcanyousee.maps.levergame.LeverGameMap_Test3;
+import ru.ralsei.whatcanyousee.maps.mazegame.MazeGameMap_Simple;
 import ru.ralsei.whatcanyousee.maps.mazegame.MazeGameMap_Test;
 import ru.ralsei.whatcanyousee.maps.mazegame.MazeGameMap_Test2;
 
@@ -186,10 +189,10 @@ public class GameplayHandler {
         }
 
         //For debugging.
-            /*
+
             gameSettings.setMyMazeMap(MazeGameMap_Simple.class.getName());
             gameSettings.setTeammateMazeMap(MazeGameMap_Simple.class.getName());
-            */
+
 
         String[] codeGames = new String[] {CodeGameMap_Test1.class.getName(), CodeGameMap_Test2.class.getName(), CodeGameMap_Test3.class.getName(), CodeGameMap_Test4.class.getName()};
         int myCodeGameId = (Math.abs(random.nextInt())) % 4;
@@ -200,7 +203,7 @@ public class GameplayHandler {
         }
         gameSettings.setMyTeammateCodeGameMap(codeGames[teammateCodeGameId]); //TODO smart selection
 
-
+        /*
         String[] leverGames = new String[] {LeverGameMap_Test1.class.getName(), LeverGameMap_Test2.class.getName(), LeverGameMap_Test3.class.getName()};
         int myLeverGameId = (Math.abs(random.nextInt())) % 3;
         gameSettings.setMyLeverGameMap(leverGames[myLeverGameId]);
@@ -209,6 +212,10 @@ public class GameplayHandler {
             teammateLeverGameId = (Math.abs(random.nextInt())) % 3;
         }
         gameSettings.setMyTeammateLeverGameMap(leverGames[teammateLeverGameId]); //TODO smart selection
+        */
+
+        gameSettings.setMyLeverGameMap(LeverGameKingAndQueen_firstPlayer.class.getName());
+        gameSettings.setMyTeammateLeverGameMap(LeverGameKingAndQueen_secondPlayer.class.getName());
     }
 
     /**

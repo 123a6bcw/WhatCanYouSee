@@ -238,10 +238,10 @@ public class MazeGameMap_Test extends MazeGameMap {
             private final int ticksPerPlay = 20;
             private int ticksToPlay = ticksPerPlay;
 
-            private SimpleMonster() {
+            private SimpleMonster(int initialX, int initialY) {
                 this.setImageId(R.drawable.lev);
-                setInitialX(9);
-                setInitialY(7);
+                setInitialX(initialX);
+                setInitialY(initialY);
             }
 
             @Override
@@ -272,7 +272,8 @@ public class MazeGameMap_Test extends MazeGameMap {
             }
         }
 
-        addMonster(new SimpleMonster());
+        addMonster(new SimpleMonster(9, 7));
+        addMonster(new SimpleMonster(10, 8));
     }
 
     @Override

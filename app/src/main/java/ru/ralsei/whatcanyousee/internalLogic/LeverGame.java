@@ -27,10 +27,16 @@ public class LeverGame {
     private List<Switch> switches = new ArrayList<>();
 
     /**
+     *
+     */
+    private final LeverGameMap myLeverMap;
+
+    /**
      * Initializes the content of the lever game.
      */
     public LeverGame(final GameActivity activity, final LeverGameMap myLeverMap, final LeverGameMap teammateLeverMap) {
         this.activity = activity;
+        this.myLeverMap = myLeverMap;
 
         ((ImageView) activity.findViewById(R.id.leverImage)).setImageResource(myLeverMap.getCurrentState().getImageID());
 
@@ -71,7 +77,12 @@ public class LeverGame {
                     activity.getSoundPlayer().playTrack(R.raw.ok);
 
                     String leverName = ((Switch) v).getText().toString();
-                    activity.getGameplayHandler().sendLeverPressedMessage(leverName);
+
+                    if (!myLeverMap.getPressSelf()) {
+                        activity.getGameplayHandler().sendLeverPressedMessage(leverName);
+                    } else {
+                        myLeverMap.applyLever(leverName);
+                    }
                 }
             }
         }

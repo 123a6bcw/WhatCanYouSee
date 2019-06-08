@@ -37,6 +37,19 @@ public abstract class LeverGameMap {
     }
 
     /**
+     * True if pressing lever causing effects on the player's screen, not teammates screen.
+     */
+    private boolean pressSelf = false;
+
+    public boolean getPressSelf() {
+        return pressSelf;
+    }
+
+    protected void setPressSelf() {
+        pressSelf = true;
+    }
+
+    /**
      * Class representing the state of the lever game. All states represents the vertexes of a directed
      * graph, with levers representing the edges.
      */

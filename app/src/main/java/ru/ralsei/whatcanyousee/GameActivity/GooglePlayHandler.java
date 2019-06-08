@@ -367,9 +367,14 @@ class GooglePlayHandler {
 
         @Override
         public void onDisconnectedFromRoom(Room room) {
-            mRoomId = null;
-            mRoomConfig = null;
-            activity.getUIHandler().showGameError();
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mRoomId = null;
+                    mRoomConfig = null;
+                    activity.getUIHandler().showGameError();
+                }
+            });
         }
 
         @Override
@@ -384,10 +389,12 @@ class GooglePlayHandler {
 
         @Override
         public void onP2PDisconnected(@NonNull String participant) {
+            Log.d(TAG, "P2P disconnected");
         }
 
         @Override
         public void onP2PConnected(@NonNull String participant) {
+            Log.d(TAG, "P2P disconnected");
         }
 
         @Override
@@ -447,7 +454,7 @@ class GooglePlayHandler {
      */
     private RoomUpdateCallback mRoomUpdateCallback = new RoomUpdateCallback() {
         @Override
-        public void onRoomCreated(int statusCode, Room room) {
+        public void onRoomCreated(int statusCode, final Room room) {
             Log.d(TAG, "onRoomCreated(" + statusCode + ", " + room + ")");
             if (statusCode != GamesCallbackStatusCodes.OK) {
                 Log.e(TAG, "*** Error: onRoomCreated, status " + statusCode);
@@ -457,7 +464,12 @@ class GooglePlayHandler {
 
             mRoomId = room.getRoomId();
 
-            activity.getUIHandler().showWaitingRoom(room);
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    activity.getUIHandler().showWaitingRoom(room);
+                }
+            });
         }
 
         @Override
@@ -472,7 +484,7 @@ class GooglePlayHandler {
         }
 
         @Override
-        public void onJoinedRoom(int statusCode, Room room) {
+        public void onJoinedRoom(int statusCode, final Room room) {
             Log.d(TAG, "onJoinedRoom(" + statusCode + ", " + room + ")");
             if (statusCode != GamesCallbackStatusCodes.OK) {
                 Log.e(TAG, "*** Error: onRoomConnected, status " + statusCode);
@@ -480,16 +492,27 @@ class GooglePlayHandler {
                 return;
             }
 
-            activity.getUIHandler().showWaitingRoom(room);
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    activity.getUIHandler().showWaitingRoom(room);
+                }
+            });
         }
 
         @Override
         public void onLeftRoom(int statusCode, @NonNull String roomId) {
             Log.d(TAG, "onLeftRoom, code " + statusCode);
-            activity.clearAllResources();
-            activity.setContentView(R.layout.activity_game);
-            activity.setupListeners();
-            activity.getUIHandler().switchToMainScreen();
+
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    activity.clearAllResources();
+                    activity.setContentView(R.layout.activity_game);
+                    activity.setupListeners();
+                    activity.getUIHandler().switchToMainScreen();
+                }
+            });
         }
     };
 
