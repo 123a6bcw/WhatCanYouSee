@@ -68,6 +68,7 @@ public class LeverGameMap_Test3 extends LeverGameMap {
 
         states.get(1).setWinState(true);
         states.get(2).setLoseState(true);
+        states.get(2).setMessage("You has been ate by the snakes.");
         setCurrentState(0);
     }
 

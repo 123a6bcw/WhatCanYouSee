@@ -237,7 +237,7 @@ public abstract class MazeGameMap {
         for (int i = 0; i < WIDTH_VIEW; i++) {
             for (int j = 0; j < HEIGHT_VIEW; j++) {
                 if (i == CENTRAL_X && j == CENTRAL_Y) {
-                    ImageView imageView = ((ImageView) (activity.findViewById(imageIds[i][j])));
+                    ImageView imageView = (activity.findViewById(imageIds[i][j]));
                     if (imageView != null) {
                         imageView.setImageResource(R.drawable.you);
                     }
@@ -508,7 +508,7 @@ public abstract class MazeGameMap {
      */
     private String messageLost = "";
 
-    public String getMessageLost() {
+    String getMessageLost() {
         return messageLost;
     }
 

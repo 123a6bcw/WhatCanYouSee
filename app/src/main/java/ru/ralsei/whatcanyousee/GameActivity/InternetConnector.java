@@ -108,12 +108,12 @@ class InternetConnector {
         } else if (receivedData[0] == 'L') {
             //Other player lost on his map.
             if (receivedData[1] == 'M') {
-                activity.getGameplayHandler().gameOver(true);
+                activity.getGameplayHandler().gameOver(true, "You can not survive alone...");
             } else if (receivedData[1] == 'C') {
-                activity.getGameplayHandler().gameOver(true);
+                activity.getGameplayHandler().gameOver(true, "You can not survive alone...");
             } else if (receivedData[1] == 'L') {
                 activity.getGameStatistic().setKillYourFriend();
-                activity.getGameplayHandler().gameOver(true);
+                activity.getGameplayHandler().gameOver(true, "You can not survive alone...");
             } else {
                 Log.d(TAG, "wrong game code in message");
             }

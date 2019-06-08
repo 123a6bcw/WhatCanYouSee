@@ -1,10 +1,10 @@
 package ru.ralsei.whatcanyousee.GameActivity;
 
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -303,11 +303,11 @@ public class GameplayHandler {
     /**
      * Called when we lost the maze game (and, therefore, we and our teammate lost an entire game).
      */
-    public void onMazeGameLost() {
+    public void onMazeGameLost(String message) {
         activity.getGameStatistic().setMazeGameTime(-1);
 
         activity.getInternetConnector().sendMazeLostMessage();
-        gameOver(false);
+        gameOver(false, message);
         Log.d(TAG, "maze game lost");
     }
 
@@ -376,16 +376,16 @@ public class GameplayHandler {
     /**
      * Called when we lost the code game (and, therefore, we and our teammate lost an entire game).
      */
-    public void onCodeGameLost() {
+    public void onCodeGameLost(String message) {
         activity.getInternetConnector().sendCodeLostMessage();
-        gameOver(false);
+        gameOver(false, message);
         Log.d(TAG, "code game lost");
     }
 
     /**
      * Called on loosing the game.
      */
-    void gameOver(boolean friendDied) {
+    void gameOver(boolean friendDied, String message) {
         if (activity.getGameStatistic().isDeadByMonster()) {
             activity.getGooglePlayHandler().getAchievementsClient().unlock(activity.getString(R.string.achievement_get_dunked_on));
         }
@@ -396,12 +396,15 @@ public class GameplayHandler {
 
         activity.clearAllResources();
 
-        String message = "You lost the game because you was killed. Better luck next time!";
         if (friendDied) {
-            message = "You lost the game because your friend has been killed. Better luck next time!";
+            message = message + "\n\n" + "You lost the game because your friend has been killed. Better luck next time!";
+        } else {
+            message = message + "\n\n" + "You lost the game because you was killed. Better luck next time!";
         }
 
-        Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
+        new AlertDialog.Builder(activity)
+                .setMessage(message)
+                .setNeutralButton(android.R.string.ok, null).show();
         activity.getGooglePlayHandler().leaveRoom();
     }
 
@@ -463,10 +466,10 @@ public class GameplayHandler {
     /**
      * Handles the loosing the lever game.
      */
-    public void onLeverGameLost(boolean wasKilled) {
+    public void onLeverGameLost(boolean wasKilled, String message) {
         activity.getInternetConnector().sendLeverLostMessage();
         Log.d(TAG, "lever game lost");
-        gameOver(false);
+        gameOver(false, message);
 
         if (!wasKilled) {
             activity.getGameStatistic().setKillYourFriend();
@@ -498,8 +501,11 @@ public class GameplayHandler {
     void gameWin() {
         activity.getGooglePlayHandler().pushAccomplishments();
         activity.clearAllResources();
-        Toast.makeText(activity, "VICTORY! Congrats ;) !!!", Toast.LENGTH_LONG).show();
         activity.getGooglePlayHandler().leaveRoom();
+
+        new AlertDialog.Builder(activity)
+                .setMessage("VICTORY! Congrats ;) !!!")
+                .setNeutralButton(android.R.string.ok, null).show();
     }
 
     CodeGame getCodeGame() {

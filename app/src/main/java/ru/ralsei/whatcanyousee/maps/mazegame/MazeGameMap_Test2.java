@@ -65,6 +65,7 @@ public class MazeGameMap_Test2 extends MazeGameMap {
             protected void apply() {
                 setPlayerWon(false);
 
+                setMessageLost("It's a trap!!!");
                 getActivity().getSoundPlayer().playTrack(R.raw.lolyoudead);
             }
         };
@@ -203,6 +204,8 @@ public class MazeGameMap_Test2 extends MazeGameMap {
                 setPlayerWon(false);
                 return true;
             }
+
+            setMessageLost("Killed by a monster!!");
 
             return false;
         }

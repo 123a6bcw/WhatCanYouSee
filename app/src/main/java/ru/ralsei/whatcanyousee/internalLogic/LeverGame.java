@@ -61,7 +61,7 @@ public class LeverGame {
                     activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            activity.getGameplayHandler().onLeverGameLost(false);
+                            activity.getGameplayHandler().onLeverGameLost(false, "You gave up.");
                         }
                     });
                     break;

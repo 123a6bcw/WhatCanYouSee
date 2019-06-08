@@ -145,7 +145,7 @@ public class MazeGame {
                     gameActivity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            gameActivity.getGameplayHandler().onMazeGameLost();
+                            gameActivity.getGameplayHandler().onMazeGameLost("You gave up.");
                         }
                     });
                     break;
@@ -188,7 +188,7 @@ public class MazeGame {
     /**
      * React to user command.
      */
-    public void react(Command command) {
+    private void react(Command command) {
         switch (command) {
             case RIGHT: case DOWN: case UP: case LEFT:
                 if (checkIfGameOver()) {
@@ -221,7 +221,7 @@ public class MazeGame {
      */
     private boolean checkIfGameOver() {
         if (map.hasLost()) {
-            gameOverLost();
+            gameOverLost(map.getMessageLost());
             return true;
         }
 
@@ -275,13 +275,13 @@ public class MazeGame {
     /**
      * Reaction on user losing the game.
      */
-    private void gameOverLost() {
+    private void gameOverLost(final String message) {
         onClose();
 
         gameActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                gameActivity.getGameplayHandler().onMazeGameLost();
+                gameActivity.getGameplayHandler().onMazeGameLost(message);
             }
         });
     }

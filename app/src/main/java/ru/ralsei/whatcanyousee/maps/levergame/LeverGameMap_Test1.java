@@ -76,6 +76,7 @@ public class LeverGameMap_Test1 extends LeverGameMap {
         states.add(new Test1State(R.drawable.levergame_test1_state_red_green_blue, true, true, true));
 
         states.get(7).setLoseState(true);
+        states.get(7).setMessage("Black color has killed you.");
         states.get(4).setWinState(true);
         setCurrentState(0);
     }

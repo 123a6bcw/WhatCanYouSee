@@ -52,6 +52,15 @@ public abstract class LeverGameMap {
         private boolean winState = false;
 
         /**
+         * Message to show if this is a lose state.
+         */
+        private String message;
+
+        String getMessage() {
+            return message;
+        }
+
+        /**
          * True if enters this state meaning loosing the game.
          */
         private boolean loseState = false;
@@ -83,6 +92,10 @@ public abstract class LeverGameMap {
         public void setLoseState(boolean loseState) {
             this.loseState = loseState;
         }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
     }
 
     public LeverGameMap(GameActivity activity) {
@@ -112,7 +125,7 @@ public abstract class LeverGameMap {
         return -1;
     }
 
-    protected void setCurrentState(int currentStateNumber) {
+    protected void setCurrentState(final int currentStateNumber) {
         this.currentStateNumber = currentStateNumber;
 
         activity.runOnUiThread(new Runnable() {
@@ -136,7 +149,7 @@ public abstract class LeverGameMap {
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    activity.getGameplayHandler().onLeverGameLost(false);
+                    activity.getGameplayHandler().onLeverGameLost(false, states.get(currentStateNumber).getMessage());
                 }
             });
         }

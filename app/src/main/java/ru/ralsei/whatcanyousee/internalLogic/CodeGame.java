@@ -78,7 +78,7 @@ public class CodeGame {
                 }
 
                 case R.id.button_giveUp: {
-                    activity.getGameplayHandler().onCodeGameLost();
+                    activity.getGameplayHandler().onCodeGameLost("You gave up.");
                     break;
                 }
             }
