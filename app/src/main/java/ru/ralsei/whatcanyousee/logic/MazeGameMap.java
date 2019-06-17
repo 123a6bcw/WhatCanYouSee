@@ -2,7 +2,10 @@ package ru.ralsei.whatcanyousee.logic;
 
 import android.widget.ImageView;
 
+import com.google.android.gms.common.api.Api;
+
 import java.util.ArrayList;
+import java.util.Optional;
 
 import ru.ralsei.whatcanyousee.gameactivity.GameActivity;
 import ru.ralsei.whatcanyousee.R;
@@ -276,6 +279,13 @@ public abstract class MazeGameMap {
     }
 
     /**
+     * True if given coordinates are not within maze bounds [0, xSize) x [0, ySize);
+     */
+    private boolean notInBounds(Coordinates coordinates) {
+        return notInHorizontalBounds(coordinates.getX()) || notInVerticalBounds(coordinates.getY());
+    }
+
+    /**
      * Make the cells walls with coordinates from xBegin to xEnd inclusive and with y = y.
      */
     protected void makeHorizontalWall(int xBegin, int xEnd, int y) {
@@ -501,7 +511,8 @@ public abstract class MazeGameMap {
     /**
      * If game is over, shows if player either won or lost.
      */
-    private volatile Boolean isWin = null;
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private volatile Optional<Boolean> isWin = Optional.empty();
 
     /**
      * Message to show when players loosing the game.
@@ -520,21 +531,21 @@ public abstract class MazeGameMap {
      * Sets the result of the game (true for won, false for lost).
      */
     protected void setPlayerWon(boolean result) {
-        isWin = result;
+        isWin = Optional.of(result);
     }
 
     /**
      * Returns true if game is over and player has lost the game, for example player has been killed by stepping on a trap.
      */
     boolean hasLost() {
-        return isWin != null && !isWin;
+        return isWin.orElse(false);
     }
 
     /**
      * Returns true if game is over and player has won, meaning successfully reaching the exit position.
      */
     boolean hasWon() {
-        return isWin != null && isWin;
+        return isWin.orElse(false);
     }
 
     /**
@@ -548,7 +559,7 @@ public abstract class MazeGameMap {
      * Returns cell by coordinates.
      */
     Cell getCell(Coordinates coordinates) {
-        if (coordinates.getX() < 0 || coordinates.getX() >= xSize || coordinates.getY() < 0 || coordinates.getY() >= ySize) {
+        if (notInBounds(coordinates)) {
             return null;
         }
 
@@ -657,8 +668,6 @@ public abstract class MazeGameMap {
 
     /**
      * Class representing the monster in maze.
-     *
-     * Maze
      */
     protected abstract class Monster {
         /**

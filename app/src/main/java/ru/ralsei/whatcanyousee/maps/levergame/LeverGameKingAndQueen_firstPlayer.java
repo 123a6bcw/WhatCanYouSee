@@ -79,12 +79,13 @@ public class LeverGameKingAndQueen_firstPlayer extends LeverGameMap {
             }
 
             if (nextStageFullfield()) {
-                setCurrentState(number);
                 ((KAQ1State) getState(number)).king = this.king;
                 ((KAQ1State) getState(number)).queen = this.queen;
                 ((KAQ1State) getState(number)).son = this.son;
                 ((KAQ1State) getState(number)).stranger = this.stranger;
                 ((KAQ1State) getState(number)).sword = this.sword;
+
+                setCurrentState(number);
             }
         }
 

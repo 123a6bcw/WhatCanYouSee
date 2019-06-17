@@ -341,46 +341,51 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == RC_SIGN_IN) {
-            Task<GoogleSignInAccount> task =
-                    GoogleSignIn.getSignedInAccountFromIntent(intent);
-            try {
-                GoogleSignInAccount account = task.getResult(ApiException.class);
-                googlePlayHandler.onConnected(account);
-            } catch (ApiException apiException) {
-                String message = "Seems like you are having problems connecting to google play. " +
-                        "Please check your or your friend's internet connection. Game won't be saved :(";
+        switch (requestCode) {
+            case RC_SIGN_IN:
+                Task<GoogleSignInAccount> task =
+                        GoogleSignIn.getSignedInAccountFromIntent(intent);
+                try {
+                    GoogleSignInAccount account = task.getResult(ApiException.class);
+                    googlePlayHandler.onConnected(account);
+                } catch (ApiException apiException) {
+                    String message = "Seems like you are having problems connecting to google play. " +
+                            "Please check your or your friend's internet connection. Game won't be saved :(";
 
-                googlePlayHandler.onDisconnected();
+                    googlePlayHandler.onDisconnected();
 
-                new AlertDialog.Builder(this)
-                        .setMessage(message)
-                        .setNeutralButton(android.R.string.ok, null)
-                        .show();
-            }
-        } else if (requestCode == RC_SELECT_PLAYERS) {
-            // got the result from the "select players" UI -- ready to create the room
-            googlePlayHandler.handleSelectPlayersResult(resultCode, intent);
-        } else if (requestCode == RC_INVITATION_INBOX) {
-            // got the result from the "select invitation" UI. ready to accept the selected invitation:
-            googlePlayHandler.handleInvitationInboxResult(resultCode, intent);
-        } else if (requestCode == RC_WAITING_ROOM) {
-            // got the result from the "waiting room" UI.
-            if (resultCode == Activity.RESULT_OK) {
-                // ready to start playing
-                Log.d(TAG, "Starting game (waiting room returned OK).");
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        uiHandler.askPermission();
-                    }
-                });
-            } else if (resultCode == GamesActivityResultCodes.RESULT_LEFT_ROOM) {
-                // player indicated that they want to leave the room
-                googlePlayHandler.leaveRoom();
-            } else if (resultCode == Activity.RESULT_CANCELED) {
-                googlePlayHandler.leaveRoom();
-            }
+                    new AlertDialog.Builder(this)
+                            .setMessage(message)
+                            .setNeutralButton(android.R.string.ok, null)
+                            .show();
+                }
+                break;
+            case RC_SELECT_PLAYERS:
+                // got the result from the "select players" UI -- ready to create the room
+                googlePlayHandler.handleSelectPlayersResult(resultCode, intent);
+                break;
+            case RC_INVITATION_INBOX:
+                // got the result from the "select invitation" UI. ready to accept the selected invitation:
+                googlePlayHandler.handleInvitationInboxResult(resultCode, intent);
+                break;
+            case RC_WAITING_ROOM:
+                // got the result from the "waiting room" UI.
+                if (resultCode == Activity.RESULT_OK) {
+                    // ready to start playing
+                    Log.d(TAG, "Starting game (waiting room returned OK).");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            uiHandler.askPermission();
+                        }
+                    });
+                } else if (resultCode == GamesActivityResultCodes.RESULT_LEFT_ROOM) {
+                    // player indicated that they want to leave the room
+                    googlePlayHandler.leaveRoom();
+                } else if (resultCode == Activity.RESULT_CANCELED) {
+                    googlePlayHandler.leaveRoom();
+                }
+                break;
         }
 
         super.onActivityResult(requestCode, resultCode, intent);

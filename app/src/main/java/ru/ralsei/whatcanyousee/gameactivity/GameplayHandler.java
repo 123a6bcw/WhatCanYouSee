@@ -6,7 +6,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Random;
@@ -195,22 +194,22 @@ public class GameplayHandler {
         */
 
         String[] codeGames = new String[] {CodeGameMap_Test1.class.getName(), CodeGameMap_Test2.class.getName(), CodeGameMap_Test3.class.getName(), CodeGameMap_Test4.class.getName()};
-        int myCodeGameId = (Math.abs(random.nextInt())) % 4;
+        int myCodeGameId = random.nextInt(codeGames.length);
         gameSettings.setMyCodeGameMap(codeGames[myCodeGameId]);
-        int teammateCodeGameId = (Math.abs(random.nextInt())) % 4;
+        int teammateCodeGameId = random.nextInt(codeGames.length);
         while (teammateCodeGameId == myCodeGameId) {
-            teammateCodeGameId = (Math.abs(random.nextInt())) % 4;
+            teammateCodeGameId = random.nextInt(codeGames.length);
         }
         gameSettings.setMyTeammateCodeGameMap(codeGames[teammateCodeGameId]); //TODO smart selection
 
 
-        if (Math.abs(random.nextInt()) % 2 == 0) {
+        if (random.nextBoolean()) {
             String[] leverGames = new String[]{LeverGameMap_Test1.class.getName(), LeverGameMap_Test2.class.getName(), LeverGameMap_Test3.class.getName()};
-            int myLeverGameId = (Math.abs(random.nextInt())) % 3;
+            int myLeverGameId = random.nextInt(leverGames.length);
             gameSettings.setMyLeverGameMap(leverGames[myLeverGameId]);
-            int teammateLeverGameId = (Math.abs(random.nextInt())) % 3;
+            int teammateLeverGameId = random.nextInt(leverGames.length);
             while (teammateLeverGameId == myLeverGameId) {
-                teammateLeverGameId = (Math.abs(random.nextInt())) % 3;
+                teammateLeverGameId = random.nextInt(leverGames.length);
             }
             gameSettings.setMyTeammateLeverGameMap(leverGames[teammateLeverGameId]); //TODO smart selection
         } else {
@@ -235,22 +234,13 @@ public class GameplayHandler {
 
         activity.setContentView(R.layout.content_maze_game);
 
-        assert gameSettings != null;
         Log.d(TAG, "Loaded maps are " + gameSettings.getMyMazeMap() + " " + gameSettings.getTeammateMazeMap());
 
         MazeGameMap teammateMap = null;
         try {
             mazeGameMap = (MazeGameMap) activity.getClassLoader().loadClass(gameSettings.getMyMazeMap()).getDeclaredConstructor(GameActivity.class).newInstance(activity);
             teammateMap = (MazeGameMap) activity.getClassLoader().loadClass(gameSettings.getTeammateMazeMap()).getDeclaredConstructor(GameActivity.class).newInstance(activity);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException | ClassNotFoundException e) {
             e.printStackTrace();
         }
 
@@ -354,7 +344,6 @@ public class GameplayHandler {
 
         CodeGameMap teammateCodeGameMap = null;
         try {
-            assert gameSettings != null;
             codeGameMap = (CodeGameMap) activity.getClassLoader().loadClass(gameSettings.getMyCodeGameMap()).getDeclaredConstructor().newInstance();
             teammateCodeGameMap = (CodeGameMap) activity.getClassLoader().loadClass(gameSettings.getMyTeammateCodeGameMap()).getDeclaredConstructor().newInstance();
         } catch (IllegalAccessException e) {
@@ -434,7 +423,6 @@ public class GameplayHandler {
         leverGameMap = null;
         LeverGameMap teammateLeverGameMap = null;
 
-        assert gameSettings != null;
         Log.d(TAG, "loaded lever maps are: " + gameSettings.myLeverGameMap + " " + gameSettings.myTeammateLeverGameMap);
 
         try {
@@ -592,37 +580,6 @@ public class GameplayHandler {
          * Teammate lever game map.
          */
         private String myTeammateLeverGameMap;
-
-
-        /**
-         * Writes this game settings to out stream in order to send it to the other player.
-         */
-        private void writeObject(java.io.ObjectOutputStream out)
-                throws IOException {
-            out.writeUTF(myMazeMap);
-            out.writeUTF(teammateMazeMap);
-
-            out.writeUTF(myCodeGameMap);
-            out.writeUTF(myTeammateCodeGameMap);
-
-            out.writeUTF(myLeverGameMap);
-            out.writeUTF(myTeammateLeverGameMap);
-        }
-
-        /**
-         * Reads game settings from in after receiving them from the internet.
-         */
-        private void readObject(java.io.ObjectInputStream in)
-                throws IOException, ClassNotFoundException {
-            myMazeMap = in.readUTF();
-            teammateMazeMap = in.readUTF();
-
-            myCodeGameMap = in.readUTF();
-            myTeammateCodeGameMap = in.readUTF();
-
-            myLeverGameMap = in.readUTF();
-            myTeammateLeverGameMap = in.readUTF();
-        }
 
         /**
          * Turn this settings into teammate's settings in order to send it to him.

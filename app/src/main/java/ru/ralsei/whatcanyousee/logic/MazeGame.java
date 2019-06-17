@@ -3,6 +3,7 @@ package ru.ralsei.whatcanyousee.logic;
 import android.view.View;
 import android.widget.ImageView;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -64,9 +65,9 @@ public class MazeGame {
                     if (monster.readyToMove()) {
                         MazeGameMap.Cell closestCell = null;
 
-                        Collections.shuffle(vec4); //Monster moves randomly if there is several directions he could move to.
+                        Collections.shuffle(randomVec4); //Monster moves randomly if there is several directions he could move to.
 
-                        for (MazeGameMap.Coordinates coordinates : vec4) {
+                        for (MazeGameMap.Coordinates coordinates : randomVec4) {
                             MazeGameMap.Cell cell = map.getRelatedCell(monster.getCurrentCoordinates(), coordinates);
                             if (cell == null) {
                                 continue;
@@ -180,10 +181,18 @@ public class MazeGame {
     /**
      * Related coordinates of 4 cells (left, up, right, down) around the player.
      */
-    private List<MazeGameMap.Coordinates> vec4 = Arrays.asList(new MazeGameMap.Coordinates(-1, 0),
+    private MazeGameMap.Coordinates[] vec4 = {
+            new MazeGameMap.Coordinates(-1, 0),
             new MazeGameMap.Coordinates(0, -1),
             new MazeGameMap.Coordinates(1, 0),
-            new MazeGameMap.Coordinates(0, 1));
+            new MazeGameMap.Coordinates(0, 1),
+    };
+
+    /**
+     * Related coordinates of 4 cells (left, up, right, down) around the player to use in random
+     * order.
+     */
+    private List<MazeGameMap.Coordinates> randomVec4 = Arrays.asList(vec4);
 
     /**
      * React to user command.

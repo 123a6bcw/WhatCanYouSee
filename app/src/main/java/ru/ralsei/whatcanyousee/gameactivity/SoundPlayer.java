@@ -9,6 +9,12 @@ import java.util.concurrent.Executors;
  * Class for playing sounds in game. Support playing several sounds in parallel.
  */
 public class SoundPlayer {
+    /**
+     * Maximum number of players that can be used in parallel. Should be fixed as total number
+     * of MediaPlayers in android is limited.
+     */
+    private static final int NUMBER_OF_PLAYERS = 8;
+
     private GameActivity activity;
 
     SoundPlayer(GameActivity activity) {
@@ -18,7 +24,7 @@ public class SoundPlayer {
     /**
      * Players used to play sounds.
      */
-    private final MediaPlayer[] players = new MediaPlayer[8];
+    private final MediaPlayer[] players = new MediaPlayer[NUMBER_OF_PLAYERS];
 
     /**
      * Used to support choosing volume from 1 to 10 linearly.

@@ -312,16 +312,20 @@ class GooglePlayHandler {
                 .addOnSuccessListener(new OnSuccessListener<Bundle>() {
                     @Override
                     public void onSuccess(Bundle hint) {
-                        if (hint != null) {
-                            Invitation invitation =
-                                    hint.getParcelable(Multiplayer.EXTRA_INVITATION);
-
-                            if (invitation != null && invitation.getInvitationId() != null) {
-                                // retrieve and cache the invitation ID
-                                Log.d(TAG, "onConnected: connection hint has a room invite!");
-                                acceptInviteToRoom(invitation.getInvitationId());
-                            }
+                        if (hint == null) {
+                            return;
                         }
+
+                        Invitation invitation =
+                                hint.getParcelable(Multiplayer.EXTRA_INVITATION);
+
+                        if (invitation == null || invitation.getInvitationId() == null) {
+                            return;
+                        }
+
+                        // retrieve and cache the invitation ID
+                        Log.d(TAG, "onConnected: connection hint has a room invite!");
+                        acceptInviteToRoom(invitation.getInvitationId());
                     }
                 })
                 .addOnFailureListener(activity.createFailureListener("There was a problem getting the activation hint!"));
@@ -584,8 +588,7 @@ class GooglePlayHandler {
             return;
         }
 
-        Participant[] participants = new Participant[2];
-        participants = room.getParticipants().toArray(participants);
+        List<Participant> participants = room.getParticipants();
 
         myParticipant = null;
         teammateParticipant = null;

@@ -52,11 +52,8 @@ class InternetConnector {
 
         GameplayHandler.GameSettings gameSettings = activity.getGameplayHandler().getGameSettings();
         if (gameSettings != null) {
-            try {
-                ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-                ObjectOutputStream writeStream;
-
-                writeStream = new ObjectOutputStream(byteStream);
+            try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+                 ObjectOutputStream writeStream = new ObjectOutputStream(byteStream)) {
 
                 gameSettings.flipSettings();
                 writeStream.writeObject(gameSettings);
@@ -64,7 +61,6 @@ class InternetConnector {
                 gameSettings.flipSettings();
 
                 message = byteStream.toByteArray();
-                writeStream.close();
             } catch (IOException e) {
                 e.printStackTrace();
                 activity.getUIHandler().showGameError();
@@ -86,16 +82,9 @@ class InternetConnector {
     private void reactOnReceivedMessage(byte[] receivedData) {
         if (!otherPlayerIsReady) {
             if (activity.getGameplayHandler().getGameSettings() == null) {
-                try {
-                    ObjectInputStream stream = new ObjectInputStream(new ByteArrayInputStream(receivedData));
-                    try {
-                        activity.getGameplayHandler().setGameSettings((GameplayHandler.GameSettings) stream.readObject());
-
-                        stream.close();
-                    } catch (ClassNotFoundException e) {
-                        activity.handleException(new IOException(), "Error reading from object input stream");
-                    }
-                } catch (IOException e) {
+                try (ObjectInputStream stream = new ObjectInputStream(new ByteArrayInputStream(receivedData))) {
+                    activity.getGameplayHandler().setGameSettings((GameplayHandler.GameSettings) stream.readObject());
+                } catch (IOException | ClassNotFoundException e) {
                     activity.handleException(new IOException(), "Error reading from object input stream");
                 }
             }
