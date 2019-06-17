@@ -147,7 +147,7 @@ class InternetConnector {
     /**
      * Message receiver. The very first message is signal of readiness.
      */
-    private OnRealTimeMessageReceivedListener mOnRealTimeMessageReceivedListener = new OnRealTimeMessageReceivedListener() {
+    private OnRealTimeMessageReceivedListener onRealTimeMessageReceivedListener = new OnRealTimeMessageReceivedListener() {
         @Override
         public void onRealTimeMessageReceived(@NonNull RealTimeMessage realTimeMessage) {
             final byte[] receivedData = realTimeMessage.getMessageData();
@@ -251,6 +251,6 @@ class InternetConnector {
     }
 
     OnRealTimeMessageReceivedListener getOnRealTimeMessageReceivedListener() {
-        return mOnRealTimeMessageReceivedListener;
+        return onRealTimeMessageReceivedListener;
     }
 }

@@ -57,42 +57,42 @@ class GooglePlayHandler {
     /**
      * Current account player is signed in.
      */
-    private GoogleSignInAccount mSignedInAccount;
+    private GoogleSignInAccount signedInAccount;
 
     /**
      * Client used to sign in with Google APIs.
      */
-    private GoogleSignInClient mGoogleSignInClient;
+    private GoogleSignInClient googleSignInClient;
 
     /**
      * Client used to interact with the real time multiplayer system.
      */
-    private RealTimeMultiplayerClient mRealTimeMultiplayerClient;
+    private RealTimeMultiplayerClient realTimeMultiplayerClient;
 
     /**
      * Client used to interact with game achievements.
      */
-    private AchievementsClient mAchievementsClient;
+    private AchievementsClient achievementsClient;
 
     /**
      * Client used to interact with game statistic.
      */
-    private LeaderboardsClient mLeaderboardsClient;
+    private LeaderboardsClient leaderboardsClient;
 
     /**
      * Client used to interact with the invitation system.
      */
-    private InvitationsClient mInvitationsClient;
+    private InvitationsClient invitationsClient;
 
     /**
      * Room ID where the currently active game is taking place.
      */
-    private String mRoomId;
+    private String roomId;
 
     /**
      * Holds the configuration of the current room.
      */
-    private RoomConfig mRoomConfig;
+    private RoomConfig roomConfig;
 
     /**
      * Player's account in the currently active game.
@@ -108,25 +108,24 @@ class GooglePlayHandler {
     /**
      * Player's participant ID in the currently active game.
      */
-    private String mMyId;
+    private String myId;
 
     /**
      * Id of the invitation received via the
      * invitation listener.
      */
-    private String mIncomingInvitationId;
+    private String incomingInvitationId;
 
     /**
      * Player's id.
      */
-    private String mPlayerId;
+    private String playerId;
 
     /**
      * Start a sign in activity.
      */
     void startSignInIntent() {
-        assert mGoogleSignInClient != null;
-        activity.startActivityForResult(mGoogleSignInClient.getSignInIntent(), GameActivity.RC_SIGN_IN);
+        activity.startActivityForResult(googleSignInClient.getSignInIntent(), GameActivity.RC_SIGN_IN);
     }
 
     /**
@@ -136,8 +135,7 @@ class GooglePlayHandler {
     void signInSilently() {
         Log.d(TAG, "signInSilently()");
 
-        assert mGoogleSignInClient != null;
-        mGoogleSignInClient.silentSignIn().addOnCompleteListener(activity,
+        googleSignInClient.silentSignIn().addOnCompleteListener(activity,
                 new OnCompleteListener<GoogleSignInAccount>() {
                     @Override
                     public void onComplete(@NonNull Task<GoogleSignInAccount> task) {
@@ -158,8 +156,7 @@ class GooglePlayHandler {
     void signOut() {
         Log.d(TAG, "signOut()");
 
-        assert mGoogleSignInClient != null;
-        mGoogleSignInClient.signOut().addOnCompleteListener(activity,
+        googleSignInClient.signOut().addOnCompleteListener(activity,
                 new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -194,12 +191,12 @@ class GooglePlayHandler {
         activity.getUIHandler().switchToScreen(R.id.screen_wait);
         activity.getUIHandler().keepScreenOn();
 
-        mRoomConfig = RoomConfig.builder(mRoomUpdateCallback)
+        roomConfig = RoomConfig.builder(roomUpdateCallback)
                 .addPlayersToInvite(invitee)
                 .setOnMessageReceivedListener(activity.getInternetConnector().getOnRealTimeMessageReceivedListener())
-                .setRoomStatusUpdateCallback(mRoomStatusUpdateCallback)
+                .setRoomStatusUpdateCallback(roomStatusUpdateCallback)
                 .build();
-        mRealTimeMultiplayerClient.create(mRoomConfig);
+        realTimeMultiplayerClient.create(roomConfig);
 
         activity.getGameplayHandler().createGameSettings();
 
@@ -231,16 +228,16 @@ class GooglePlayHandler {
     void acceptInviteToRoom(String invitationId) {
         Log.d(TAG, "Accepting invitation: " + invitationId);
 
-        mRoomConfig = RoomConfig.builder(mRoomUpdateCallback)
+        roomConfig = RoomConfig.builder(roomUpdateCallback)
                 .setInvitationIdToAccept(invitationId)
                 .setOnMessageReceivedListener(activity.getInternetConnector().getOnRealTimeMessageReceivedListener())
-                .setRoomStatusUpdateCallback(mRoomStatusUpdateCallback)
+                .setRoomStatusUpdateCallback(roomStatusUpdateCallback)
                 .build();
 
         activity.getUIHandler().switchToScreen(R.id.screen_wait);
         activity.getUIHandler().keepScreenOn();
 
-        mRealTimeMultiplayerClient.join(mRoomConfig)
+        realTimeMultiplayerClient.join(roomConfig)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -262,14 +259,13 @@ class GooglePlayHandler {
 
         Log.d(TAG, "Leaving room.");
         activity.getUIHandler().stopKeepingScreenOn();
-        if (mRoomId != null) {
-            assert mRoomConfig != null;
-            mRealTimeMultiplayerClient.leave(mRoomConfig, mRoomId)
+        if (roomId != null) {
+            realTimeMultiplayerClient.leave(roomConfig, roomId)
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            mRoomId = null;
-                            mRoomConfig = null;
+                            roomId = null;
+                            roomConfig = null;
                             activity.getUIHandler().switchToMainScreen();
                         }
                     });
@@ -283,21 +279,21 @@ class GooglePlayHandler {
      */
     void onConnected(GoogleSignInAccount googleSignInAccount) {
         Log.d(TAG, "onConnected(): connected to Google APIs");
-        if (mSignedInAccount != googleSignInAccount) {
-            mSignedInAccount = googleSignInAccount;
+        if (signedInAccount != googleSignInAccount) {
+            signedInAccount = googleSignInAccount;
 
-            mRealTimeMultiplayerClient = Games.getRealTimeMultiplayerClient(activity, googleSignInAccount);
-            mInvitationsClient = Games.getInvitationsClient(activity, googleSignInAccount);
+            realTimeMultiplayerClient = Games.getRealTimeMultiplayerClient(activity, googleSignInAccount);
+            invitationsClient = Games.getInvitationsClient(activity, googleSignInAccount);
 
-            mAchievementsClient = Games.getAchievementsClient(activity, googleSignInAccount);
-            mLeaderboardsClient = Games.getLeaderboardsClient(activity, googleSignInAccount);
+            achievementsClient = Games.getAchievementsClient(activity, googleSignInAccount);
+            leaderboardsClient = Games.getLeaderboardsClient(activity, googleSignInAccount);
 
             PlayersClient playersClient = Games.getPlayersClient(activity, googleSignInAccount);
             playersClient.getCurrentPlayer()
                     .addOnSuccessListener(new OnSuccessListener<Player>() {
                         @Override
                         public void onSuccess(Player player) {
-                            mPlayerId = player.getPlayerId();
+                            playerId = player.getPlayerId();
 
                             activity.getUIHandler().switchToMainScreen();
                         }
@@ -305,7 +301,7 @@ class GooglePlayHandler {
                     .addOnFailureListener(activity.createFailureListener("There was a problem getting the player id!"));
         }
 
-        mInvitationsClient.registerInvitationCallback(mInvitationCallback);
+        invitationsClient.registerInvitationCallback(invitationCallback);
 
         GamesClient gamesClient = Games.getGamesClient(activity, googleSignInAccount);
         gamesClient.getActivationHint()
@@ -337,11 +333,11 @@ class GooglePlayHandler {
     void onDisconnected() {
         Log.d(TAG, "onDisconnected()");
 
-        mRealTimeMultiplayerClient = null;
-        mInvitationsClient = null;
+        realTimeMultiplayerClient = null;
+        invitationsClient = null;
 
-        mAchievementsClient = null;
-        mLeaderboardsClient = null;
+        achievementsClient = null;
+        leaderboardsClient = null;
 
         activity.clearAllResources();
         activity.setContentView(R.layout.activity_game);
@@ -352,19 +348,19 @@ class GooglePlayHandler {
     /**
      * Called when connected to the room.
      */
-    private RoomStatusUpdateCallback mRoomStatusUpdateCallback = new RoomStatusUpdateCallback() {
+    private RoomStatusUpdateCallback roomStatusUpdateCallback = new RoomStatusUpdateCallback() {
         @Override
         public void onConnectedToRoom(Room room) {
             Log.d(TAG, "onConnectedToRoom.");
 
-            mMyId = room.getParticipantId(mPlayerId);
+            myId = room.getParticipantId(playerId);
 
-            if (mRoomId == null) {
-                mRoomId = room.getRoomId();
+            if (roomId == null) {
+                roomId = room.getRoomId();
             }
 
-            Log.d(TAG, "Room ID: " + mRoomId);
-            Log.d(TAG, "My ID " + mMyId);
+            Log.d(TAG, "Room ID: " + roomId);
+            Log.d(TAG, "My ID " + myId);
             Log.d(TAG, "<< CONNECTED TO ROOM>>");
         }
 
@@ -373,8 +369,8 @@ class GooglePlayHandler {
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mRoomId = null;
-                    mRoomConfig = null;
+                    roomId = null;
+                    roomConfig = null;
                     activity.getUIHandler().showGameError();
                 }
             });
@@ -434,10 +430,10 @@ class GooglePlayHandler {
     /**
      * Called when player get an invitation to play a game, reacts by showing invitation to the user.
      */
-    private InvitationCallback mInvitationCallback = new InvitationCallback() {
+    private InvitationCallback invitationCallback = new InvitationCallback() {
         @Override
         public void onInvitationReceived(@NonNull Invitation invitation) {
-            mIncomingInvitationId = invitation.getInvitationId();
+            incomingInvitationId = invitation.getInvitationId();
             ((TextView) activity.findViewById(R.id.incoming_invitation_text)).setText(
                     String.format("%s %s", invitation.getInviter().getDisplayName(), activity.getString(R.string.is_inviting_you)));
             activity.getUIHandler().switchToScreen(activity.getUIHandler().getCurScreen());
@@ -445,8 +441,8 @@ class GooglePlayHandler {
 
         @Override
         public void onInvitationRemoved(@NonNull String invitationId) {
-            if (mIncomingInvitationId != null && mIncomingInvitationId.equals(invitationId)) {
-                mIncomingInvitationId = null;
+            if (incomingInvitationId != null && incomingInvitationId.equals(invitationId)) {
+                incomingInvitationId = null;
                 activity.getUIHandler().switchToScreen(activity.getUIHandler().getCurScreen());
             }
         }
@@ -455,7 +451,7 @@ class GooglePlayHandler {
     /**
      * Handles updating of the current room.
      */
-    private RoomUpdateCallback mRoomUpdateCallback = new RoomUpdateCallback() {
+    private RoomUpdateCallback roomUpdateCallback = new RoomUpdateCallback() {
         @Override
         public void onRoomCreated(int statusCode, final Room room) {
             Log.d(TAG, "onRoomCreated(" + statusCode + ", " + room + ")");
@@ -465,7 +461,7 @@ class GooglePlayHandler {
                 return;
             }
 
-            mRoomId = room.getRoomId();
+            roomId = room.getRoomId();
 
             activity.runOnUiThread(new Runnable() {
                 @Override
@@ -523,7 +519,7 @@ class GooglePlayHandler {
      * Shows player's achievements screen.
      */
     void onShowAchievementsRequested() {
-        mAchievementsClient.getAchievementsIntent()
+        achievementsClient.getAchievementsIntent()
                 .addOnSuccessListener(new OnSuccessListener<Intent>() {
                     @Override
                     public void onSuccess(Intent intent) {
@@ -539,7 +535,7 @@ class GooglePlayHandler {
     }
 
     void onShowLeaderboardsRequested() {
-        mLeaderboardsClient.getAllLeaderboardsIntent()
+        leaderboardsClient.getAllLeaderboardsIntent()
                 .addOnSuccessListener(new OnSuccessListener<Intent>() {
                     @Override
                     public void onSuccess(Intent intent) {
@@ -563,19 +559,19 @@ class GooglePlayHandler {
         }
 
         if (activity.getGameStatistic().getMazeGameTime() != -1) {
-            mLeaderboardsClient.submitScore(activity.getString(R.string.leaderboard_maze_game_best_time), activity.getGameStatistic().getMazeGameTime());
+            leaderboardsClient.submitScore(activity.getString(R.string.leaderboard_maze_game_best_time), activity.getGameStatistic().getMazeGameTime());
         }
 
         if (activity.getGameStatistic().getCodeGameTime() != -1) {
-            mLeaderboardsClient.submitScore(activity.getString(R.string.leaderboard_code_game_best_time), activity.getGameStatistic().getCodeGameTime());
+            leaderboardsClient.submitScore(activity.getString(R.string.leaderboard_code_game_best_time), activity.getGameStatistic().getCodeGameTime());
         }
 
         if (activity.getGameStatistic().getLeverGameTime() != -1) {
-            mLeaderboardsClient.submitScore(activity.getString(R.string.leaderboard_lever_game_best_time), activity.getGameStatistic().getLeverGameTime());
+            leaderboardsClient.submitScore(activity.getString(R.string.leaderboard_lever_game_best_time), activity.getGameStatistic().getLeverGameTime());
         }
 
         if (activity.getGameStatistic().getCodeGameMistakeTaken() != -1) {
-            mLeaderboardsClient.submitScore(activity.getString(R.string.leaderboard_code_game_least_mistake_taken), activity.getGameStatistic().getCodeGameMistakeTaken());
+            leaderboardsClient.submitScore(activity.getString(R.string.leaderboard_code_game_least_mistake_taken), activity.getGameStatistic().getCodeGameMistakeTaken());
         }
 
     }
@@ -594,7 +590,7 @@ class GooglePlayHandler {
         teammateParticipant = null;
 
         for (Participant participant : participants) {
-            if (participant.getParticipantId().equals(mMyId)) {
+            if (participant.getParticipantId().equals(myId)) {
                 myParticipant = participant;
             } else {
                 teammateParticipant = participant;
@@ -603,35 +599,35 @@ class GooglePlayHandler {
     }
 
     String getIncomingInvitationId() {
-        return mIncomingInvitationId;
+        return incomingInvitationId;
     }
 
     GoogleSignInClient getGoogleSignInClient() {
-        return mGoogleSignInClient;
+        return googleSignInClient;
     }
 
     void setGoogleSignInClient(GoogleSignInClient client) {
-        this.mGoogleSignInClient = client;
+        this.googleSignInClient = client;
     }
 
     InvitationsClient getInvitationsClient() {
-        return mInvitationsClient;
+        return invitationsClient;
     }
 
     InvitationCallback getInvitationCallback() {
-        return mInvitationCallback;
+        return invitationCallback;
     }
 
     RealTimeMultiplayerClient getRealTimeMultiplayerClient() {
-        return mRealTimeMultiplayerClient;
+        return realTimeMultiplayerClient;
     }
 
     void setIncomingInvitationId(String id) {
-        mIncomingInvitationId = null;
+        incomingInvitationId = null;
     }
 
     String getRoomId() {
-        return mRoomId;
+        return roomId;
     }
 
     Participant getTeammateParticipant() {
@@ -639,6 +635,6 @@ class GooglePlayHandler {
     }
 
     AchievementsClient getAchievementsClient() {
-        return mAchievementsClient;
+        return achievementsClient;
     }
 }

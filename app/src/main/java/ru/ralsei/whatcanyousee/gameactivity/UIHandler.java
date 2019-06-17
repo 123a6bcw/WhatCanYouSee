@@ -42,7 +42,7 @@ class UIHandler {
     /**
      * Last used screen.
      */
-    private int mCurScreen = -1;
+    private int curScreen = -1;
 
     /**
      * Switches to the given screen.
@@ -56,13 +56,13 @@ class UIHandler {
                 Log.d(TAG, "Somehow view with id " + id + " was not found");
             }
         }
-        mCurScreen = screenId;
+        curScreen = screenId;
 
         boolean showInvPopup;
         if (activity.getGooglePlayHandler().getIncomingInvitationId() == null) {
             showInvPopup = false;
         } else {
-            showInvPopup = (mCurScreen == R.id.main_screen);
+            showInvPopup = (curScreen == R.id.main_screen);
         }
 
         View view = activity.findViewById(R.id.invitation_popup);
@@ -86,7 +86,7 @@ class UIHandler {
      * room and get connected.
      */
     void showWaitingRoom(Room room) {
-        activity.getGooglePlayHandler().getRealTimeMultiplayerClient().getWaitingRoomIntent(room, activity.NUMBER_OF_PLAYERS)
+        activity.getGooglePlayHandler().getRealTimeMultiplayerClient().getWaitingRoomIntent(room, GameActivity.NUMBER_OF_PLAYERS)
                 .addOnSuccessListener(new OnSuccessListener<Intent>() {
                     @Override
                     public void onSuccess(Intent intent) {
@@ -138,6 +138,6 @@ class UIHandler {
     }
 
     int getCurScreen() {
-        return mCurScreen;
+        return curScreen;
     }
 }

@@ -129,6 +129,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         return audioConnector;
     }
 
+    @NonNull
     InternetConnector getInternetConnector() {
         return internetConnector;
     }
