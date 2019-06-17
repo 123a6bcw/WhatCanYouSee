@@ -14,6 +14,9 @@ import com.google.android.gms.games.multiplayer.Participant;
  * Class for managing voice connection between players.
  */
 class AudioConnector {
+    private static final int SAMPLE_RATE_IN_HZ = 8000;
+    private static final int ENCODING = AudioFormat.ENCODING_AC3;
+
     private String TAG = "What can you see: audio connector";
 
     private GameActivity activity;
@@ -25,7 +28,7 @@ class AudioConnector {
     /**
      * Minimum buffer size to record audio.
      */
-    private final int MIN_BUFFER_SIZE = AudioRecord.getMinBufferSize(8000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+    private final int MIN_BUFFER_SIZE = AudioRecord.getMinBufferSize(SAMPLE_RATE_IN_HZ, AudioFormat.CHANNEL_IN_MONO, ENCODING);
 
     /**
      * Object for streaming audio received as byte buffer.
@@ -56,10 +59,10 @@ class AudioConnector {
                         .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                         .build(),
                 new AudioFormat.Builder()
-                        .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                        .setSampleRate(8000)
+                        .setEncoding(ENCODING)
+                        .setSampleRate(SAMPLE_RATE_IN_HZ)
                         .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
-                        .build(), MIN_BUFFER_SIZE *10, AudioTrack.MODE_STREAM, AudioManager.AUDIO_SESSION_ID_GENERATE);
+                        .build(), MIN_BUFFER_SIZE * 10, AudioTrack.MODE_STREAM, AudioManager.AUDIO_SESSION_ID_GENERATE);
         track.play();
 
         Log.d(TAG, "Audio reception prepared");
@@ -74,7 +77,7 @@ class AudioConnector {
             activity.getGooglePlayHandler().leaveRoom();
         }
 
-        recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, 8000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, MIN_BUFFER_SIZE * 10);
+        recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE_IN_HZ, AudioFormat.CHANNEL_IN_MONO, ENCODING, MIN_BUFFER_SIZE * 10);
 
         broadcastThread = new Thread(new Runnable() {
             @Override
