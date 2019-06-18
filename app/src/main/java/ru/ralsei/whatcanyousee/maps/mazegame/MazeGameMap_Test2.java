@@ -148,7 +148,6 @@ public class MazeGameMap_Test2 extends MazeGameMap {
         cells[4][9].setToogle(new Toogle() {
             @Override
             protected void use() {
-
                 List<Monster> monsters = getMonsters();
                 SimpleMonster monster = (SimpleMonster) monsters.get(0);
                 SimpleMonster monster1 = (SimpleMonster) monsters.get(1);

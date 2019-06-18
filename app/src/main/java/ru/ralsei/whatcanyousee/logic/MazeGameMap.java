@@ -2,8 +2,6 @@ package ru.ralsei.whatcanyousee.logic;
 
 import android.widget.ImageView;
 
-import com.google.android.gms.common.api.Api;
-
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -662,7 +660,7 @@ public abstract class MazeGameMap {
         monsters.add(monster);
     }
 
-    public ArrayList<Monster> getMonsters() {
+    protected ArrayList<Monster> getMonsters() {
         return monsters;
     }
 

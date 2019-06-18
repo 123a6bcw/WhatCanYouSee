@@ -86,7 +86,15 @@ class AudioConnector {
 
                 recorder.startRecording();
                 while (!Thread.interrupted()) {
-                    if (broadcastAudio) {
+                    synchronized (AudioConnector.this) {
+                        while (!broadcastAudio) {
+                            try {
+                                AudioConnector.this.wait();
+                            } catch (InterruptedException e) {
+                                break;
+                            }
+                        }
+
                         int n = recorder.read(buffer, 1, buffer.length - 1);
                         buffer[0] = 'P';
 
@@ -108,16 +116,17 @@ class AudioConnector {
      * Set broadcastAudio to true, after that thread that record voice starts to send recorded audio to
      * the player.
      */
-    void startBroadcastAudio() {
+    synchronized void startBroadcastAudio() {
         broadcastAudio = true;
         recorder.startRecording();
+        notifyAll();
     }
 
     /**
-     * Stops recording voice and sending it to other player.
+     * Unused feature to stop recording voice (i.e. may be button with "start/stop recording voice").
      */
     @SuppressWarnings("unused")
-    private void stopBroadcastAudio() {
+    private synchronized void stopBroadcastAudio() {
         broadcastAudio = false;
         recorder.stop();
     }
@@ -129,8 +138,6 @@ class AudioConnector {
         if (broadcastThread != null) {
             broadcastThread.interrupt();
         }
-
-        broadcastAudio = false;
 
         if (recorder != null) {
             recorder.release();
