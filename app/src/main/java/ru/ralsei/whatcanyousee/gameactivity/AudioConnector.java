@@ -137,6 +137,10 @@ class AudioConnector {
     void clearResources() {
         if (broadcastThread != null) {
             broadcastThread.interrupt();
+            try {
+                broadcastThread.join();
+            } catch (InterruptedException ignored) {
+            }
         }
 
         if (recorder != null) {

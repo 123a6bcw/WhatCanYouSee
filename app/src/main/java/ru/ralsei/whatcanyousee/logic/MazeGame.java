@@ -314,6 +314,10 @@ public class MazeGame {
      */
     public void onClose() {
         ticker.shutdown();
+        try {
+            ticker.awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException ignored) {
+        }
     }
 
     /**
