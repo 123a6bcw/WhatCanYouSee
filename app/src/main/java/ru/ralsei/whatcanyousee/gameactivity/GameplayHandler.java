@@ -346,15 +346,7 @@ public class GameplayHandler {
         try {
             codeGameMap = (CodeGameMap) activity.getClassLoader().loadClass(gameSettings.getMyCodeGameMap()).getDeclaredConstructor().newInstance();
             teammateCodeGameMap = (CodeGameMap) activity.getClassLoader().loadClass(gameSettings.getMyTeammateCodeGameMap()).getDeclaredConstructor().newInstance();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException | ClassNotFoundException e) {
             e.printStackTrace();
         }
 
@@ -428,15 +420,7 @@ public class GameplayHandler {
         try {
             leverGameMap = (LeverGameMap) activity.getClassLoader().loadClass(gameSettings.myLeverGameMap).getDeclaredConstructor(GameActivity.class).newInstance(activity);
             teammateLeverGameMap = (LeverGameMap) activity.getClassLoader().loadClass(gameSettings.myTeammateLeverGameMap).getDeclaredConstructor(GameActivity.class).newInstance(activity);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException | ClassNotFoundException e) {
             e.printStackTrace();
         }
 
