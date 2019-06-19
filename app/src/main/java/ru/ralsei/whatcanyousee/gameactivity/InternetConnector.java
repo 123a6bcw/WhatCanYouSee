@@ -86,11 +86,11 @@ class InternetConnector {
     }
 
     /**
-     * @param receivedData is an instance of Message.
+     * @param receivedMessage is an instance of Message.
      */
-    private void reactOnReceivedMessage(byte[] receivedData) {
+    private void reactOnReceivedMessage(byte[] receivedMessage) {
         Message message;
-        try (ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(receivedData))) {
+        try (ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(receivedMessage))) {
             message = (Message) objectInputStream.readObject();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -100,7 +100,7 @@ class InternetConnector {
         switch (message.messageType) {
             case READY:
                 if (activity.getGameplayHandler().getGameSettings() == null) {
-                    try (ObjectInputStream stream = new ObjectInputStream(new ByteArrayInputStream(receivedData))) {
+                    try (ObjectInputStream stream = new ObjectInputStream(new ByteArrayInputStream(message.data))) {
                         activity.getGameplayHandler().setGameSettings((GameplayHandler.GameSettings) stream.readObject());
                     } catch (IOException | ClassNotFoundException e) {
                         activity.handleException(new IOException(), "Error reading from object input stream");
@@ -157,8 +157,8 @@ class InternetConnector {
                     return;
                 }
 
-                byte[] leverName = new byte[receivedData.length - 1];
-                System.arraycopy(receivedData, 1, leverName, 0, leverName.length);
+                byte[] leverName = new byte[message.data.length - 1];
+                System.arraycopy(message.data, 1, leverName, 0, leverName.length);
 
                 String lever = new String(leverName);
                 Log.d(TAG, "Received pressed lever: " + lever);

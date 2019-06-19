@@ -15,7 +15,7 @@ import com.google.android.gms.games.multiplayer.Participant;
  */
 class AudioConnector {
     private static final int SAMPLE_RATE_IN_HZ = 8000;
-    private static final int ENCODING = AudioFormat.ENCODING_AC3; //The only encoding with compression that can be used on api lever 24.
+    private static final int ENCODING = AudioFormat.ENCODING_PCM_16BIT; //The only encoding with compression that can be used on api lever 24.
 
     private String TAG = "What can you see: audio connector";
 
