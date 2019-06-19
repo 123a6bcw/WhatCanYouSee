@@ -26,6 +26,11 @@ public class SoundPlayer {
     private final int MAX_VOLUME = 11;
 
     /**
+     * False if not in a gameplay stage of the game sounds shouldn't be playing.
+     */
+    private boolean canPlay = false;
+
+    /**
      * Finds free player and plays given track, there volume should be from 0 to
      * MAX_VOLUME.
      */
@@ -37,20 +42,26 @@ public class SoundPlayer {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                for (int i = 0; i < players.length; i++) {
-                    if (players[i] == null) {
-                        players[i] = MediaPlayer.create(activity, trackId);
+                synchronized (players) {
+                    if (!canPlay) {
+                        return;
                     }
 
-                    MediaPlayer mediaPlayer = players[i];
+                    for (int i = 0; i < players.length; i++) {
+                        if (players[i] == null) {
+                            players[i] = MediaPlayer.create(activity, trackId);
+                        }
 
-                    if (!mediaPlayer.isPlaying()) {
-                        float actualVolume = (float) (Math.log(volume) / Math.log(MAX_VOLUME));
-                        mediaPlayer.setVolume(actualVolume, actualVolume);
+                        MediaPlayer mediaPlayer = players[i];
 
-                        mediaPlayer.selectTrack(trackId);
-                        mediaPlayer.start();
-                        break;
+                        if (!mediaPlayer.isPlaying()) {
+                            float actualVolume = (float) (Math.log(volume) / Math.log(MAX_VOLUME));
+                            mediaPlayer.setVolume(actualVolume, actualVolume);
+
+                            mediaPlayer.selectTrack(trackId);
+                            mediaPlayer.start();
+                            break;
+                        }
                     }
                 }
             }
@@ -65,13 +76,26 @@ public class SoundPlayer {
     }
 
     /**
-     * Releasing all players.
+     * Called after entering gameplay stage of the game, so sound can be playing.
+     */
+    void setCanPlay() {
+        synchronized (players) {
+            canPlay = true;
+        }
+    }
+
+    /**
+     * Releasing all players and forbids new sounds to play until reentering gameplay stage.
      */
     void clearResources() {
-        for (int i = 0; i < players.length; i++) {
-            if (players[i] != null) {
-                players[i].release();
-                players[i] = null;
+        synchronized (players) {
+            canPlay = false;
+
+            for (int i = 0; i < players.length; i++) {
+                if (players[i] != null) {
+                    players[i].release();
+                    players[i] = null;
+                }
             }
         }
     }

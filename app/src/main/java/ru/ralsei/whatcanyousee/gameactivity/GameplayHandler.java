@@ -202,6 +202,7 @@ public class GameplayHandler {
     }
 
     void startGame() {
+        activity.getSoundPlayer().setCanPlay();
         activity.getAudioConnector().startBroadcastAudio();
         startMazeGame();
     }
