@@ -31,7 +31,7 @@ public class SquareTableLayout extends android.widget.TableLayout {
             size = heightSize;
         }
         else{
-            size = widthSize < heightSize ? widthSize : heightSize;
+            size = Math.min(widthSize, heightSize);
         }
 
         int finalMeasureSpec = MeasureSpec.makeMeasureSpec(size, MeasureSpec.EXACTLY);

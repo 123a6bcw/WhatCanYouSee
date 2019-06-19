@@ -14,6 +14,9 @@ import com.google.android.gms.games.multiplayer.Participant;
  * Class for managing voice connection between players.
  */
 class AudioConnector {
+    private static final int SAMPLE_RATE_IN_HZ = 8000;
+    private static final int ENCODING = AudioFormat.ENCODING_PCM_16BIT; //The only encoding with compression that can be used on api lever 24.
+
     private String TAG = "What can you see: audio connector";
 
     private GameActivity activity;
@@ -25,7 +28,7 @@ class AudioConnector {
     /**
      * Minimum buffer size to record audio.
      */
-    private final int MIN_BUFFER_SIZE = AudioRecord.getMinBufferSize(8000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+    private final int MIN_BUFFER_SIZE = AudioRecord.getMinBufferSize(SAMPLE_RATE_IN_HZ, AudioFormat.CHANNEL_IN_MONO, ENCODING);
 
     /**
      * Object for streaming audio received as byte buffer.
@@ -37,9 +40,6 @@ class AudioConnector {
      */
     private volatile boolean broadcastAudio = false;
 
-    /**
-     * Thread for broadcasting audio.
-     */
     private Thread broadcastThread;
 
     /**
@@ -47,19 +47,16 @@ class AudioConnector {
      */
     private AudioRecord recorder;
 
-    /**
-     * Prepares AudioTrack.
-     */
     void prepareReceiveAudio() {
         track = new AudioTrack(
                 new AudioAttributes.Builder()
                         .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                         .build(),
                 new AudioFormat.Builder()
-                        .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                        .setSampleRate(8000)
+                        .setEncoding(ENCODING)
+                        .setSampleRate(SAMPLE_RATE_IN_HZ)
                         .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
-                        .build(), MIN_BUFFER_SIZE *10, AudioTrack.MODE_STREAM, AudioManager.AUDIO_SESSION_ID_GENERATE);
+                        .build(), MIN_BUFFER_SIZE * 10, AudioTrack.MODE_STREAM, AudioManager.AUDIO_SESSION_ID_GENERATE);
         track.play();
 
         Log.d(TAG, "Audio reception prepared");
@@ -70,11 +67,11 @@ class AudioConnector {
      */
     void prepareBroadcastAudio() {
         if (activity.getGooglePlayHandler().getTeammateParticipant() == null || activity.getGooglePlayHandler().getTeammateParticipant().getStatus() != Participant.STATUS_JOINED) {
-            activity.getUIHandler().showGameError();
+            activity.getUiHandler().showGameError();
             activity.getGooglePlayHandler().leaveRoom();
         }
 
-        recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, 8000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, MIN_BUFFER_SIZE * 10);
+        recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE_IN_HZ, AudioFormat.CHANNEL_IN_MONO, ENCODING, MIN_BUFFER_SIZE * 10);
 
         broadcastThread = new Thread(new Runnable() {
             @Override
@@ -83,14 +80,22 @@ class AudioConnector {
 
                 recorder.startRecording();
                 while (!Thread.interrupted()) {
-                    if (broadcastAudio) {
+                    synchronized (AudioConnector.this) {
+                        while (!broadcastAudio) {
+                            try {
+                                AudioConnector.this.wait();
+                            } catch (InterruptedException e) {
+                                break;
+                            }
+                        }
+
                         int n = recorder.read(buffer, 1, buffer.length - 1);
                         buffer[0] = 'P';
 
                         byte[] toSend = new byte[n];
                         System.arraycopy(buffer, 0, toSend, 0, n);
 
-                        activity.getInternetConnector().sendReliableMessage(toSend);
+                        activity.getInternetConnector().sendVoiceMessageToTeammate(toSend);
                     }
                 }
             }
@@ -105,29 +110,29 @@ class AudioConnector {
      * Set broadcastAudio to true, after that thread that record voice starts to send recorded audio to
      * the player.
      */
-    void startBroadcastAudio() {
+    synchronized void startBroadcastAudio() {
         broadcastAudio = true;
         recorder.startRecording();
+        notifyAll();
     }
 
     /**
-     * Stops recording voice and sending it to other player.
+     * Unused feature to stop recording voice (i.e. may be button with "start/stop recording voice").
      */
     @SuppressWarnings("unused")
-    private void stopBroadcastAudio() {
+    private synchronized void stopBroadcastAudio() {
         broadcastAudio = false;
         recorder.stop();
     }
 
-    /**
-     * Stops threads for playing voice,
-     */
     void clearResources() {
         if (broadcastThread != null) {
             broadcastThread.interrupt();
+            try {
+                broadcastThread.join();
+            } catch (InterruptedException ignored) {
+            }
         }
-
-        broadcastAudio = false;
 
         if (recorder != null) {
             recorder.release();

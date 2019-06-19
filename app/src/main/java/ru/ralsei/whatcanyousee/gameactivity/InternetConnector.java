@@ -12,6 +12,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Class for managing internet messaging between player's.
@@ -28,11 +33,13 @@ class InternetConnector {
     /**
      * True if got message from teammate that he is ready to get a voice connection.
      */
+    @Getter(AccessLevel.PACKAGE)
     private boolean otherPlayerIsReady = false;
 
     /**
      * True if ready to send and receive voice.
      */
+    @Setter(AccessLevel.PACKAGE)
     private boolean prepared = false;
 
     /**
@@ -48,123 +55,123 @@ class InternetConnector {
      * Also sends game settings if we are the game host.
      */
     void sendReadyMessage() {
-        byte[] message;
+        byte[] messageData;
 
         GameplayHandler.GameSettings gameSettings = activity.getGameplayHandler().getGameSettings();
         if (gameSettings != null) {
-            try {
-                ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-                ObjectOutputStream writeStream;
-
-                writeStream = new ObjectOutputStream(byteStream);
+            try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+                 ObjectOutputStream writeStream = new ObjectOutputStream(byteStream)) {
 
                 gameSettings.flipSettings();
                 writeStream.writeObject(gameSettings);
                 writeStream.flush();
                 gameSettings.flipSettings();
 
-                message = byteStream.toByteArray();
-                writeStream.close();
+                messageData = byteStream.toByteArray();
             } catch (IOException e) {
                 e.printStackTrace();
-                activity.getUIHandler().showGameError();
+                activity.getUiHandler().showGameError();
                 activity.getGooglePlayHandler().leaveRoom();
                 return;
             }
         } else {
-            message = new byte[1];
-            message[0] = 'R';
+            messageData = new byte[0];
         }
 
-        if (message.length > Multiplayer.MAX_RELIABLE_MESSAGE_LEN) {
+        if (messageData.length > Multiplayer.MAX_RELIABLE_MESSAGE_LEN) {
             Log.d(TAG, "Ready message: message is too long.");
         }
 
-        sendReliableMessage(message);
-    }
-
-    private void reactOnReceivedMessage(byte[] receivedData) {
-        if (!otherPlayerIsReady) {
-            if (activity.getGameplayHandler().getGameSettings() == null) {
-                try {
-                    ObjectInputStream stream = new ObjectInputStream(new ByteArrayInputStream(receivedData));
-                    try {
-                        activity.getGameplayHandler().setGameSettings((GameplayHandler.GameSettings) stream.readObject());
-
-                        stream.close();
-                    } catch (ClassNotFoundException e) {
-                        activity.handleException(new IOException(), "Error reading from object input stream");
-                    }
-                } catch (IOException e) {
-                    activity.handleException(new IOException(), "Error reading from object input stream");
-                }
-            }
-
-            otherPlayerIsReady = true;
-
-            if (prepared) {
-                activity.getGameplayHandler().startGame();
-            }
-        } else if (receivedData[0] == 'L') {
-            //Other player lost on his map.
-            if (receivedData[1] == 'M') {
-                activity.getGameplayHandler().gameOver(true, "You can not survive alone...");
-            } else if (receivedData[1] == 'C') {
-                activity.getGameplayHandler().gameOver(true, "You can not survive alone...");
-            } else if (receivedData[1] == 'L') {
-                activity.getGameStatistic().setKillYourFriend();
-                activity.getGameplayHandler().gameOver(true, "You can not survive alone...");
-            } else {
-                Log.d(TAG, "wrong game code in message");
-            }
-        } else if (receivedData[0] == 'W') {
-            //Other player won on his map.
-            if (receivedData[1] == 'M') {
-                activity.getGameplayHandler().setOtherMazeGameWon();
-
-                if (activity.getGameplayHandler().getMyMazeGameWon()) {
-                    activity.getGameplayHandler().startCodeGame();
-                }
-            } else if (receivedData[1] == 'C') {
-                activity.getGameplayHandler().setOtherCodeGameWon();
-
-                if (activity.getGameplayHandler().getMyCodeGameWon()) {
-                    activity.getGameplayHandler().startLeverGame();
-                }
-            } else if (receivedData[1] == 'L') {
-                activity.getGameplayHandler().setOtherLeverGameWon();
-
-                if (activity.getGameplayHandler().getMyLeverGameWon()) {
-                    activity.getGameplayHandler().gameWin();
-                }
-            } else {
-                Log.d(TAG, "wrong game code");
-            }
-        } else if (receivedData[0] == 'S') {
-            if (activity.getGameplayHandler().getLeverGameMap() == null) {
-                return;
-            }
-
-            byte[] leverName = new byte[receivedData.length - 1];
-            System.arraycopy(receivedData, 1, leverName, 0, leverName.length);
-
-            String lever = new String(leverName);
-            Log.d(TAG, "Received pressed lever: " + lever);
-
-            activity.getGameplayHandler().getLeverGameMap().applyLever(lever);
-        }
+        sendReliableMessageToTeammate(new Message(Message.MessageType.READY, messageData));
     }
 
     /**
-     * Message receiver. The very first message is signal of readiness.
+     * @param receivedMessage is an instance of Message.
      */
-    private OnRealTimeMessageReceivedListener mOnRealTimeMessageReceivedListener = new OnRealTimeMessageReceivedListener() {
+    private void reactOnReceivedMessage(byte[] receivedMessage) {
+        Message message;
+        try (ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(receivedMessage))) {
+            message = (Message) objectInputStream.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        switch (message.messageType) {
+            case READY:
+                if (activity.getGameplayHandler().getGameSettings() == null) {
+                    try (ObjectInputStream stream = new ObjectInputStream(new ByteArrayInputStream(message.data))) {
+                        activity.getGameplayHandler().setGameSettings((GameplayHandler.GameSettings) stream.readObject());
+                    } catch (IOException | ClassNotFoundException e) {
+                        activity.handleException(new IOException(), "Error reading from object input stream");
+                    }
+                }
+
+                otherPlayerIsReady = true;
+
+                if (prepared) {
+                    activity.getGameplayHandler().startGame();
+                }
+
+                break;
+
+            case WON_MAZE:
+                activity.getGameplayHandler().setOtherMazeGameWon(true);
+
+                if (activity.getGameplayHandler().isMyMazeGameWon()) {
+                    activity.getGameplayHandler().startCodeGame();
+                }
+                break;
+
+            case WON_CODE:
+                activity.getGameplayHandler().setOtherCodeGameWon(true);
+
+                if (activity.getGameplayHandler().isMyCodeGameWon()) {
+                    activity.getGameplayHandler().startLeverGame();
+                }
+                break;
+
+            case WON_LEVER:
+                activity.getGameplayHandler().setOtherLeverGameWon(true);
+
+                if (activity.getGameplayHandler().isMyLeverGameWon()) {
+                    activity.getGameplayHandler().onWinningEntireGame();
+                }
+                break;
+
+            case LOST_MAZE:
+                activity.getGameplayHandler().gameOver(true, "You can not survive alone...");
+                break;
+
+            case LOST_CODE:
+                activity.getGameplayHandler().gameOver(true, "You can not survive alone...");
+                break;
+
+            case LOST_LEVER:
+                activity.getGameStatistic().setTeammateKilledInCodeGame(true);
+                activity.getGameplayHandler().gameOver(true, "You can not survive alone...");
+                break;
+
+            case LEVER_PRESSED:
+                String lever = new String(message.data);
+                Log.d(TAG, "Received pressed lever: " + lever);
+
+                activity.getGameplayHandler().getLeverGameMap().applyLever(lever);
+                break;
+        }
+    }
+
+    @Getter(AccessLevel.PACKAGE)
+    private OnRealTimeMessageReceivedListener onRealTimeMessageReceivedListener = new OnRealTimeMessageReceivedListener() {
         @Override
         public void onRealTimeMessageReceived(@NonNull RealTimeMessage realTimeMessage) {
             final byte[] receivedData = realTimeMessage.getMessageData();
 
             if (receivedData.length > 0 && receivedData[0] == 'P') {
-                //Received voice audio.
+                /*
+                Received data is either voice audio data or serialized Message object. Since
+                Serialized object always starts with AC ED bytes, it's safe to code voice audio to begin with 'P'.
+                 */
                 if (activity.getAudioConnector().getTrack() != null) {
                     activity.getAudioConnector().getTrack().write(receivedData, 1, receivedData.length - 1);
                 }
@@ -179,89 +186,78 @@ class InternetConnector {
         }
     };
 
-    /**
-     * Sends reliable message without message callback.
-     */
-    void sendReliableMessage(byte[] message) {
-        activity.getGooglePlayHandler().getRealTimeMultiplayerClient().sendReliableMessage(message, activity.getGooglePlayHandler().getRoomId(), activity.getGooglePlayHandler().getTeammateParticipant().getParticipantId(), null);
+    private void sendReliableMessageToTeammate(Message message) {
+        byte[] data;
+
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+             ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
+            objectOutputStream.writeObject(message);
+            data = byteArrayOutputStream.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        sendReliableMessageToTeammate(data);
     }
 
-    /**
-     * Send to other player that we have lost the maze game.
-     */
+    private void sendReliableMessageToTeammate(byte[] data) {
+        activity.getGooglePlayHandler().getRealTimeMultiplayerClient().sendReliableMessage(data, activity.getGooglePlayHandler().getRoomId(), activity.getGooglePlayHandler().getTeammateParticipant().getParticipantId(), null);
+    }
+
     void sendMazeLostMessage() {
-        byte[] message = new byte[2];
-        message[0] = 'L';
-        message[1] = 'M';
-        sendReliableMessage(message);
+        sendReliableMessageToTeammate(new Message(Message.MessageType.LOST_MAZE));
     }
 
-    /**
-     * Send to other player that we have won the maze game.
-     */
     void sendMazeWonMessage() {
-        byte[] message = new byte[2];
-        message[0] = 'W';
-        message[1] = 'M';
-        sendReliableMessage(message);
+        sendReliableMessageToTeammate(new Message(Message.MessageType.WON_MAZE));
     }
 
-    /**
-     * Send to other player that we have lost the code game.
-     */
     void sendCodeLostMessage() {
-        byte[] message = new byte[2];
-        message[0] = 'L';
-        message[1] = 'C';
-        sendReliableMessage(message);
+        sendReliableMessageToTeammate(new Message(Message.MessageType.LOST_CODE));
     }
 
-    /**
-     * Send to other player that we have won the code game.
-     */
     void sendCodeWonMessage() {
-        byte[] message = new byte[2];
-        message[0] = 'W';
-        message[1] = 'C';
-        sendReliableMessage(message);
+        sendReliableMessageToTeammate(new Message(Message.MessageType.WON_CODE));
     }
 
-    /**
-     * Send to other player that we have lost the lever game.
-     */
     void sendLeverLostMessage() {
-        byte[] message = new byte[2];
-        message[0] = 'L';
-        message[1] = 'L';
-        sendReliableMessage(message);
+        sendReliableMessageToTeammate(new Message(Message.MessageType.LOST_LEVER));
     }
 
-    /**
-     * Send to other player that we have won the lever game.
-     */
     void sendLeverWonMessage() {
-        byte[] message = new byte[2];
-        message[0] = 'W';
-        message[1] = 'L';
-        sendReliableMessage(message);
+        sendReliableMessageToTeammate(new Message(Message.MessageType.WON_LEVER));
     }
 
     /**
      * Send the name of the lever that we have pressed on our screen.
      */
     void sendLeverPressedMessage(String lever) {
-        sendReliableMessage(("S" + lever).getBytes());
+        sendReliableMessageToTeammate(new Message(Message.MessageType.LEVER_PRESSED, lever.getBytes()));
     }
 
-    void setPrepared() {
-        prepared = true;
+    void sendVoiceMessageToTeammate(byte[] voice) {
+        sendReliableMessageToTeammate(voice);
     }
 
-    boolean getOtherPlayerIsReady() {
-        return otherPlayerIsReady;
-    }
+    private static class Message implements Serializable {
+        private enum MessageType {
+            LEVER_PRESSED, READY,
+            WON_MAZE, WON_CODE, WON_LEVER,
+            LOST_MAZE, LOST_CODE, LOST_LEVER,
+        }
 
-    OnRealTimeMessageReceivedListener getOnRealTimeMessageReceivedListener() {
-        return mOnRealTimeMessageReceivedListener;
+        private MessageType messageType;
+        private byte[] data;
+
+        private Message(MessageType messageType) {
+            this.messageType = messageType;
+            this.data = new byte[0];
+        }
+
+        private Message(MessageType messageType, byte[] data) {
+            this.messageType = messageType;
+            this.data = data;
+        }
     }
 }

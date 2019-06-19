@@ -72,13 +72,13 @@ public class LeverGameKingAndQueen_secondPlayer extends LeverGameMap {
             }
 
             if (nextStageFullfield()) {
-                setCurrentState(number);
-
                 ((KAQ2State) getState(number)).king = this.king;
                 ((KAQ2State) getState(number)).queen = this.queen;
                 ((KAQ2State) getState(number)).son = this.son;
                 ((KAQ2State) getState(number)).stranger = this.stranger;
                 ((KAQ2State) getState(number)).sword = this.sword;
+
+                setCurrentState(number);
             }
         }
 
@@ -109,7 +109,7 @@ public class LeverGameKingAndQueen_secondPlayer extends LeverGameMap {
 
         setCurrentState(0);
         states.get(4).setWinState(true);
-        setPressSelf();
+        setPressSelf(true);
     }
 
     @Override

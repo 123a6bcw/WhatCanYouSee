@@ -2,23 +2,23 @@ package ru.ralsei.whatcanyousee.gameactivity;
 
 import android.media.MediaPlayer;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 /**
  * Class for playing sounds in game. Support playing several sounds in parallel.
  */
 public class SoundPlayer {
+    /**
+     * Maximum number of players that can be used in parallel. Should be fixed as total number
+     * of MediaPlayers in android is limited.
+     */
+    private static final int NUMBER_OF_PLAYERS = 8;
+
     private GameActivity activity;
 
     SoundPlayer(GameActivity activity) {
         this.activity = activity;
     }
 
-    /**
-     * Players used to play sounds.
-     */
-    private final MediaPlayer[] players = new MediaPlayer[8];
+    private final MediaPlayer[] players = new MediaPlayer[NUMBER_OF_PLAYERS];
 
     /**
      * Used to support choosing volume from 1 to 10 linearly.
@@ -26,7 +26,13 @@ public class SoundPlayer {
     private final int MAX_VOLUME = 11;
 
     /**
-     * Finds free player and plays given track.
+     * False if not in a gameplay stage of the game sounds shouldn't be playing.
+     */
+    private boolean canPlay = false;
+
+    /**
+     * Finds free player and plays given track, there volume should be from 0 to
+     * MAX_VOLUME.
      */
     public void playTrackWithVolume(final int trackId, final int volume) {
         if (volume <= 0 || volume >= MAX_VOLUME) {
@@ -36,20 +42,26 @@ public class SoundPlayer {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                for (int i = 0; i < players.length; i++) {
-                    if (players[i] == null) {
-                        players[i] = MediaPlayer.create(activity, trackId);
+                synchronized (players) {
+                    if (!canPlay) {
+                        return;
                     }
 
-                    MediaPlayer mediaPlayer = players[i];
+                    for (int i = 0; i < players.length; i++) {
+                        if (players[i] == null) {
+                            players[i] = MediaPlayer.create(activity, trackId);
+                        }
 
-                    if (!mediaPlayer.isPlaying()) {
-                        float actualVolume = (float) (Math.log(volume) / Math.log(MAX_VOLUME));
-                        mediaPlayer.setVolume(actualVolume, actualVolume);
+                        MediaPlayer mediaPlayer = players[i];
 
-                        mediaPlayer.selectTrack(trackId);
-                        mediaPlayer.start();
-                        break;
+                        if (!mediaPlayer.isPlaying()) {
+                            float actualVolume = (float) (Math.log(volume) / Math.log(MAX_VOLUME));
+                            mediaPlayer.setVolume(actualVolume, actualVolume);
+
+                            mediaPlayer.selectTrack(trackId);
+                            mediaPlayer.start();
+                            break;
+                        }
                     }
                 }
             }
@@ -64,13 +76,26 @@ public class SoundPlayer {
     }
 
     /**
-     * Releasing all players.
+     * Called after entering gameplay stage of the game, so sound can be playing.
+     */
+    void setCanPlay() {
+        synchronized (players) {
+            canPlay = true;
+        }
+    }
+
+    /**
+     * Releasing all players and forbids new sounds to play until reentering gameplay stage.
      */
     void clearResources() {
-        for (int i = 0; i < players.length; i++) {
-            if (players[i] != null) {
-                players[i].release();
-                players[i] = null;
+        synchronized (players) {
+            canPlay = false;
+
+            for (int i = 0; i < players.length; i++) {
+                if (players[i] != null) {
+                    players[i].release();
+                    players[i] = null;
+                }
             }
         }
     }

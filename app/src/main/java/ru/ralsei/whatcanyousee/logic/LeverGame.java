@@ -22,23 +22,20 @@ public class LeverGame {
     private GameActivity activity;
 
     /**
-     * List of all switches in the game.
+     * Levers that user may press - they will affect the state on the other player's screen.
      */
     private List<Switch> switches = new ArrayList<>();
 
-    /**
-     *
-     */
-    private final LeverGameMap myLeverMap;
+    private final LeverGameMap leverGameMap;
 
     /**
      * Initializes the content of the lever game.
      */
-    public LeverGame(final GameActivity activity, final LeverGameMap myLeverMap, final LeverGameMap teammateLeverMap) {
+    public LeverGame(final GameActivity activity, final LeverGameMap leverGameMap, final LeverGameMap teammateLeverMap) {
         this.activity = activity;
-        this.myLeverMap = myLeverMap;
+        this.leverGameMap = leverGameMap;
 
-        ((ImageView) activity.findViewById(R.id.leverImage)).setImageResource(myLeverMap.getCurrentState().getImageID());
+        ((ImageView) activity.findViewById(R.id.leverImage)).setImageResource(leverGameMap.getCurrentState().getImageID());
 
         ViewGroup layout = activity.findViewById(R.id.layout_levers);
 
@@ -78,10 +75,10 @@ public class LeverGame {
 
                     String leverName = ((Switch) v).getText().toString();
 
-                    if (!myLeverMap.getPressSelf()) {
+                    if (!leverGameMap.isPressSelf()) {
                         activity.getGameplayHandler().sendLeverPressedMessage(leverName);
                     } else {
-                        myLeverMap.applyLever(leverName);
+                        leverGameMap.applyLever(leverName);
                     }
                 }
             }

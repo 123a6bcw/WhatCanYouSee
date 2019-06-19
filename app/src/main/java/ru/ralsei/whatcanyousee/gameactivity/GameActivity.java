@@ -1,12 +1,12 @@
 package ru.ralsei.whatcanyousee.gameactivity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +23,9 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import ru.ralsei.whatcanyousee.R;
 
 /**
@@ -40,10 +43,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private final static int RC_SELECT_PLAYERS = 10000;
     private final static int RC_INVITATION_INBOX = 10001;
     final static int RC_WAITING_ROOM = 10002;
-
-    /**
-     * Request code to invoke sign-in UI.
-     */
     static final int RC_SIGN_IN = 9001;
 
     /**
@@ -51,14 +50,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
      */
     static final int RC_UNUSED = 5001;
 
-    /**
-     * Request code to ask permission to record player's voice.
-     */
     static final int RC_REQUEST_VOICE_RECORD_PERMISSION = 8001;
 
-    /**
-     * Number of players in game. Always 2.
-     */
     static final int NUMBER_OF_PLAYERS = 2;
 
     /**
@@ -71,76 +64,51 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * Handles micro connection between players.
      */
-    @NonNull
+    @NonNull @Getter(AccessLevel.PACKAGE)
     private AudioConnector audioConnector = new AudioConnector(this);
 
     /**
      * Handles google play features (creation etc).
      */
-    @NonNull
+    @NonNull @Getter(AccessLevel.PACKAGE)
     private GooglePlayHandler googlePlayHandler = new GooglePlayHandler(this);
 
     /**
      * Handles game-messaging between players.
      */
     @NonNull
+    @Getter(AccessLevel.PACKAGE)
     private InternetConnector internetConnector = new InternetConnector(this);
 
     /**
      * Handles UI changes (switching between screen's etc).
      */
-    @NonNull
+    @NonNull @Getter(AccessLevel.PACKAGE)
     private UIHandler uiHandler = new UIHandler(this);
-
-    UIHandler getUIHandler() {
-        return uiHandler;
-    }
 
     /**
      * Handles gameplay stage of the game (switching between levels etc).
      */
-    @NonNull
+    @NonNull @Getter
     private GameplayHandler gameplayHandler = new GameplayHandler(this);
 
     /**
      * Class for storing statistic and achievements in the game.
      */
-    @NonNull
+    @NonNull @Getter
     private GameStatistic gameStatistic = new GameStatistic();
 
     /**
      * Class for playing several sounds in parallel.
      */
-    @NonNull
+    @NonNull @Getter
     private SoundPlayer soundPlayer = new SoundPlayer(this);
-
-    @NonNull
-    public SoundPlayer getSoundPlayer() {
-        return soundPlayer;
-    }
-
-    @NonNull
-    GooglePlayHandler getGooglePlayHandler() {
-        return googlePlayHandler;
-    }
-
-    @NonNull
-    AudioConnector getAudioConnector() {
-        return audioConnector;
-    }
-
-    InternetConnector getInternetConnector() {
-        return internetConnector;
-    }
-
-    void setState(State state) {
-        this.state = state;
-    }
 
     enum State {
         MAIN_MENU, MAZE_GAME, CODE_GAME, LEVER_GAME
     }
 
+    @Setter(AccessLevel.PACKAGE)
     private State state;
 
     @Override
@@ -341,46 +309,51 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == RC_SIGN_IN) {
-            Task<GoogleSignInAccount> task =
-                    GoogleSignIn.getSignedInAccountFromIntent(intent);
-            try {
-                GoogleSignInAccount account = task.getResult(ApiException.class);
-                googlePlayHandler.onConnected(account);
-            } catch (ApiException apiException) {
-                String message = "Seems like you are having problems connecting to google play. " +
-                        "Please check your or your friend's internet connection. Game won't be saved :(";
+        switch (requestCode) {
+            case RC_SIGN_IN:
+                Task<GoogleSignInAccount> task =
+                        GoogleSignIn.getSignedInAccountFromIntent(intent);
+                try {
+                    GoogleSignInAccount account = task.getResult(ApiException.class);
+                    googlePlayHandler.onConnected(account);
+                } catch (ApiException apiException) {
+                    String message = "Seems like you are having problems connecting to google play. " +
+                            "Please check your or your friend's internet connection. Game won't be saved :(";
 
-                googlePlayHandler.onDisconnected();
+                    googlePlayHandler.onDisconnected();
 
-                new AlertDialog.Builder(this)
-                        .setMessage(message)
-                        .setNeutralButton(android.R.string.ok, null)
-                        .show();
-            }
-        } else if (requestCode == RC_SELECT_PLAYERS) {
-            // got the result from the "select players" UI -- ready to create the room
-            googlePlayHandler.handleSelectPlayersResult(resultCode, intent);
-        } else if (requestCode == RC_INVITATION_INBOX) {
-            // got the result from the "select invitation" UI. ready to accept the selected invitation:
-            googlePlayHandler.handleInvitationInboxResult(resultCode, intent);
-        } else if (requestCode == RC_WAITING_ROOM) {
-            // got the result from the "waiting room" UI.
-            if (resultCode == Activity.RESULT_OK) {
-                // ready to start playing
-                Log.d(TAG, "Starting game (waiting room returned OK).");
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        uiHandler.askPermission();
-                    }
-                });
-            } else if (resultCode == GamesActivityResultCodes.RESULT_LEFT_ROOM) {
-                // player indicated that they want to leave the room
-                googlePlayHandler.leaveRoom();
-            } else if (resultCode == Activity.RESULT_CANCELED) {
-                googlePlayHandler.leaveRoom();
-            }
+                    new AlertDialog.Builder(this)
+                            .setMessage(message)
+                            .setNeutralButton(android.R.string.ok, null)
+                            .show();
+                }
+                break;
+            case RC_SELECT_PLAYERS:
+                // got the result from the "select players" UI -- ready to create the room
+                googlePlayHandler.handleSelectPlayersResult(resultCode, intent);
+                break;
+            case RC_INVITATION_INBOX:
+                // got the result from the "select invitation" UI. ready to accept the selected invitation:
+                googlePlayHandler.handleInvitationInboxResult(resultCode, intent);
+                break;
+            case RC_WAITING_ROOM:
+                // got the result from the "waiting room" UI.
+                if (resultCode == Activity.RESULT_OK) {
+                    // ready to start playing
+                    Log.d(TAG, "Starting game (waiting room returned OK).");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            uiHandler.askPermissionToRecordVoice();
+                        }
+                    });
+                } else if (resultCode == GamesActivityResultCodes.RESULT_LEFT_ROOM) {
+                    // player indicated that they want to leave the room
+                    googlePlayHandler.leaveRoom();
+                } else if (resultCode == Activity.RESULT_CANCELED) {
+                    googlePlayHandler.leaveRoom();
+                }
+                break;
         }
 
         super.onActivityResult(requestCode, resultCode, intent);
@@ -429,9 +402,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         audioConnector.prepareReceiveAudio();
         internetConnector.sendReadyMessage();
 
-        internetConnector.setPrepared();
+        internetConnector.setPrepared(true);
 
-        if (internetConnector.getOtherPlayerIsReady()) {
+        if (internetConnector.isOtherPlayerIsReady()) {
             gameplayHandler.startGame();
         }
     }
@@ -462,19 +435,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         audioConnector.clearResources();
         internetConnector.clearResources();
         soundPlayer.clearResources();
-        gameStatistic.clear();
-    }
-
-    /**
-     * Return class for interacting with the gameplay stage of the game.
-     */
-    @NonNull
-    public GameplayHandler getGameplayHandler() {
-        return gameplayHandler;
-    }
-
-    @NonNull
-    public GameStatistic getGameStatistic() {
-        return gameStatistic;
+        gameStatistic.resetStatisticToDefault();
     }
 }

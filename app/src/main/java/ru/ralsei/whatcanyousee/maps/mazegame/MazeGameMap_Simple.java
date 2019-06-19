@@ -40,14 +40,14 @@ public class MazeGameMap_Simple extends MazeGameMap {
 
         setImageID(R.drawable.maze_game_simple_map);
 
-        setxSize(6);
-        setySize(6);
+        setWidth(6);
+        setHeight(6);
         setExitCoordinates(new Coordinates(2, 2));
         setInitialCoordinates(new Coordinates(1, 1));
-        Cell[][] cells = new Cell[getxSize()][getySize()];
+        Cell[][] cells = new Cell[getWidth()][getHeight()];
         setCells(cells);
-        for (int i = 0; i < getxSize(); i++) {
-            for (int j = 0; j < getySize(); j++) {
+        for (int i = 0; i < getWidth(); i++) {
+            for (int j = 0; j < getHeight(); j++) {
                 cells[i][j] = new Cell();
             }
         }

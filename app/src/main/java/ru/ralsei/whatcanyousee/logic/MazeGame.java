@@ -15,7 +15,7 @@ import ru.ralsei.whatcanyousee.gameactivity.GameActivity;
 import ru.ralsei.whatcanyousee.R;
 
 /**
- * Class that runs infinitive loop for explorer to explore the maze.
+ * Class that runs infinitive loop for explorer to explore the maze on the given map.
  */
 public class MazeGame {
     /**
@@ -29,9 +29,6 @@ public class MazeGame {
     private ScheduledExecutorService ticker = Executors.newScheduledThreadPool(0);
     private static final int DELAY = 200;
 
-    /**
-     * Map of this maze.
-     */
     private final MazeGameMap map;
 
     public MazeGame(final MazeGameMap map, final GameActivity activity) {
@@ -52,21 +49,21 @@ public class MazeGame {
                         activity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                activity.getGameStatistic().setDeadByMonster(true);
+                                activity.getGameStatistic().setDeadByMonsterInMazeGame(true);
                             }
                         });
                     }
 
                     if (checkIfLostGame()) {
-                        activity.getGameStatistic().setDeadByMonster(true);
+                        activity.getGameStatistic().setDeadByMonsterInMazeGame(true);
                     }
 
                     if (monster.readyToMove()) {
                         MazeGameMap.Cell closestCell = null;
 
-                        Collections.shuffle(vec4); //Monster moves randomly if there is several directions he could move to.
+                        Collections.shuffle(randomVec4); //Monster moves randomly if there is several directions he could move to.
 
-                        for (MazeGameMap.Coordinates coordinates : vec4) {
+                        for (MazeGameMap.Coordinates coordinates : randomVec4) {
                             MazeGameMap.Cell cell = map.getRelatedCell(monster.getCurrentCoordinates(), coordinates);
                             if (cell == null) {
                                 continue;
@@ -82,7 +79,7 @@ public class MazeGame {
                         }
 
                         MazeGameMap.Cell currentCell = map.getCell(monster.getCurrentCoordinates());
-                        currentCell.resetImage();
+                        currentCell.resetImageToDefault();
 
                         closestCell.setImage(monster.getImageId());
                         monster.moveTo(closestCell);
@@ -110,9 +107,6 @@ public class MazeGame {
         gameActivity.findViewById(R.id.button_giveUp_maze).setOnClickListener(onClickListener);
     }
 
-    /**
-     * On click listener for the maze game.
-     */
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -180,22 +174,27 @@ public class MazeGame {
     /**
      * Related coordinates of 4 cells (left, up, right, down) around the player.
      */
-    private List<MazeGameMap.Coordinates> vec4 = Arrays.asList(new MazeGameMap.Coordinates(-1, 0),
+    private MazeGameMap.Coordinates[] vec4 = {
+            new MazeGameMap.Coordinates(-1, 0),
             new MazeGameMap.Coordinates(0, -1),
             new MazeGameMap.Coordinates(1, 0),
-            new MazeGameMap.Coordinates(0, 1));
+            new MazeGameMap.Coordinates(0, 1),
+    };
 
     /**
-     * React to user command.
+     * Related coordinates of 4 cells (left, up, right, down) around the player to use in random
+     * order.
      */
-    private void react(Command command) {
-        switch (command) {
+    private List<MazeGameMap.Coordinates> randomVec4 = Arrays.asList(vec4);
+
+    private void react(Command userCommand) {
+        switch (userCommand) {
             case RIGHT: case DOWN: case UP: case LEFT:
                 if (checkIfGameOver()) {
                     return;
                 }
 
-                tryToMove(map, command);
+                tryToMove(map, userCommand);
 
                 if (checkIfGameOver()) {
                     return;
@@ -218,6 +217,7 @@ public class MazeGame {
 
     /**
      * True if player either won or lost.
+     * Not only checks this condition, but also reacts in corresponding way if result is positive.
      */
     private boolean checkIfGameOver() {
         if (map.hasLost()) {
@@ -233,9 +233,6 @@ public class MazeGame {
         return false;
     }
 
-    /**
-     * True of player lost the game.
-     */
     private boolean checkIfLostGame() {
         return map.hasLost();
     }
@@ -305,6 +302,10 @@ public class MazeGame {
      */
     public void onClose() {
         ticker.shutdown();
+        try {
+            ticker.awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException ignored) {
+        }
     }
 
     /**
@@ -342,7 +343,7 @@ public class MazeGame {
             gameActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    gameActivity.getGameStatistic().setDeadByMonster(true);
+                    gameActivity.getGameStatistic().setDeadByMonsterInMazeGame(true);
                 }
             });
         }

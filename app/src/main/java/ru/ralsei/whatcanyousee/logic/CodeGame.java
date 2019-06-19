@@ -27,14 +27,8 @@ public class CodeGame {
      */
     private GameActivity activity;
 
-    /**
-     * Code game map of this player.
-     */
     private CodeGameMap codeGameMap;
 
-    /**
-     * Initializes the content of the code game.
-     */
     public CodeGame(final GameActivity activity, final CodeGameMap codeGameMap, final CodeGameMap teammateCodeGameMap) {
         this.activity = activity;
         this.codeGameMap = codeGameMap;
@@ -84,9 +78,6 @@ public class CodeGame {
             }
         }
 
-        /**
-         * Handling the wrong input code.
-         */
         private void onWrongCode() {
             activity.getSoundPlayer().playTrack(R.raw.not_ok);
             activity.runOnUiThread(new Runnable() {

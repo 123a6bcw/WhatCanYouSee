@@ -14,8 +14,8 @@ public class MazeGameMap_Test2 extends MazeGameMap {
 
     @Override
     protected void setupMetaData() {
-        setxSize(12);
-        setySize(16);
+        setWidth(12);
+        setHeight(16);
         setExitCoordinates(new Coordinates(7, 11));
         setInitialCoordinates(new Coordinates(4, 3));
         setImageID(R.drawable.maze_game_test2_map);
@@ -23,11 +23,11 @@ public class MazeGameMap_Test2 extends MazeGameMap {
 
     @Override
     protected void setupCells() {
-        final Cell[][] cells = new Cell[getxSize()][getySize()];
+        final Cell[][] cells = new Cell[getWidth()][getHeight()];
         setCells(cells);
 
-        for (int i = 0; i < getxSize(); i++) {
-            for (int j = 0; j < getySize(); j++) {
+        for (int i = 0; i < getWidth(); i++) {
+            for (int j = 0; j < getHeight(); j++) {
                 cells[i][j] = new Cell();
             }
         }
@@ -148,7 +148,6 @@ public class MazeGameMap_Test2 extends MazeGameMap {
         cells[4][9].setToogle(new Toogle() {
             @Override
             protected void use() {
-
                 List<Monster> monsters = getMonsters();
                 SimpleMonster monster = (SimpleMonster) monsters.get(0);
                 SimpleMonster monster1 = (SimpleMonster) monsters.get(1);

@@ -1,10 +1,10 @@
 package ru.ralsei.whatcanyousee.gameactivity;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -12,6 +12,8 @@ import android.view.WindowManager;
 import com.google.android.gms.games.multiplayer.realtime.Room;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import ru.ralsei.whatcanyousee.R;
 
 /**
@@ -39,14 +41,9 @@ class UIHandler {
         this.activity = activity;
     }
 
-    /**
-     * Last used screen.
-     */
-    private int mCurScreen = -1;
+    @Getter(AccessLevel.PACKAGE)
+    private int lastUsedScreen = -1;
 
-    /**
-     * Switches to the given screen.
-     */
     void switchToScreen(int screenId) {
         for (int id : SCREENS) {
             final View view = activity.findViewById(id);
@@ -56,13 +53,13 @@ class UIHandler {
                 Log.d(TAG, "Somehow view with id " + id + " was not found");
             }
         }
-        mCurScreen = screenId;
+        lastUsedScreen = screenId;
 
         boolean showInvPopup;
         if (activity.getGooglePlayHandler().getIncomingInvitationId() == null) {
             showInvPopup = false;
         } else {
-            showInvPopup = (mCurScreen == R.id.main_screen);
+            showInvPopup = (lastUsedScreen == R.id.main_screen);
         }
 
         View view = activity.findViewById(R.id.invitation_popup);
@@ -86,7 +83,7 @@ class UIHandler {
      * room and get connected.
      */
     void showWaitingRoom(Room room) {
-        activity.getGooglePlayHandler().getRealTimeMultiplayerClient().getWaitingRoomIntent(room, activity.NUMBER_OF_PLAYERS)
+        activity.getGooglePlayHandler().getRealTimeMultiplayerClient().getWaitingRoomIntent(room, GameActivity.NUMBER_OF_PLAYERS)
                 .addOnSuccessListener(new OnSuccessListener<Intent>() {
                     @Override
                     public void onSuccess(Intent intent) {
@@ -110,10 +107,7 @@ class UIHandler {
                 .setNeutralButton(android.R.string.ok, null).show();
     }
 
-    /**
-     * Ask permission to record voice, if it wasn't given yet.
-     */
-    void askPermission() {
+    void askPermissionToRecordVoice() {
         if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.RECORD_AUDIO}, GameActivity.RC_REQUEST_VOICE_RECORD_PERMISSION);
         } else {
@@ -122,22 +116,11 @@ class UIHandler {
         }
     }
 
-
-    /**
-     * Sets the flag to keep this screen on.
-     */
     void keepScreenOn() {
         activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
-    /**
-     * Clears the flag that keeps the screen on.
-     */
     void stopKeepingScreenOn() {
         activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-    }
-
-    int getCurScreen() {
-        return mCurScreen;
     }
 }
