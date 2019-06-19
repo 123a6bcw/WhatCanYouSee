@@ -5,6 +5,12 @@ import android.widget.ImageView;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import ru.ralsei.whatcanyousee.gameactivity.GameActivity;
 import ru.ralsei.whatcanyousee.R;
 
@@ -65,89 +71,51 @@ public abstract class MazeGameMap {
     /**
      * Map's id of this maze that will be shown to the other player.
      */
+    @Getter @Setter(AccessLevel.PROTECTED)
     private int imageID;
 
-    protected void setImageID(int imageID) {
-        this.imageID = imageID;
-    }
-
-    public int getImageID() {
-        return imageID;
-    }
-
     /**
      * Activity map was created from.
      */
+    @Getter(AccessLevel.PROTECTED)
     private final GameActivity activity;
-
-    /**
-     * Activity map was created from.
-     */
-    public GameActivity getActivity() {
-        return activity;
-    }
 
     /**
      * Size of the map (width and height).
      */
+    @Getter(AccessLevel.PROTECTED) @Setter(AccessLevel.PROTECTED)
     private int xSize;
+
+    @Getter(AccessLevel.PROTECTED) @Setter(AccessLevel.PROTECTED)
     private int ySize;
 
     /**
      * Exit coordinates. Player can reach this position only if special condition of leaving the maze has been fulfilled.
      */
+    @Setter(AccessLevel.PROTECTED)
     private Coordinates exitCoordinates;
 
     /**
      * Each cell has coordinates in ranges [0, xSize) and [0, ySize).
      * This gives info about type of corresponding cell.
      */
+    @Getter(AccessLevel.PROTECTED) @Setter(AccessLevel.PROTECTED)
     private Cell[][] cells;
 
     /**
      * Corresponding cell's ImageView.
      */
+    @Getter
     private int[][] imageIds;
 
     /**
      * Current player's position. Initial position is implementation-specific.
      */
+    @Getter(AccessLevel.PACKAGE) @Setter(AccessLevel.PACKAGE)
     private Coordinates currentCoordinates;
-
-    protected int getxSize() {
-        return xSize;
-    }
-
-    protected int getySize() {
-        return ySize;
-    }
-
-    protected void setxSize(int xSize) {
-        this.xSize = xSize;
-    }
-
-    protected void setySize(int ySize) {
-        this.ySize = ySize;
-    }
-
-    public int[][] getImageIds() {
-        return imageIds;
-    }
-
-    protected void setExitCoordinates(Coordinates exitCoordinates) {
-        this.exitCoordinates = exitCoordinates;
-    }
 
     protected void setInitialCoordinates(Coordinates coordinates) {
         this.currentCoordinates = coordinates;
-    }
-
-    protected MazeGameMap.Cell[][] getCells() {
-        return cells;
-    }
-
-    protected void setCells(Cell[][] cells) {
-        this.cells = cells;
     }
 
     public MazeGameMap(GameActivity activity) {
@@ -325,11 +293,8 @@ public abstract class MazeGameMap {
      * Each cell has distanceId. If this distanceId is lower than this number, cell's distance is invalid
      * and has to be updated.
      */
+    @Getter(AccessLevel.PACKAGE)
     private int distanceId = 0;
-
-    int getDistanceId() {
-        return distanceId;
-    }
 
     void increaseDistanceId() {
         distanceId++;
@@ -349,6 +314,7 @@ public abstract class MazeGameMap {
         /**
          * True if cell is wall, meaning you can't go through this cell.
          */
+        @Getter(AccessLevel.PACKAGE)
         private boolean isWall = false;
 
         /**
@@ -359,62 +325,51 @@ public abstract class MazeGameMap {
         /**
          * Cell coordinates.
          */
+        @Getter(AccessLevel.PACKAGE) @Setter(AccessLevel.PRIVATE)
         private int x;
+
+        @Getter(AccessLevel.PACKAGE) @Setter(AccessLevel.PRIVATE)
         private int y;
 
         /**
          * True if cell contains trap, meaning special event triggers when you step on this cell/
          */
+        @Getter(AccessLevel.PACKAGE) @Setter
         private Trap trap = null;
 
         /**
          * True if cell contains toogle, meaning pressing it (by using key 'use') causing some special
          * event (for example, opening some door).
          */
+        @Getter(AccessLevel.PACKAGE) @Setter
         private Toogle toogle = null;
 
         /**
          * Current distance between the player and this cell.
          */
+        @Getter @Setter(AccessLevel.PACKAGE)
         private int distance = 0;
 
         /**
          * If lower than map.distanceId, distance of this cell is invalid and should be updated.
          */
+        @Getter(AccessLevel.PACKAGE) @Setter(AccessLevel.PACKAGE)
         private int distanceId = 0;
 
         /**
          * Current cell's image.
          */
+        @Setter
         private int image = R.drawable.emptycell;
 
         /**
          * Default cell's image.
          */
+        @Setter(AccessLevel.PUBLIC)
         private int defaultImage = R.drawable.emptycell;
-
-        public void setToogle(Toogle toogle) {
-            this.toogle = toogle;
-        }
-
-        public void setTrap(Trap trap) {
-            this.trap = trap;
-        }
-
-        public void setImage(int image) {
-            this.image = image;
-        }
-
-        public void setDefaultImage(int image) {
-            this.defaultImage = image;
-        }
 
         void resetImage() {
             this.image = defaultImage;
-        }
-
-        boolean isWall() {
-            return isWall;
         }
 
         boolean isTrap() {
@@ -423,14 +378,6 @@ public abstract class MazeGameMap {
 
         boolean isToogle() {
             return toogle != null;
-        }
-
-        Trap getTrap() {
-            return trap;
-        }
-
-        Toogle getToogle() {
-            return toogle;
         }
 
         /**
@@ -450,61 +397,7 @@ public abstract class MazeGameMap {
             defaultImage = R.drawable.emptycell;
             image = R.drawable.emptycell;
         }
-
-        public int getDistance() {
-            return distance;
-        }
-
-        void setDistance(int distance) {
-            this.distance = distance;
-        }
-
-        int getX() {
-            return x;
-        }
-
-        private void setX(int x) {
-            this.x = x;
-        }
-
-        int getY() {
-            return y;
-        }
-
-        private void setY(int y) {
-            this.y = y;
-        }
-
-        int getDistanceId() {
-            return distanceId;
-        }
-
-        void setDistanceId(int distanceId) {
-            this.distanceId = distanceId;
-        }
     }
-
-    /**
-     * Returns current player's coordinates.
-     */
-    Coordinates getCurrentCoordinates() {
-        return currentCoordinates;
-    }
-
-    /**
-     * Sets current player's coordinates to another.
-     */
-    void setCurrentCoordinates(Coordinates coordinates) {
-        this.currentCoordinates = coordinates;
-    }
-
-    /*
-    private final Object gameResultLock = new Object();
-
-    Object getGameResultLock() {
-        return gameResultLock;
-    }
-    */
 
     /**
      * If game is over, shows if player either won or lost.
@@ -515,15 +408,8 @@ public abstract class MazeGameMap {
     /**
      * Message to show when players loosing the game.
      */
+    @Getter(AccessLevel.PACKAGE) @Setter(AccessLevel.PROTECTED)
     private String messageLost = "";
-
-    String getMessageLost() {
-        return messageLost;
-    }
-
-    protected void setMessageLost(String messageLost) {
-        this.messageLost = messageLost;
-    }
 
     /**
      * Sets the result of the game (true for won, false for lost).
@@ -651,6 +537,7 @@ public abstract class MazeGameMap {
     /**
      * List of all monster in the game.
      */
+    @Getter(AccessLevel.PROTECTED)
     private final ArrayList<Monster> monsters = new ArrayList<>();
 
     /**
@@ -660,10 +547,6 @@ public abstract class MazeGameMap {
         monsters.add(monster);
     }
 
-    protected ArrayList<Monster> getMonsters() {
-        return monsters;
-    }
-
     /**
      * Class representing the monster in maze.
      */
@@ -671,12 +554,16 @@ public abstract class MazeGameMap {
         /**
          * Image of this monster.
          */
+        @Getter(AccessLevel.PACKAGE) @Setter(AccessLevel.PROTECTED)
         private int imageId;
 
         /**
          * Initial position in the maze.
          */
+        @Getter(AccessLevel.PROTECTED)
         private int initialX;
+
+        @Getter(AccessLevel.PROTECTED)
         private int initialY;
 
         /**
@@ -706,25 +593,9 @@ public abstract class MazeGameMap {
          */
         abstract protected void updateOnTick();
 
-        int getImageId() {
-            return this.imageId;
-        }
-
-        protected void setImageId(int imageId) {
-            this.imageId = imageId;
-        }
-
-        protected int getInitialX() {
-            return initialX;
-        }
-
         protected void setInitialX(int initialX) {
             this.initialX = initialX;
             currentX = initialX;
-        }
-
-        protected int getInitialY() {
-            return initialY;
         }
 
         protected void setInitialY(int initialY) {
@@ -761,33 +632,24 @@ public abstract class MazeGameMap {
      * Class for storing cell's coordinates, where the cell on the bottom-left corner of the screen has
      * (0, 0) coordinates.
      */
+    @Data
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
     protected static class Coordinates {
         /**
          * X coordinate.
          */
+        @Getter(AccessLevel.PACKAGE) @Setter(AccessLevel.NONE)
         private int x;
 
         /**
          * Y coordinate.
          */
+        @Getter(AccessLevel.PACKAGE) @Setter(AccessLevel.NONE)
         private int y;
 
-        public Coordinates(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
         Coordinates(Coordinates other) {
-            this.x = other.x;
-            this.y = other.y;
-        }
-
-        int getX() {
-            return x;
-        }
-
-        int getY() {
-            return y;
+            x = other.getX();
+            y = other.getY();
         }
 
         void moveToVector(MazeGame.Command command) {
@@ -807,10 +669,6 @@ public abstract class MazeGameMap {
                 default:
                     throw new IllegalArgumentException("wrong command to move");
             }
-        }
-
-        boolean equals(Coordinates coordinates) {
-            return x == coordinates.getX() && y == coordinates.getY();
         }
     }
 }

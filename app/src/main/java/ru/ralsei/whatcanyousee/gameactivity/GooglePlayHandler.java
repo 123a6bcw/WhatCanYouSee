@@ -36,6 +36,9 @@ import com.google.android.gms.tasks.Task;
 import java.util.List;
 import java.util.Objects;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import ru.ralsei.whatcanyousee.R;
 
 /**
@@ -63,16 +66,19 @@ class GooglePlayHandler {
     /**
      * Client used to sign in with Google APIs.
      */
+    @Getter(AccessLevel.PACKAGE) @Setter(AccessLevel.PACKAGE)
     private GoogleSignInClient googleSignInClient;
 
     /**
      * Client used to interact with the real time multiplayer system.
      */
+    @Getter(AccessLevel.PACKAGE)
     private RealTimeMultiplayerClient realTimeMultiplayerClient;
 
     /**
      * Client used to interact with game achievements.
      */
+    @Getter(AccessLevel.PACKAGE)
     private AchievementsClient achievementsClient;
 
     /**
@@ -83,11 +89,13 @@ class GooglePlayHandler {
     /**
      * Client used to interact with the invitation system.
      */
+    @Getter(AccessLevel.PACKAGE)
     private InvitationsClient invitationsClient;
 
     /**
      * Room ID where the currently active game is taking place.
      */
+    @Getter(AccessLevel.PACKAGE)
     private String roomId;
 
     /**
@@ -104,6 +112,7 @@ class GooglePlayHandler {
     /**
      * Account of player's teammate.
      */
+    @Getter(AccessLevel.PACKAGE)
     private Participant teammateParticipant;
 
     /**
@@ -115,6 +124,7 @@ class GooglePlayHandler {
      * Id of the invitation received via the
      * invitation listener.
      */
+    @Getter(AccessLevel.PACKAGE) @Setter(AccessLevel.PACKAGE)
     private String incomingInvitationId;
 
     /**
@@ -431,6 +441,7 @@ class GooglePlayHandler {
     /**
      * Called when player get an invitation to play a game, reacts by showing invitation to the user.
      */
+    @Getter(AccessLevel.PACKAGE)
     private InvitationCallback invitationCallback = new InvitationCallback() {
         @Override
         public void onInvitationReceived(@NonNull Invitation invitation) {
@@ -597,45 +608,5 @@ class GooglePlayHandler {
                 teammateParticipant = participant;
             }
         }
-    }
-
-    String getIncomingInvitationId() {
-        return incomingInvitationId;
-    }
-
-    GoogleSignInClient getGoogleSignInClient() {
-        return googleSignInClient;
-    }
-
-    void setGoogleSignInClient(GoogleSignInClient client) {
-        this.googleSignInClient = client;
-    }
-
-    InvitationsClient getInvitationsClient() {
-        return invitationsClient;
-    }
-
-    InvitationCallback getInvitationCallback() {
-        return invitationCallback;
-    }
-
-    RealTimeMultiplayerClient getRealTimeMultiplayerClient() {
-        return realTimeMultiplayerClient;
-    }
-
-    void setIncomingInvitationId(String id) {
-        incomingInvitationId = null;
-    }
-
-    String getRoomId() {
-        return roomId;
-    }
-
-    Participant getTeammateParticipant() {
-        return teammateParticipant;
-    }
-
-    AchievementsClient getAchievementsClient() {
-        return achievementsClient;
     }
 }

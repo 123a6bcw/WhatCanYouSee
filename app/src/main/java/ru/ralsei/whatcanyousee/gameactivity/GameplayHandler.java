@@ -10,6 +10,10 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Random;
 
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import ru.ralsei.whatcanyousee.R;
 import ru.ralsei.whatcanyousee.logic.CodeGame;
 import ru.ralsei.whatcanyousee.logic.CodeGameMap;
@@ -43,37 +47,44 @@ public class GameplayHandler {
     /**
      * True if won the current level but other player may lose it).
      */
+    @Getter(AccessLevel.PACKAGE)
     private boolean myMazeGameWon = false;
 
     /**
      * True if received message that other player won his current level.
      */
+    @Setter(AccessLevel.PACKAGE)
     private boolean otherMazeGameWon = false;
 
     /**
      * True if won the current level but other player may lose it).
      */
+    @Getter(AccessLevel.PACKAGE)
     private boolean myCodeGameWon = false;
 
     /**
      * True if received message that other player won his current level.
      */
+    @Setter(AccessLevel.PACKAGE)
     private boolean otherCodeGameWon = false;
 
     /**
      * True if won the current level but other player may lose it).
      */
+    @Getter(AccessLevel.PACKAGE)
     private boolean myLeverGameWon = false;
 
     /**
      * True if received message that other player won his current level.
      */
+    @Setter(AccessLevel.PACKAGE)
     private boolean otherLeverGameWon = false;
 
 
     /**
      * Class for handling gameplay stage of the maze game.
      */
+    @Getter(AccessLevel.PACKAGE) @Setter(AccessLevel.PACKAGE)
     private MazeGame maze;
 
     /**
@@ -84,6 +95,7 @@ public class GameplayHandler {
     /**
      * Class for handling gameplay stage of the code game.
      */
+    @Getter(AccessLevel.PACKAGE)
     private CodeGame codeGame = null;
 
     /**
@@ -94,11 +106,13 @@ public class GameplayHandler {
     /**
      * Class for handling gameplay stage of the lever game.
      */
+    @Getter(AccessLevel.PACKAGE)
     private LeverGame leverGame = null;
 
     /**
      * Instance of the player's game map.
      */
+    @Getter(AccessLevel.PACKAGE)
     private LeverGameMap leverGameMap;
 
     /**
@@ -109,15 +123,8 @@ public class GameplayHandler {
     /**
      * Class for storing settings of the current game.
      */
+    @Getter(AccessLevel.PACKAGE) @Setter(AccessLevel.PACKAGE)
     private GameSettings gameSettings;
-
-    GameSettings getGameSettings() {
-        return gameSettings;
-    }
-
-    void setGameSettings(GameSettings gameSettings) {
-        this.gameSettings = gameSettings;
-    }
 
     /**
      * Clears all handlers and they resources.
@@ -452,7 +459,7 @@ public class GameplayHandler {
         gameOver(false, message);
 
         if (!wasKilled) {
-            activity.getGameStatistic().setKillYourFriend();
+            activity.getGameStatistic().setKillYourFriend(true);
         }
     }
 
@@ -488,81 +495,19 @@ public class GameplayHandler {
                 .setNeutralButton(android.R.string.ok, null).show();
     }
 
-    CodeGame getCodeGame() {
-        return codeGame;
-    }
-
-    MazeGame getMaze() {
-        return maze;
-    }
-
-    LeverGame getLeverGame() {
-        return leverGame;
-    }
-
-    void setOtherMazeGameWon() {
-        otherMazeGameWon = true;
-    }
-
-    void setOtherCodeGameWon() {
-        otherCodeGameWon = true;
-    }
-
-    void setOtherLeverGameWon() {
-        otherLeverGameWon = true;
-    }
-
-    boolean getMyMazeGameWon() {
-        return myMazeGameWon;
-    }
-
-    boolean getMyCodeGameWon() {
-        return myCodeGameWon;
-    }
-
-    boolean getMyLeverGameWon() {
-        return myLeverGameWon;
-    }
-
-    LeverGameMap getLeverGameMap() {
-        return leverGameMap;
-    }
-
     /**
      * Settings of the created game (basically maps of all levels in game), created by the one who
      * created the game, who also sends this setting to the other player.
      *
      * Owner's maps and teammate's maps are being swapped before sending to the other player.
      */
+    @Data
     static class GameSettings implements Serializable {
-        /**
-         * Maze game map of this player (class name).
-         */
         private String myMazeMap;
-
-        /**
-         * Maze game map of the teammate player (class name).
-         */
         private String teammateMazeMap;
-
-        /**
-         * Code game map of this player.
-         */
         private String myCodeGameMap;
-
-        /**
-         * Teammate code game map.
-         */
         private String myTeammateCodeGameMap;
-
-        /**
-         * Lever game map of this player.
-         */
         private String myLeverGameMap;
-
-        /**
-         * Teammate lever game map.
-         */
         private String myTeammateLeverGameMap;
 
         /**
@@ -581,47 +526,6 @@ public class GameplayHandler {
             temp = myLeverGameMap;
             myLeverGameMap = myTeammateLeverGameMap;
             myTeammateLeverGameMap = temp;
-        }
-
-        private String getMyMazeMap() {
-            return myMazeMap;
-        }
-
-        private void setMyMazeMap(String myMazeMap) {
-            this.myMazeMap = myMazeMap;
-        }
-
-        private String getTeammateMazeMap() {
-            return teammateMazeMap;
-        }
-
-        private void setTeammateMazeMap(String teammateMazeMap) {
-            this.teammateMazeMap = teammateMazeMap;
-        }
-
-        private String getMyCodeGameMap() {
-            return myCodeGameMap;
-        }
-
-        private void setMyCodeGameMap(String myCodeGameMap) {
-            this.myCodeGameMap = myCodeGameMap;
-        }
-
-        @SuppressWarnings("unused")
-        private String getMyTeammateCodeGameMap() {
-            return myTeammateCodeGameMap;
-        }
-
-        private void setMyTeammateCodeGameMap(String myTeammateCodeGameMap) {
-            this.myTeammateCodeGameMap = myTeammateCodeGameMap;
-        }
-
-        private void setMyLeverGameMap(String myLeverGameMap) {
-            this.myLeverGameMap = myLeverGameMap;
-        }
-
-        private void setMyTeammateLeverGameMap(String myTeammateLeverGameMap) {
-            this.myTeammateLeverGameMap = myTeammateLeverGameMap;
         }
     }
 }

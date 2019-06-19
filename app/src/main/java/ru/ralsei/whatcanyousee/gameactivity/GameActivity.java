@@ -24,6 +24,9 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import ru.ralsei.whatcanyousee.R;
 
 /**
@@ -100,13 +103,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * Handles gameplay stage of the game (switching between levels etc).
      */
-    @NonNull
+    @NonNull @Getter
     private GameplayHandler gameplayHandler = new GameplayHandler(this);
 
     /**
      * Class for storing statistic and achievements in the game.
      */
-    @NonNull
+    @NonNull @Getter
     private GameStatistic gameStatistic = new GameStatistic();
 
     /**
@@ -135,14 +138,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         return internetConnector;
     }
 
-    void setState(State state) {
-        this.state = state;
-    }
-
     enum State {
         MAIN_MENU, MAZE_GAME, CODE_GAME, LEVER_GAME
     }
 
+    @Setter(AccessLevel.PACKAGE)
     private State state;
 
     @Override
@@ -436,9 +436,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         audioConnector.prepareReceiveAudio();
         internetConnector.sendReadyMessage();
 
-        internetConnector.setPrepared();
+        internetConnector.setPrepared(true);
 
-        if (internetConnector.getOtherPlayerIsReady()) {
+        if (internetConnector.isOtherPlayerIsReady()) {
             gameplayHandler.startGame();
         }
     }
@@ -470,18 +470,5 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         internetConnector.clearResources();
         soundPlayer.clearResources();
         gameStatistic.clear();
-    }
-
-    /**
-     * Return class for interacting with the gameplay stage of the game.
-     */
-    @NonNull
-    public GameplayHandler getGameplayHandler() {
-        return gameplayHandler;
-    }
-
-    @NonNull
-    public GameStatistic getGameStatistic() {
-        return gameStatistic;
     }
 }

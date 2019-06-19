@@ -13,6 +13,8 @@ import androidx.core.app.ActivityCompat;
 import com.google.android.gms.games.multiplayer.realtime.Room;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import ru.ralsei.whatcanyousee.R;
 
 /**
@@ -43,6 +45,7 @@ class UIHandler {
     /**
      * Last used screen.
      */
+    @Getter(AccessLevel.PACKAGE)
     private int curScreen = -1;
 
     /**
@@ -136,9 +139,5 @@ class UIHandler {
      */
     void stopKeepingScreenOn() {
         activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-    }
-
-    int getCurScreen() {
-        return curScreen;
     }
 }

@@ -5,6 +5,10 @@ import android.widget.ImageView;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import ru.ralsei.whatcanyousee.gameactivity.GameActivity;
 import ru.ralsei.whatcanyousee.R;
 
@@ -20,11 +24,13 @@ public abstract class LeverGameMap {
     /**
      * All levers exists for this map (they will be shown on the other player's screen).
      */
+    @Getter(AccessLevel.PROTECTED) @Setter(AccessLevel.PROTECTED)
     private String[] levers = new String[0];
 
     /**
      * List of all possible states in the map.
      */
+    @Getter(AccessLevel.PROTECTED)
     private final ArrayList<State> states = new ArrayList<>();
 
     /**
@@ -39,20 +45,14 @@ public abstract class LeverGameMap {
     /**
      * True if pressing lever causing effects on the player's screen, not teammates screen.
      */
+    @Getter @Setter(AccessLevel.PROTECTED)
     private boolean pressSelf = false;
-
-    public boolean getPressSelf() {
-        return pressSelf;
-    }
-
-    protected void setPressSelf() {
-        pressSelf = true;
-    }
 
     /**
      * Class representing the state of the lever game. All states represents the vertexes of a directed
      * graph, with levers representing the edges.
      */
+    @Data
     public abstract class State {
         /**
          * Image to show on this state.
@@ -62,52 +62,23 @@ public abstract class LeverGameMap {
         /**
          * True if enters this state meaning winning the game.
          */
+        @Getter(AccessLevel.PACKAGE)
         private boolean winState = false;
 
         /**
          * Message to show if this is a lose state.
          */
+        @Getter(AccessLevel.PACKAGE)
         private String message;
-
-        String getMessage() {
-            return message;
-        }
 
         /**
          * True if enters this state meaning loosing the game.
          */
+        @Getter(AccessLevel.PACKAGE)
         private boolean loseState = false;
 
         protected State(int imageID) {
             this.imageID = imageID;
-        }
-
-        public int getImageID() {
-            return imageID;
-        }
-
-        public void setImageID(int imageID) {
-            this.imageID = imageID;
-        }
-
-        boolean isWinState() {
-            return winState;
-        }
-
-        public void setWinState(boolean winState) {
-            this.winState = winState;
-        }
-
-        boolean isLoseState() {
-            return loseState;
-        }
-
-        public void setLoseState(boolean loseState) {
-            this.loseState = loseState;
-        }
-
-        public void setMessage(String message) {
-            this.message = message;
         }
     }
 
@@ -120,7 +91,7 @@ public abstract class LeverGameMap {
      */
     public abstract void applyLever(String leverName);
 
-    public State getCurrentState() {
+    protected State getCurrentState() {
         return states.get(currentStateNumber);
     }
 
@@ -174,17 +145,5 @@ public abstract class LeverGameMap {
 
     protected State getState(int number) {
         return states.get(number);
-    }
-
-    protected String[] getLevers() {
-        return levers;
-    }
-
-    protected void setLevers(String[] levers) {
-        this.levers = levers;
-    }
-
-    protected List<State> getStates() {
-        return states;
     }
 }

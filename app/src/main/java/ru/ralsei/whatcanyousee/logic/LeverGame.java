@@ -79,7 +79,7 @@ public class LeverGame {
 
                     String leverName = ((Switch) v).getText().toString();
 
-                    if (!myLeverMap.getPressSelf()) {
+                    if (!myLeverMap.isPressSelf()) {
                         activity.getGameplayHandler().sendLeverPressedMessage(leverName);
                     } else {
                         myLeverMap.applyLever(leverName);

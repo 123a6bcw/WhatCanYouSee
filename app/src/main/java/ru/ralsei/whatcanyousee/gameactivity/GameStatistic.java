@@ -1,8 +1,11 @@
 package ru.ralsei.whatcanyousee.gameactivity;
 
+import lombok.Data;
+
 /**
  * Class for storing statistic (and achievements) of the game.
  */
+@Data
 public class GameStatistic {
     /**
      * Time for winning the maze game.
@@ -47,51 +50,7 @@ public class GameStatistic {
         killYourFriend = false;
     }
 
-    long getMazeGameTime() {
-        return mazeGameTime;
-    }
-
-    void setMazeGameTime(long mazeGameTime) {
-        this.mazeGameTime = mazeGameTime;
-    }
-
-    long getCodeGameTime() {
-        return codeGameTime;
-    }
-
-    void setCodeGameTime(long codeGameTime) {
-        this.codeGameTime = codeGameTime;
-    }
-
-    long getLeverGameTime() {
-        return leverGameTime;
-    }
-
-    void setLeverGameTime(long leverGameTime) {
-        this.leverGameTime = leverGameTime;
-    }
-
-    int getCodeGameMistakeTaken() {
-        return codeGameMistakeTaken;
-    }
-
     public void incrementCodeGameMistakeTaken() {
-        this.codeGameMistakeTaken++;
-    }
-
-    boolean isDeadByMonster() {
-        return deadByMonster;
-    }
-
-    public void setDeadByMonster(boolean deadByMonster) {
-        this.deadByMonster = deadByMonster;
-    }
-
-    boolean isKillYourFriend() {
-        return killYourFriend;
-    }
-
-    void setKillYourFriend() {
-        this.killYourFriend = true;
+        codeGameMistakeTaken++;
     }
 }

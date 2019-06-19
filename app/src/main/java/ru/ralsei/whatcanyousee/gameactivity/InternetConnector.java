@@ -14,6 +14,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Class for managing internet messaging between player's.
  */
@@ -29,11 +33,13 @@ class InternetConnector {
     /**
      * True if got message from teammate that he is ready to get a voice connection.
      */
+    @Getter(AccessLevel.PACKAGE)
     private boolean otherPlayerIsReady = false;
 
     /**
      * True if ready to send and receive voice.
      */
+    @Setter(AccessLevel.PACKAGE)
     private boolean prepared = false;
 
     /**
@@ -102,7 +108,7 @@ class InternetConnector {
             } else if (receivedData[1] == 'C') {
                 activity.getGameplayHandler().gameOver(true, "You can not survive alone...");
             } else if (receivedData[1] == 'L') {
-                activity.getGameStatistic().setKillYourFriend();
+                activity.getGameStatistic().setKillYourFriend(true);
                 activity.getGameplayHandler().gameOver(true, "You can not survive alone...");
             } else {
                 Log.d(TAG, "wrong game code in message");
@@ -110,21 +116,21 @@ class InternetConnector {
         } else if (receivedData[0] == 'W') {
             //Other player won on his map.
             if (receivedData[1] == 'M') {
-                activity.getGameplayHandler().setOtherMazeGameWon();
+                activity.getGameplayHandler().setOtherMazeGameWon(true);
 
-                if (activity.getGameplayHandler().getMyMazeGameWon()) {
+                if (activity.getGameplayHandler().isMyMazeGameWon()) {
                     activity.getGameplayHandler().startCodeGame();
                 }
             } else if (receivedData[1] == 'C') {
-                activity.getGameplayHandler().setOtherCodeGameWon();
+                activity.getGameplayHandler().setOtherCodeGameWon(true);
 
-                if (activity.getGameplayHandler().getMyCodeGameWon()) {
+                if (activity.getGameplayHandler().isMyCodeGameWon()) {
                     activity.getGameplayHandler().startLeverGame();
                 }
             } else if (receivedData[1] == 'L') {
-                activity.getGameplayHandler().setOtherLeverGameWon();
+                activity.getGameplayHandler().setOtherLeverGameWon(true);
 
-                if (activity.getGameplayHandler().getMyLeverGameWon()) {
+                if (activity.getGameplayHandler().isMyLeverGameWon()) {
                     activity.getGameplayHandler().gameWin();
                 }
             } else {
@@ -148,6 +154,7 @@ class InternetConnector {
     /**
      * Message receiver. The very first message is signal of readiness.
      */
+    @Getter(AccessLevel.PACKAGE)
     private OnRealTimeMessageReceivedListener onRealTimeMessageReceivedListener = new OnRealTimeMessageReceivedListener() {
         @Override
         public void onRealTimeMessageReceived(@NonNull RealTimeMessage realTimeMessage) {
@@ -241,17 +248,5 @@ class InternetConnector {
      */
     void sendLeverPressedMessage(String lever) {
         sendReliableMessage(("S" + lever).getBytes());
-    }
-
-    void setPrepared() {
-        prepared = true;
-    }
-
-    boolean getOtherPlayerIsReady() {
-        return otherPlayerIsReady;
-    }
-
-    OnRealTimeMessageReceivedListener getOnRealTimeMessageReceivedListener() {
-        return onRealTimeMessageReceivedListener;
     }
 }

@@ -109,7 +109,7 @@ public class LeverGameKingAndQueen_secondPlayer extends LeverGameMap {
 
         setCurrentState(0);
         states.get(4).setWinState(true);
-        setPressSelf();
+        setPressSelf(true);
     }
 
     @Override
