@@ -1,5 +1,6 @@
 package ru.ralsei.whatcanyousee.logic;
 
+import android.graphics.Path;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
@@ -375,8 +376,10 @@ public abstract class MazeGameMap {
     /**
      * If game is over, shows if player either won or lost.
      */
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    private volatile Optional<Boolean> isWin = Optional.empty();
+    private boolean isWin;
+    private boolean isOver = false;
+
+    private final Object winLock = new Object();
 
     /**
      * Message to show when players loosing the game.
@@ -385,21 +388,28 @@ public abstract class MazeGameMap {
     private String messageLost = "";
 
     protected void setPlayerWon(boolean result) {
-        isWin = Optional.of(result);
+        synchronized (winLock) {
+            isWin = result;
+            isOver = true;
+        }
     }
 
     /**
      * Returns true if game is over and player has lost the game, for example player has been killed by stepping on a trap.
      */
     boolean hasLost() {
-        return isWin.orElse(false);
+        synchronized (winLock) {
+            return isOver && !isWin;
+        }
     }
 
     /**
      * Returns true if game is over and player has won, meaning successfully reaching the exit position.
      */
     boolean hasWon() {
-        return isWin.orElse(false);
+        synchronized (winLock) {
+            return isOver && isWin;
+        }
     }
 
     /**
