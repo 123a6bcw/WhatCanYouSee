@@ -70,7 +70,7 @@ class InternetConnector {
                 message = byteStream.toByteArray();
             } catch (IOException e) {
                 e.printStackTrace();
-                activity.getUIHandler().showGameError();
+                activity.getUiHandler().showGameError();
                 activity.getGooglePlayHandler().leaveRoom();
                 return;
             }
@@ -83,7 +83,7 @@ class InternetConnector {
             Log.d(TAG, "Ready message: message is too long.");
         }
 
-        sendReliableMessage(message);
+        sendReliableMessageToTeammate(message);
     }
 
     private void reactOnReceivedMessage(byte[] receivedData) {
@@ -108,7 +108,7 @@ class InternetConnector {
             } else if (receivedData[1] == 'C') {
                 activity.getGameplayHandler().gameOver(true, "You can not survive alone...");
             } else if (receivedData[1] == 'L') {
-                activity.getGameStatistic().setKillYourFriend(true);
+                activity.getGameStatistic().setTeammateKilledInCodeGame(true);
                 activity.getGameplayHandler().gameOver(true, "You can not survive alone...");
             } else {
                 Log.d(TAG, "wrong game code in message");
@@ -131,7 +131,7 @@ class InternetConnector {
                 activity.getGameplayHandler().setOtherLeverGameWon(true);
 
                 if (activity.getGameplayHandler().isMyLeverGameWon()) {
-                    activity.getGameplayHandler().gameWin();
+                    activity.getGameplayHandler().onWinningEntireGame();
                 }
             } else {
                 Log.d(TAG, "wrong game code");
@@ -151,9 +151,6 @@ class InternetConnector {
         }
     }
 
-    /**
-     * Message receiver. The very first message is signal of readiness.
-     */
     @Getter(AccessLevel.PACKAGE)
     private OnRealTimeMessageReceivedListener onRealTimeMessageReceivedListener = new OnRealTimeMessageReceivedListener() {
         @Override
@@ -176,77 +173,56 @@ class InternetConnector {
         }
     };
 
-    /**
-     * Sends reliable message without message callback.
-     */
-    void sendReliableMessage(byte[] message) {
+    void sendReliableMessageToTeammate(byte[] message) {
         activity.getGooglePlayHandler().getRealTimeMultiplayerClient().sendReliableMessage(message, activity.getGooglePlayHandler().getRoomId(), activity.getGooglePlayHandler().getTeammateParticipant().getParticipantId(), null);
     }
 
-    /**
-     * Send to other player that we have lost the maze game.
-     */
     void sendMazeLostMessage() {
         byte[] message = new byte[2];
         message[0] = 'L';
         message[1] = 'M';
-        sendReliableMessage(message);
+        sendReliableMessageToTeammate(message);
     }
 
-    /**
-     * Send to other player that we have won the maze game.
-     */
     void sendMazeWonMessage() {
         byte[] message = new byte[2];
         message[0] = 'W';
         message[1] = 'M';
-        sendReliableMessage(message);
+        sendReliableMessageToTeammate(message);
     }
 
-    /**
-     * Send to other player that we have lost the code game.
-     */
     void sendCodeLostMessage() {
         byte[] message = new byte[2];
         message[0] = 'L';
         message[1] = 'C';
-        sendReliableMessage(message);
+        sendReliableMessageToTeammate(message);
     }
 
-    /**
-     * Send to other player that we have won the code game.
-     */
     void sendCodeWonMessage() {
         byte[] message = new byte[2];
         message[0] = 'W';
         message[1] = 'C';
-        sendReliableMessage(message);
+        sendReliableMessageToTeammate(message);
     }
 
-    /**
-     * Send to other player that we have lost the lever game.
-     */
     void sendLeverLostMessage() {
         byte[] message = new byte[2];
         message[0] = 'L';
         message[1] = 'L';
-        sendReliableMessage(message);
+        sendReliableMessageToTeammate(message);
     }
 
-    /**
-     * Send to other player that we have won the lever game.
-     */
     void sendLeverWonMessage() {
         byte[] message = new byte[2];
         message[0] = 'W';
         message[1] = 'L';
-        sendReliableMessage(message);
+        sendReliableMessageToTeammate(message);
     }
 
     /**
      * Send the name of the lever that we have pressed on our screen.
      */
     void sendLeverPressedMessage(String lever) {
-        sendReliableMessage(("S" + lever).getBytes());
+        sendReliableMessageToTeammate(("S" + lever).getBytes());
     }
 }

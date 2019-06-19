@@ -9,8 +9,8 @@ public class MazeGameMap_Test extends MazeGameMap {
 
     @Override
     protected void setupMetaData() {
-        setXSize(12);
-        setYSize(20);
+        setWidth(12);
+        setHeight(20);
         setExitCoordinates(new Coordinates(10, 17));
         setInitialCoordinates(new Coordinates(9, 10));
         setImageID(R.drawable.maze_game_test_map);
@@ -18,11 +18,11 @@ public class MazeGameMap_Test extends MazeGameMap {
 
     @Override
     protected void setupCells() {
-        final Cell[][] cells = new Cell[getXSize()][getYSize()];
+        final Cell[][] cells = new Cell[getWidth()][getHeight()];
         setCells(cells);
 
-        for (int i = 0; i < getXSize(); i++) {
-            for (int j = 0; j < getYSize(); j++) {
+        for (int i = 0; i < getWidth(); i++) {
+            for (int j = 0; j < getHeight(); j++) {
                 cells[i][j] = new Cell();
             }
         }

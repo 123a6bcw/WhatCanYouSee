@@ -3,7 +3,6 @@ package ru.ralsei.whatcanyousee.logic;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import lombok.AccessLevel;
 import lombok.Data;
@@ -12,15 +11,7 @@ import lombok.Setter;
 import ru.ralsei.whatcanyousee.gameactivity.GameActivity;
 import ru.ralsei.whatcanyousee.R;
 
-/**
- * Abstract class representing the lever game map.
- */
 public abstract class LeverGameMap {
-    /**
-     * Id of the current state.
-     */
-    private int currentStateNumber;
-
     /**
      * All levers exists for this map (they will be shown on the other player's screen).
      */
@@ -33,14 +24,13 @@ public abstract class LeverGameMap {
     @Getter(AccessLevel.PROTECTED)
     private final ArrayList<State> states = new ArrayList<>();
 
+    private int currentStateNumber;
+
     /**
      * Activity map was created on.
      */
+    @Getter(AccessLevel.PROTECTED)
     private GameActivity activity;
-
-    protected GameActivity getActivity() {
-        return activity;
-    }
 
     /**
      * True if pressing lever causing effects on the player's screen, not teammates screen.
@@ -87,7 +77,7 @@ public abstract class LeverGameMap {
     }
 
     /**
-     * Handles the pressed lever (by the other player).
+     * Handles the pressed lever (by the other player!).
      */
     public abstract void applyLever(String leverName);
 

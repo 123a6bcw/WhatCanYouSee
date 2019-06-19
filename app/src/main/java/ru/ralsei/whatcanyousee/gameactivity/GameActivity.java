@@ -44,10 +44,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private final static int RC_SELECT_PLAYERS = 10000;
     private final static int RC_INVITATION_INBOX = 10001;
     final static int RC_WAITING_ROOM = 10002;
-
-    /**
-     * Request code to invoke sign-in UI.
-     */
     static final int RC_SIGN_IN = 9001;
 
     /**
@@ -55,14 +51,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
      */
     static final int RC_UNUSED = 5001;
 
-    /**
-     * Request code to ask permission to record player's voice.
-     */
     static final int RC_REQUEST_VOICE_RECORD_PERMISSION = 8001;
 
-    /**
-     * Number of players in game. Always 2.
-     */
     static final int NUMBER_OF_PLAYERS = 2;
 
     /**
@@ -75,30 +65,26 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * Handles micro connection between players.
      */
-    @NonNull
+    @NonNull @Getter(AccessLevel.PACKAGE)
     private AudioConnector audioConnector = new AudioConnector(this);
 
     /**
      * Handles google play features (creation etc).
      */
-    @NonNull
+    @NonNull @Getter(AccessLevel.PACKAGE)
     private GooglePlayHandler googlePlayHandler = new GooglePlayHandler(this);
 
     /**
      * Handles game-messaging between players.
      */
-    @NonNull
+    @NonNull @Getter(AccessLevel.PACKAGE)
     private InternetConnector internetConnector = new InternetConnector(this);
 
     /**
      * Handles UI changes (switching between screen's etc).
      */
-    @NonNull
+    @NonNull @Getter(AccessLevel.PACKAGE)
     private UIHandler uiHandler = new UIHandler(this);
-
-    UIHandler getUIHandler() {
-        return uiHandler;
-    }
 
     /**
      * Handles gameplay stage of the game (switching between levels etc).
@@ -115,28 +101,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * Class for playing several sounds in parallel.
      */
-    @NonNull
+    @NonNull @Getter
     private SoundPlayer soundPlayer = new SoundPlayer(this);
-
-    @NonNull
-    public SoundPlayer getSoundPlayer() {
-        return soundPlayer;
-    }
-
-    @NonNull
-    GooglePlayHandler getGooglePlayHandler() {
-        return googlePlayHandler;
-    }
-
-    @NonNull
-    AudioConnector getAudioConnector() {
-        return audioConnector;
-    }
-
-    @NonNull
-    InternetConnector getInternetConnector() {
-        return internetConnector;
-    }
 
     enum State {
         MAIN_MENU, MAZE_GAME, CODE_GAME, LEVER_GAME
@@ -378,7 +344,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            uiHandler.askPermission();
+                            uiHandler.askPermissionToRecordVoice();
                         }
                     });
                 } else if (resultCode == GamesActivityResultCodes.RESULT_LEFT_ROOM) {
@@ -469,6 +435,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         audioConnector.clearResources();
         internetConnector.clearResources();
         soundPlayer.clearResources();
-        gameStatistic.clear();
+        gameStatistic.resetStatisticToDefault();
     }
 }

@@ -18,9 +18,6 @@ public class SoundPlayer {
         this.activity = activity;
     }
 
-    /**
-     * Players used to play sounds.
-     */
     private final MediaPlayer[] players = new MediaPlayer[NUMBER_OF_PLAYERS];
 
     /**
@@ -29,7 +26,8 @@ public class SoundPlayer {
     private final int MAX_VOLUME = 11;
 
     /**
-     * Finds free player and plays given track.
+     * Finds free player and plays given track, there volume should be from 0 to
+     * MAX_VOLUME.
      */
     public void playTrackWithVolume(final int trackId, final int volume) {
         if (volume <= 0 || volume >= MAX_VOLUME) {

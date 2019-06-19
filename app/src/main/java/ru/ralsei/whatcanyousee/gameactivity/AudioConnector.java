@@ -40,9 +40,6 @@ class AudioConnector {
      */
     private volatile boolean broadcastAudio = false;
 
-    /**
-     * Thread for broadcasting audio.
-     */
     private Thread broadcastThread;
 
     /**
@@ -50,9 +47,6 @@ class AudioConnector {
      */
     private AudioRecord recorder;
 
-    /**
-     * Prepares AudioTrack.
-     */
     void prepareReceiveAudio() {
         track = new AudioTrack(
                 new AudioAttributes.Builder()
@@ -73,7 +67,7 @@ class AudioConnector {
      */
     void prepareBroadcastAudio() {
         if (activity.getGooglePlayHandler().getTeammateParticipant() == null || activity.getGooglePlayHandler().getTeammateParticipant().getStatus() != Participant.STATUS_JOINED) {
-            activity.getUIHandler().showGameError();
+            activity.getUiHandler().showGameError();
             activity.getGooglePlayHandler().leaveRoom();
         }
 
@@ -101,7 +95,7 @@ class AudioConnector {
                         byte[] toSend = new byte[n];
                         System.arraycopy(buffer, 0, toSend, 0, n);
 
-                        activity.getInternetConnector().sendReliableMessage(toSend);
+                        activity.getInternetConnector().sendReliableMessageToTeammate(toSend);
                     }
                 }
             }
@@ -131,9 +125,6 @@ class AudioConnector {
         recorder.stop();
     }
 
-    /**
-     * Stops threads for playing voice,
-     */
     void clearResources() {
         if (broadcastThread != null) {
             broadcastThread.interrupt();

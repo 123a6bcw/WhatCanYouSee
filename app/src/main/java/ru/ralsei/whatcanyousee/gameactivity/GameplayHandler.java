@@ -45,7 +45,7 @@ public class GameplayHandler {
     }
 
     /**
-     * True if won the current level but other player may lose it).
+     * True if won the current level (but other player may lose it).
      */
     @Getter(AccessLevel.PACKAGE)
     private boolean myMazeGameWon = false;
@@ -57,7 +57,7 @@ public class GameplayHandler {
     private boolean otherMazeGameWon = false;
 
     /**
-     * True if won the current level but other player may lose it).
+     * True if won the current level (but other player may lose it).
      */
     @Getter(AccessLevel.PACKAGE)
     private boolean myCodeGameWon = false;
@@ -69,7 +69,7 @@ public class GameplayHandler {
     private boolean otherCodeGameWon = false;
 
     /**
-     * True if won the current level but other player may lose it).
+     * True if won the current level (but other player may lose it).
      */
     @Getter(AccessLevel.PACKAGE)
     private boolean myLeverGameWon = false;
@@ -87,9 +87,6 @@ public class GameplayHandler {
     @Getter(AccessLevel.PACKAGE) @Setter(AccessLevel.PACKAGE)
     private MazeGame maze;
 
-    /**
-     * Instance of the player's game map.
-     */
     private MazeGameMap mazeGameMap;
 
     /**
@@ -98,9 +95,6 @@ public class GameplayHandler {
     @Getter(AccessLevel.PACKAGE)
     private CodeGame codeGame = null;
 
-    /**
-     * Instance of the player's game map.
-     */
     private CodeGameMap codeGameMap;
 
     /**
@@ -109,9 +103,6 @@ public class GameplayHandler {
     @Getter(AccessLevel.PACKAGE)
     private LeverGame leverGame = null;
 
-    /**
-     * Instance of the player's game map.
-     */
     @Getter(AccessLevel.PACKAGE)
     private LeverGameMap leverGameMap;
 
@@ -120,15 +111,9 @@ public class GameplayHandler {
      */
     private final Random random = new Random();
 
-    /**
-     * Class for storing settings of the current game.
-     */
     @Getter(AccessLevel.PACKAGE) @Setter(AccessLevel.PACKAGE)
     private GameSettings gameSettings;
 
-    /**
-     * Clears all handlers and they resources.
-     */
     void clearResources() {
         clearMazeResources();
 
@@ -137,9 +122,6 @@ public class GameplayHandler {
         clearLeverGameResources();
     }
 
-    /**
-     * Clears maze game resources.
-     */
     private void clearMazeResources() {
         if (maze != null) {
             maze.onClose();
@@ -150,9 +132,6 @@ public class GameplayHandler {
         otherMazeGameWon = false;
     }
 
-    /**
-     * Clears code game resources.
-     */
     private void clearCodeGameResources() {
         if (codeGame != null) {
             codeGame = null;
@@ -162,9 +141,6 @@ public class GameplayHandler {
         otherCodeGameWon = false;
     }
 
-    /**
-     * Clears lever game resources.
-     */
     private void clearLeverGameResources() {
         if (leverGame != null) {
             leverGame = null;
@@ -181,7 +157,7 @@ public class GameplayHandler {
         gameSettings = new GameSettings();
 
         /*
-        There could be more smarter selection, but since I haven't made enough amount of levels in the
+        There could be more smarter selection, but since I haven't made enough number of levels in the
         game, there is not much to select from.
          */
 
@@ -225,17 +201,11 @@ public class GameplayHandler {
         }
     }
 
-    /**
-     * Start gameplay stage of the game.
-     */
     void startGame() {
         activity.getAudioConnector().startBroadcastAudio();
         startMazeGame();
     }
 
-    /**
-     * Starts maze game gameplay stage.
-     */
     void startMazeGame() {
         activity.setState(GameActivity.State.MAZE_GAME);
 
@@ -337,9 +307,6 @@ public class GameplayHandler {
         }
     }
 
-    /**
-     * Starts the gameplay stage of the code game.
-     */
     void startCodeGame() {
         activity.setState(GameActivity.State.CODE_GAME);
 
@@ -379,14 +346,17 @@ public class GameplayHandler {
     }
 
     /**
-     * Called on loosing the game.
+     * Called when we lost the game.
+     *
+     * @param friendDied true if teammate lost his game, false if we lost our game.
+     * @param message message with reason of loosing to put on the screen.
      */
     void gameOver(boolean friendDied, String message) {
-        if (activity.getGameStatistic().isDeadByMonster()) {
+        if (activity.getGameStatistic().isDeadByMonsterInMazeGame()) {
             activity.getGooglePlayHandler().getAchievementsClient().unlock(activity.getString(R.string.achievement_get_dunked_on));
         }
 
-        if (activity.getGameStatistic().isKillYourFriend()) {
+        if (activity.getGameStatistic().isTeammateKilledInCodeGame()) {
             activity.getGooglePlayHandler().getAchievementsClient().unlock(activity.getString(R.string.achievement_how_could_you_do_this));
         }
 
@@ -404,9 +374,6 @@ public class GameplayHandler {
         activity.getGooglePlayHandler().leaveRoom();
     }
 
-    /**
-     * Starts the lever game gameplay stage.
-     */
     void startLeverGame() {
         activity.setState(GameActivity.State.LEVER_GAME);
 
@@ -443,29 +410,21 @@ public class GameplayHandler {
         activity.getGameStatistic().setLeverGameTime(System.currentTimeMillis());
     }
 
-    /**
-     * Sends the pressed lever (public for using in internal logic).
-     */
     public void sendLeverPressedMessage(String lever) {
         activity.getInternetConnector().sendLeverPressedMessage(lever);
     }
 
-    /**
-     * Handles the loosing the lever game.
-     */
+    //TODO wasKilled???
     public void onLeverGameLost(boolean wasKilled, String message) {
         activity.getInternetConnector().sendLeverLostMessage();
         Log.d(TAG, "lever game lost");
         gameOver(false, message);
 
         if (!wasKilled) {
-            activity.getGameStatistic().setKillYourFriend(true);
+            activity.getGameStatistic().setTeammateKilledInCodeGame(true);
         }
     }
 
-    /**
-     * Handles the winning of the lever game.
-     */
     public void onLeverGameWon() {
         activity.getGameStatistic().setLeverGameTime(System.currentTimeMillis() - activity.getGameStatistic().getLeverGameTime());
 
@@ -478,15 +437,12 @@ public class GameplayHandler {
 
         if (otherLeverGameWon) {
             Log.d(TAG, "lever game won");
-            gameWin();
+            onWinningEntireGame();
         }
     }
 
-    /**
-     * Handles winning an entire game.
-     */
-    void gameWin() {
-        activity.getGooglePlayHandler().pushAccomplishments();
+    void onWinningEntireGame() {
+        activity.getGooglePlayHandler().pushStatisticToCloud();
         activity.clearAllResources();
         activity.getGooglePlayHandler().leaveRoom();
 
