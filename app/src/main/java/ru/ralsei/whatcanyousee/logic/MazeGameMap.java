@@ -3,6 +3,8 @@ package ru.ralsei.whatcanyousee.logic;
 import android.graphics.Path;
 import android.widget.ImageView;
 
+import com.google.android.gms.common.api.Api;
+
 import java.util.ArrayList;
 import java.util.Optional;
 

@@ -153,14 +153,7 @@ class InternetConnector {
                 break;
 
             case LEVER_PRESSED:
-                if (activity.getGameplayHandler().getLeverGameMap() == null) {
-                    return;
-                }
-
-                byte[] leverName = new byte[message.data.length - 1];
-                System.arraycopy(message.data, 1, leverName, 0, leverName.length);
-
-                String lever = new String(leverName);
+                String lever = new String(message.data);
                 Log.d(TAG, "Received pressed lever: " + lever);
 
                 activity.getGameplayHandler().getLeverGameMap().applyLever(lever);
