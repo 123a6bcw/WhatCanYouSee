@@ -1,11 +1,10 @@
 package ru.ralsei.whatcanyousee.logic;
 
+import android.support.constraint.ConstraintLayout;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Switch;
-
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import java.util.ArrayList;
 import java.util.List;
