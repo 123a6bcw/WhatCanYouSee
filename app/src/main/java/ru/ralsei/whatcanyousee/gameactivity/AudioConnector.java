@@ -95,7 +95,7 @@ class AudioConnector {
                         byte[] toSend = new byte[n];
                         System.arraycopy(buffer, 0, toSend, 0, n);
 
-                        activity.getInternetConnector().sendReliableMessageToTeammate(toSend);
+                        activity.getInternetConnector().sendVoiceMessageToTeammate(toSend);
                     }
                 }
             }
