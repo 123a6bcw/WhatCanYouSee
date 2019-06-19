@@ -1,7 +1,8 @@
 package ru.ralsei.whatcanyousee.gameactivity;
 
-import android.support.annotation.NonNull;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import com.google.android.gms.games.multiplayer.Multiplayer;
 import com.google.android.gms.games.multiplayer.realtime.OnRealTimeMessageReceivedListener;

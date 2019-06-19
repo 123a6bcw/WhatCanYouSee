@@ -2,9 +2,6 @@ package ru.ralsei.whatcanyousee.gameactivity;
 
 import android.media.MediaPlayer;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 /**
  * Class for playing sounds in game. Support playing several sounds in parallel.
  */
