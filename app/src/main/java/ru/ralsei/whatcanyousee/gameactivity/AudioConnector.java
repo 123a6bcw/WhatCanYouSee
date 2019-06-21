@@ -78,7 +78,6 @@ class AudioConnector {
             public void run() {
                 byte[] buffer = new byte[GooglePlayHandler.MAX_RELIABLE_BUFFER_SIZE];
 
-                recorder.startRecording();
                 while (!Thread.interrupted()) {
                     synchronized (AudioConnector.this) {
                         while (!broadcastAudio) {
@@ -93,7 +92,9 @@ class AudioConnector {
                             }
                         }
 
-                        recorder.startRecording();
+                        if (recorder.getState() == AudioRecord.RECORDSTATE_STOPPED) {
+                            recorder.startRecording();
+                        }
 
                         int n = recorder.read(buffer, 1, buffer.length - 1);
                         buffer[0] = 'P';
