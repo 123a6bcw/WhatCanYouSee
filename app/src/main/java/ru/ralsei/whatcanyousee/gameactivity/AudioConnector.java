@@ -83,11 +83,17 @@ class AudioConnector {
                     synchronized (AudioConnector.this) {
                         while (!broadcastAudio) {
                             try {
+                                if (recorder.getState() == AudioRecord.RECORDSTATE_RECORDING) {
+                                    recorder.stop();
+                                }
+
                                 AudioConnector.this.wait();
                             } catch (InterruptedException e) {
                                 return;
                             }
                         }
+
+                        recorder.startRecording();
 
                         int n = recorder.read(buffer, 1, buffer.length - 1);
                         buffer[0] = 'P';
@@ -122,7 +128,6 @@ class AudioConnector {
     @SuppressWarnings("unused")
     private synchronized void stopBroadcastAudio() {
         broadcastAudio = false;
-        recorder.stop();
     }
 
     void clearResources() {
