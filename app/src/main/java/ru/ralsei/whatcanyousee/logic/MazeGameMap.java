@@ -375,11 +375,15 @@ public abstract class MazeGameMap {
         }
     }
 
-    /**
-     * If game is over, shows if player either won or lost.
-     */
-    private boolean isWin;
-    private boolean isOver = false;
+    private enum GameState {
+        GAME_IN_PROGRESS, LOST, WON
+    }
+
+    protected enum GameResult {
+        LOST, WON
+    }
+
+    private volatile GameState currentGameState = GameState.GAME_IN_PROGRESS;
 
     private final Object winLock = new Object();
 
@@ -389,10 +393,16 @@ public abstract class MazeGameMap {
     @Getter(AccessLevel.PACKAGE) @Setter(AccessLevel.PROTECTED)
     private String messageLost = "";
 
-    protected void setPlayerWon(boolean result) {
+    protected void setGameResult(GameResult gameResult) {
         synchronized (winLock) {
-            isWin = result;
-            isOver = true;
+            switch (gameResult) {
+                case WON:
+                    currentGameState = GameState.WON;
+                    break;
+                case LOST:
+                    currentGameState = GameState.LOST;
+                    break;
+            }
         }
     }
 
@@ -401,7 +411,7 @@ public abstract class MazeGameMap {
      */
     boolean hasLost() {
         synchronized (winLock) {
-            return isOver && !isWin;
+            return currentGameState.equals(GameState.LOST);
         }
     }
 
@@ -410,7 +420,7 @@ public abstract class MazeGameMap {
      */
     boolean hasWon() {
         synchronized (winLock) {
-            return isOver && isWin;
+            return currentGameState.equals(GameState.WON);
         }
     }
 

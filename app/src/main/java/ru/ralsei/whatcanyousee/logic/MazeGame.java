@@ -331,14 +331,14 @@ public class MazeGame {
 
         if (map.isExit(newCoordinates)) {
             if (map.checkConditionToExit()) {
-                map.setPlayerWon(true);
+                map.setGameResult(MazeGameMap.GameResult.WON);
             } else {
                 return;
             }
         }
 
         if (map.hasMonster(newCoordinates)) {
-            map.setPlayerWon(false);
+            map.setGameResult(MazeGameMap.GameResult.LOST);
 
             gameActivity.runOnUiThread(new Runnable() {
                 @Override

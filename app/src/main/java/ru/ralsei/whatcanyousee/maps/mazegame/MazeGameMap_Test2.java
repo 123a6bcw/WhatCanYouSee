@@ -63,7 +63,7 @@ public class MazeGameMap_Test2 extends MazeGameMap {
         Trap trap = new Trap() {
             @Override
             protected void apply() {
-                setPlayerWon(false);
+                setGameResult(GameResult.LOST);
 
                 setMessageLost("It's a trap!!!");
                 getActivity().getSoundPlayer().playTrack(R.raw.lolyoudead);
@@ -206,7 +206,7 @@ public class MazeGameMap_Test2 extends MazeGameMap {
         @Override
         protected boolean tryToKill() {
             if (getCurrentCell().getDistance() == 0) {
-                setPlayerWon(false);
+                setGameResult(GameResult.LOST);
                 return true;
             }
 
