@@ -85,7 +85,7 @@ class AudioConnector {
                             try {
                                 AudioConnector.this.wait();
                             } catch (InterruptedException e) {
-                                break;
+                                return;
                             }
                         }
 
@@ -126,6 +126,8 @@ class AudioConnector {
     }
 
     void clearResources() {
+        stopBroadcastAudio();
+
         if (broadcastThread != null) {
             broadcastThread.interrupt();
             try {
